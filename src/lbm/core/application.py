@@ -38,7 +38,9 @@ class Application:
         print(f"Pfad................. {password_file}")
     
     def health(self) -> None:
-        checker = HealthChecker(Path(self.config.paths.password_file))
+        checker = HealthChecker(Path(self.config.paths.password_file),
+        self.config.targets.usb.label,
+        )
         results = checker.run()
 
         print("Linux Backup Manager")
@@ -59,33 +61,3 @@ class Application:
         print()
         print(f"Gesamtstatus........ {'OK' if overall else 'FEHLER'}")
 
-def health(self) -> None:
-    print("Linux Backup Manager")
-    print("====================")
-    print()
-    print("Health Check")
-    print("------------")
-
-    checker = HealthChecker(
-        Path(self.config.paths.password_file)
-    )
-
-    results = checker.run()
-
-    overall = True
-
-    for result in results:
-        symbol = "✓" if result.ok else "✗"
-
-        print(
-            f"{symbol} {result.name:<16} {result.message}"
-        )
-
-        if not result.ok:
-            overall = False
-
-    print()
-
-    print(
-        f"Gesamtstatus...... {'OK' if overall else 'FEHLER'}"
-    )

@@ -4,6 +4,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from lbm.targets.usb import USBTarget
+
 
 @dataclass
 class HealthResult:
@@ -13,15 +15,42 @@ class HealthResult:
 
 
 class HealthChecker:
-    def __init__(self, password_file: Path) -> None:
+    def __init__(self, password_file: Path, usb_label: str) -> None:
         self.password_file = password_file.expanduser()
+        self.usb_label = usb_label
 
     def run(self) -> list[HealthResult]:
-        return [
+        results = [
             self.check_python(),
             self.check_restic(),
             self.check_timeshift(),
             self.check_password_file(),
+        ]
+
+        results.extend(self.check_usb_target())
+
+        return results
+    
+    def check_usb_target(self) -> list[HealthResult]:
+        usb = USBTarget(self.usb_label)
+        info = usb.probe()
+
+        if not info.found:
+            return [
+                HealthResult("USB", False, f"{self.usb_label} nicht gefunden"),
+            ]
+
+        if info.mountpoint is None:
+            return [
+                HealthResult("USB", False, f"{self.usb_label} nicht eingehängt"),
+            ]
+
+        return [
+            HealthResult("USB-Label", True, info.label),
+            HealthResult("USB-Mountpoint", True, info.mountpoint),
+            HealthResult("USB-Speicher", True, info.fsavail or "unbekannt"),
+            HealthResult("USB-Belegung", True, info.fsuse_percent or "unbekannt"),
+            HealthResult("USB-schreibbar", info.writable, "ja" if info.writable else "nein"),
         ]
 
     def check_python(self) -> HealthResult:

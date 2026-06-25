@@ -14,9 +14,20 @@ class PathsConfig(BaseModel):
     password_file: str
 
 
+class USBTargetConfig(BaseModel):
+    enabled: bool
+    label: str
+    repository_path: str
+
+
+class TargetsConfig(BaseModel):
+    usb: USBTargetConfig
+
+
 class AppConfig(BaseModel):
     system: SystemConfig
     paths: PathsConfig
+    targets: TargetsConfig
 
 
 class ConfigLoader:
