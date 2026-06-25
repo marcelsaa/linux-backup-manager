@@ -4,6 +4,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from lbm.backup.restic import ResticRepository
 from lbm.targets.usb import USBTarget
 
 
@@ -15,9 +16,10 @@ class HealthResult:
 
 
 class HealthChecker:
-    def __init__(self, password_file: Path, usb_label: str) -> None:
+    def __init__(self, password_file: Path, usb_label: str, repository_path: str) -> None:
         self.password_file = password_file.expanduser()
         self.usb_label = usb_label
+        self.repository_path = repository_path
 
     def run(self) -> list[HealthResult]:
         results = [
@@ -26,11 +28,27 @@ class HealthChecker:
             self.check_timeshift(),
             self.check_password_file(),
         ]
-
+        results.extend(self.check_restic_repository())
         results.extend(self.check_usb_target())
 
         return results
     
+    def check_restic_repository(self) -> list[HealthResult]:
+        usb = USBTarget(self.usb_label)
+        usb_info = usb.probe()
+
+        if not usb_info.found or usb_info.mountpoint is None:
+            return [
+                HealthResult("Repository", False, "USB-Ziel nicht verfügbar"),
+            ]
+
+        repository = Path(usb_info.mountpoint) / self.repository_path
+        restic = ResticRepository(repository, self.password_file)
+        info = restic.check()
+
+        return [
+            HealthResult("Repository", info.initialized, info.message),
+        ]
     def check_usb_target(self) -> list[HealthResult]:
         usb = USBTarget(self.usb_label)
         info = usb.probe()

@@ -40,6 +40,7 @@ class Application:
     def health(self) -> None:
         checker = HealthChecker(Path(self.config.paths.password_file),
         self.config.targets.usb.label,
+        self.config.targets.usb.repository_path,
         )
         results = checker.run()
 
