@@ -6,3 +6,6 @@ logs/
 state/
 .env
 config/config.yaml
+*.egg-info/
+dist/
+build/
