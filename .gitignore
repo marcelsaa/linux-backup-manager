@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+*.log
+logs/
+state/
+.env
+config/config.yaml
