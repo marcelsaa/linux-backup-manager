@@ -19,14 +19,16 @@ class CommandLineInterface:
             "command",
             nargs="?",
             default="status",
-            choices=["status"],
+            choices=["status", "health"],
             help="auszuführender Befehl"
         )
 
         args = parser.parse_args()
 
         if args.command == "status":
-            self.application.status()
+            self.application.status() 
+        elif args.command == "health":
+            self.application.health()
 
 
 def main() -> None:

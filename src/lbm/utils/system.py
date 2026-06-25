@@ -2,6 +2,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+
 def command_exists(command):
     return shutil.which(command) is not None
 

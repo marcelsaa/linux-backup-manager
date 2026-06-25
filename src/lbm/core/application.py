@@ -1,8 +1,9 @@
-from pathlib import Path
 import platform
 import shutil
+from pathlib import Path
 
 from lbm.core.config import ConfigLoader
+from lbm.health.checks import HealthChecker
 
 
 class Application:
@@ -35,3 +36,56 @@ class Application:
         print("----------")
         print(f"Passwortdatei........ {'OK' if password_file.exists() else 'FEHLT'}")
         print(f"Pfad................. {password_file}")
+    
+    def health(self) -> None:
+        checker = HealthChecker(Path(self.config.paths.password_file))
+        results = checker.run()
+
+        print("Linux Backup Manager")
+        print("====================")
+        print()
+        print("Health Check")
+        print("------------")
+
+        overall = True
+
+        for result in results:
+            symbol = "✓" if result.ok else "✗"
+            print(f"{symbol} {result.name:<16} {result.message}")
+
+            if not result.ok:
+                overall = False
+
+        print()
+        print(f"Gesamtstatus........ {'OK' if overall else 'FEHLER'}")
+
+def health(self) -> None:
+    print("Linux Backup Manager")
+    print("====================")
+    print()
+    print("Health Check")
+    print("------------")
+
+    checker = HealthChecker(
+        Path(self.config.paths.password_file)
+    )
+
+    results = checker.run()
+
+    overall = True
+
+    for result in results:
+        symbol = "✓" if result.ok else "✗"
+
+        print(
+            f"{symbol} {result.name:<16} {result.message}"
+        )
+
+        if not result.ok:
+            overall = False
+
+    print()
+
+    print(
+        f"Gesamtstatus...... {'OK' if overall else 'FEHLER'}"
+    )
