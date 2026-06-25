@@ -1,32 +1,30 @@
 from pathlib import Path
-import os
 
-PROJECT_DIR = Path(__file__).resolve().parent.parent
-CONFIG_FILE = PROJECT_DIR / "backup.conf"
+import yaml
+from pydantic import BaseModel
 
-def load_config():
-    config = {}
 
-    if not CONFIG_FILE.exists():
-        raise FileNotFoundError(f"Konfigurationsdatei fehlt: {CONFIG_FILE}")
+class SystemConfig(BaseModel):
+    host_name: str
 
-    with CONFIG_FILE.open("r", encoding="utf-8") as file:
-        for line in file:
-            line = line.strip()
 
-            if not line or line.startswith("#"):
-                continue
+class PathsConfig(BaseModel):
+    log_dir: str
+    state_dir: str
+    password_file: str
 
-            if "=" not in line:
-                continue
 
-            key, value = line.split("=", 1)
-            key = key.strip()
+class AppConfig(BaseModel):
+    system: SystemConfig
+    paths: PathsConfig
 
-            value = os.path.expandvars(
-                value.strip().strip('"').strip("'")
-            )
 
-            config[key] = value
+class ConfigLoader:
+    def __init__(self, config_file: Path) -> None:
+        self.config_file = config_file
 
-    return config
+    def load(self) -> AppConfig:
+        with self.config_file.open("r", encoding="utf-8") as file:
+            data = yaml.safe_load(file)
+
+        return AppConfig.model_validate(data)

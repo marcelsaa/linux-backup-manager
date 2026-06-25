@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: linux-backup-manager
+Version: 0.1.0
+Summary: Backup-Manager für Linux-Systeme mit Restic, Timeshift und mehreren Backup-Zielen
+Requires-Python: >=3.12
