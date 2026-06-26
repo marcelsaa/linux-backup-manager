@@ -352,6 +352,6 @@ class Application:
             self.config_file,
             Path(self.config.paths.password_file),
             self.config.targets.usb.label,
-            self.config.targets.usb.repository_path
+            self.config.targets.usb.repository_path,
         )
         wizard.run()

@@ -1,3 +1,4 @@
+from getpass import getpass
 from pathlib import Path
 from shutil import which
 
@@ -24,6 +25,25 @@ class SetupWizard:
         else:
             print(f"✗ {name} fehlt")
 
+    def _create_password_file(self) -> bool:
+        print()
+
+        password = getpass("Neues Repository-Passwort: ")
+        confirmation = getpass("Passwort wiederholen: ")
+
+        if password != confirmation:
+            print("Passwörter stimmen nicht überein.")
+            return False
+
+        self.password_file.parent.mkdir(parents=True, exist_ok=True)
+        self.password_file.write_text(password)
+
+        self.password_file.chmod(0o600)
+
+        print("✓ Passwortdatei erstellt.")
+
+        return True
+
     def run(self) -> None:
         print("Linux Backup Manager Setup")
         print("==========================")
@@ -40,6 +60,12 @@ class SetupWizard:
             print("✓ Passwortdatei vorhanden")
         else:
             print("✗ Passwortdatei fehlt")
+            answer = input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower()
+
+            if answer in ("", "j"):
+                self._create_password_file()
+            else:
+                print("Passwortdatei wurde nicht erstellt.")
         
         self._check_program("restic", "Restic")
         self._check_program("timeshift", "Timeshift")
@@ -50,7 +76,6 @@ class SetupWizard:
             print(f"✓ USB-Laufwerk '{self.usb_label}' gefunden")
         else:
             print(f"✗ USB-Laufwerk '{self.usb_label}' nicht gefunden")
-        
         usb = USBTarget(self.usb_label)
         info = usb.probe()
 
