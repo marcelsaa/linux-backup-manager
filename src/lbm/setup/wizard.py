@@ -1,7 +1,8 @@
 from pathlib import Path
 from shutil import which
-from lbm.targets.usb import USBTarget
+
 from lbm.backup.restic import ResticRepository
+from lbm.targets.usb import USBTarget
 
 
 class SetupWizard:
