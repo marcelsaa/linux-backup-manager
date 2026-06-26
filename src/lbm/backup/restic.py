@@ -314,3 +314,57 @@ class ResticRepository:
             return result.stderr.strip()
 
         return result.stdout.strip()
+    
+    def forget(
+        self,
+        keep_daily: int,
+        keep_weekly: int,
+        keep_monthly: int,
+        keep_yearly: int,
+    ) -> str:
+        result = subprocess.run(
+            [
+                "restic",
+                "forget",
+                "--keep-daily",
+                str(keep_daily),
+                "--keep-weekly",
+                str(keep_weekly),
+                "--keep-monthly",
+                str(keep_monthly),
+                "--keep-yearly",
+                str(keep_yearly),
+            ],
+            env={
+                **os.environ,
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            return result.stderr.strip()
+
+        return result.stdout.strip()
+    
+    def prune(self) -> str:
+        result = subprocess.run(
+            [
+                "restic",
+                "prune",
+            ],
+            env={
+                **os.environ,
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            return result.stderr.strip()
+
+        return result.stdout.strip()    

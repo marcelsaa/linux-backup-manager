@@ -5,6 +5,7 @@ from pathlib import Path
 from lbm.backup.restic import ResticRepository
 from lbm.core.config import ConfigLoader
 from lbm.health.checks import HealthChecker
+from lbm.setup.wizard import SetupWizard
 from lbm.targets.usb import USBTarget
 
 
@@ -297,13 +298,60 @@ class Application:
         if restic is None:
             return
 
-        result = restic.forget_dry_run(
+        print("Forget Dry-Run")
+        print("--------------")
+
+        dry_run = restic.forget_dry_run(
             keep_daily=self.config.retention.keep_daily,
             keep_weekly=self.config.retention.keep_weekly,
             keep_monthly=self.config.retention.keep_monthly,
             keep_yearly=self.config.retention.keep_yearly,
         )
 
-        print("Forget Dry-Run")
-        print("--------------")
-        print(result if result else "Keine Snapshots würden gelöscht.")
+        print(dry_run if dry_run else "Keine Snapshots würden gelöscht.")
+        print()
+
+        answer = input("Snapshots wirklich löschen? [j/N]: ").strip().lower()
+
+        if answer != "j":
+            print("Abgebrochen.")
+            return
+
+        result = restic.forget(
+            keep_daily=self.config.retention.keep_daily,
+            keep_weekly=self.config.retention.keep_weekly,
+            keep_monthly=self.config.retention.keep_monthly,
+            keep_yearly=self.config.retention.keep_yearly,
+        )
+
+        print()
+        print(result if result else "Forget abgeschlossen.")
+    
+    def prune(self) -> None:
+        restic = self._get_restic_repository()
+
+        if restic is None:
+            return
+
+        print("Repository wird optimiert.")
+        print()
+
+        answer = input("Prune starten? [j/N]: ").strip().lower()
+
+        if answer != "j":
+            print("Abgebrochen.")
+            return
+
+        result = restic.prune()
+
+        print()
+        print(result if result else "Prune abgeschlossen.")
+    
+    def setup(self) -> None:
+        wizard = SetupWizard(
+            self.config_file,
+            Path(self.config.paths.password_file),
+            self.config.targets.usb.label,
+            self.config.targets.usb.repository_path
+        )
+        wizard.run()

@@ -29,6 +29,8 @@ class CommandLineInterface:
                 "stats",
                 "check",
                 "forget",
+                "prune",
+                "setup",
             ],
             help="auszuführender Befehl"
         )
@@ -53,6 +55,10 @@ class CommandLineInterface:
             self.application.check()
         elif args.command == "forget":
             self.application.forget()
+        elif args.command == "prune":
+            self.application.prune()
+        elif args.command == "setup":
+            self.application.setup()
 def main() -> None:
     cli = CommandLineInterface()
     cli.run()
