@@ -290,3 +290,20 @@ class Application:
         else:
             print("✗ Repository-Prüfung fehlgeschlagen:")
             print(result.message)
+
+    def forget(self) -> None:
+        restic = self._get_restic_repository()
+
+        if restic is None:
+            return
+
+        result = restic.forget_dry_run(
+            keep_daily=self.config.retention.keep_daily,
+            keep_weekly=self.config.retention.keep_weekly,
+            keep_monthly=self.config.retention.keep_monthly,
+            keep_yearly=self.config.retention.keep_yearly,
+        )
+
+        print("Forget Dry-Run")
+        print("--------------")
+        print(result if result else "Keine Snapshots würden gelöscht.")
