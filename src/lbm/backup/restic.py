@@ -180,3 +180,51 @@ class ResticRepository:
         return datetime.fromisoformat(timestamp).strftime(
             "%d.%m.%Y %H:%M:%S"
         )
+    
+    def restore(
+        self,
+        snapshot_id: str,
+        target: Path,
+    ) -> BackupResult:
+
+        result = subprocess.run(
+            [
+                "restic",
+                "restore",
+                snapshot_id,
+                "--target",
+                str(target),
+            ],
+            env={
+                **os.environ,
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            return BackupResult(
+                ok=True,
+                snapshot_id=snapshot_id,
+                files_new=0,
+                files_changed=0,
+                files_unmodified=0,
+                processed_files=0,
+                processed_size="",
+                duration="",
+                message="Restore erfolgreich.",
+            )
+
+        return BackupResult(
+            ok=False,
+            snapshot_id=snapshot_id,
+            files_new=0,
+            files_changed=0,
+            files_unmodified=0,
+            processed_files=0,
+            processed_size="",
+            duration="",
+            message=result.stderr.strip(),
+        )

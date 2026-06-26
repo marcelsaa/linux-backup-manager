@@ -25,6 +25,7 @@ class CommandLineInterface:
                 "init",
                 "backup",
                 "snapshots",
+                "restore",
             ],
             help="auszuführender Befehl"
         )
@@ -41,7 +42,8 @@ class CommandLineInterface:
             self.application.backup()
         elif args.command == "snapshots":
             self.application.snapshots()
-
+        elif args.command == "restore":
+            self.application.restore()
 def main() -> None:
     cli = CommandLineInterface()
     cli.run()

@@ -187,3 +187,71 @@ class Application:
 
         print()
         print(f"Anzahl Snapshots: {len(snapshots)}")
+    
+    def restore(self) -> None:
+        restic = self._get_restic_repository()
+
+        if restic is None:
+            return
+
+        snapshots = restic.snapshots()
+
+        if not snapshots:
+            print("Keine Snapshots gefunden.")
+            return
+
+        print("Verfügbare Snapshots")
+        print("--------------------")
+
+        for index, snapshot in enumerate(reversed(snapshots), start=1):
+            print(
+                f"{index}) "
+                f"{snapshot.snapshot_id} "
+                f"{snapshot.time}"
+            )
+
+        selection = input(
+            "\nWelchen Snapshot möchten Sie wiederherstellen? "
+        ).strip()
+
+        try:
+            index = int(selection)
+        except ValueError:
+            print("Ungültige Eingabe.")
+            return
+
+        if index < 1 or index > len(snapshots):
+            print("Snapshot existiert nicht.")
+            return
+
+        snapshot = list(reversed(snapshots))[index - 1]
+
+        print()
+        print("Ausgewählter Snapshot:")
+        print(f"ID..... {snapshot.snapshot_id}")
+        print(f"Datum.. {snapshot.time}")
+        print(f"Host... {snapshot.host}")
+
+        target = self.project_dir / "tests" / "restore-test"
+
+        print()
+        print(f"Zielverzeichnis: {target}")
+
+        answer = input("Restore starten? [j/N]: ").strip().lower()
+
+        if answer != "j":
+            print("Abgebrochen.")
+            return
+
+        result = restic.restore(
+            snapshot.snapshot_id,
+            target,
+        )
+
+        print()
+
+        if result.ok:
+            print(result.message)
+        else:
+            print("Restore fehlgeschlagen:")
+            print(result.message)
