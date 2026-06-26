@@ -19,7 +19,7 @@ class CommandLineInterface:
             "command",
             nargs="?",
             default="status",
-            choices=["status", "health"],
+            choices=["status", "health", "init"],
             help="auszuführender Befehl"
         )
 
@@ -29,6 +29,8 @@ class CommandLineInterface:
             self.application.status() 
         elif args.command == "health":
             self.application.health()
+        elif args.command == "init":
+            self.application.init_repository()
 
 
 def main() -> None:

@@ -42,3 +42,22 @@ class ResticRepository:
             False,
             result.stderr.strip(),
         )
+    
+    def init_repository(self) -> ResticRepositoryInfo:
+        result = subprocess.run(
+            [
+                "restic",
+                "init",
+            ],
+            env={
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            return ResticRepositoryInfo(True, "Repository erfolgreich erstellt")
+
+        return ResticRepositoryInfo(False, result.stderr.strip())

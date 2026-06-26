@@ -2,8 +2,10 @@ import platform
 import shutil
 from pathlib import Path
 
+from lbm.backup.restic import ResticRepository
 from lbm.core.config import ConfigLoader
 from lbm.health.checks import HealthChecker
+from lbm.targets.usb import USBTarget
 
 
 class Application:
@@ -62,3 +64,40 @@ class Application:
         print()
         print(f"Gesamtstatus........ {'OK' if overall else 'FEHLER'}")
 
+    def init_repository(self) -> None:
+        usb = USBTarget(self.config.targets.usb.label)
+        usb_info = usb.probe()
+
+        if not usb_info.found:
+            print("Fehler: Backup-Laufwerk wurde nicht gefunden.")
+            return
+
+        if usb_info.mountpoint is None:
+            print("Fehler: Backup-Laufwerk ist nicht eingehängt.")
+            return
+
+        repository = (
+            Path(usb_info.mountpoint)
+            / self.config.targets.usb.repository_path
+        )
+
+        restic = ResticRepository(
+            repository,
+            Path(self.config.paths.password_file),
+        )
+
+        if restic.check().initialized:
+            print("Repository ist bereits vorhanden.")
+            return
+
+        print(f"Repository wird angelegt unter:\n{repository}")
+        answer = input("Fortfahren? [j/N]: ").strip().lower()
+
+        if answer != "j":
+            print("Abgebrochen.")
+            return
+
+        if restic.init_repository():
+            print("Repository erfolgreich erstellt.")
+        else:
+            print("Fehler beim Erstellen des Repositorys.")
