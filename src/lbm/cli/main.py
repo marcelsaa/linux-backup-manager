@@ -27,6 +27,7 @@ class CommandLineInterface:
                 "snapshots",
                 "restore",
                 "stats",
+                "check",
             ],
             help="auszuführender Befehl"
         )
@@ -47,6 +48,8 @@ class CommandLineInterface:
             self.application.restore()
         elif args.command == "stats":
             self.application.stats()
+        elif args.command == "check":
+            self.application.check()
 def main() -> None:
     cli = CommandLineInterface()
     cli.run()

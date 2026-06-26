@@ -273,3 +273,20 @@ class Application:
         print(f"Erster Snapshot..... {stats.first_snapshot}")
         print(f"Letzter Snapshot.... {stats.last_snapshot}")
         print(f"Host................ {stats.host}")
+    
+    def check(self) -> None:
+        restic = self._get_restic_repository()
+
+        if restic is None:
+            return
+
+        print("Repository wird geprüft...")
+        print()
+
+        result = restic.check_repository()
+
+        if result.initialized:
+            print("✓", result.message)
+        else:
+            print("✗ Repository-Prüfung fehlgeschlagen:")
+            print(result.message)

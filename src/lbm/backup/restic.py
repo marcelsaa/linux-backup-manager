@@ -253,3 +253,29 @@ class ResticRepository:
             last_snapshot=snapshots[-1].time,
             host=snapshots[-1].host,
         )
+    
+    def check_repository(self) -> ResticRepositoryInfo:
+        result = subprocess.run(
+            [
+                "restic",
+                "check",
+            ],
+            env={
+                **os.environ,
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            return ResticRepositoryInfo(
+                initialized=True,
+                message="Repository-Prüfung erfolgreich.",
+            )
+
+        return ResticRepositoryInfo(
+            initialized=False,
+            message=result.stderr.strip(),
+        )
