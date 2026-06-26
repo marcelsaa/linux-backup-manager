@@ -28,11 +28,18 @@ class BackupConfig(BaseModel):
     paths: list[str]
     excludes: list[str]
 
+class RetentionConfig(BaseModel):
+    keep_daily: int
+    keep_weekly: int
+    keep_monthly: int
+    keep_yearly: int
+
 class AppConfig(BaseModel):
     system: SystemConfig
     paths: PathsConfig
     targets: TargetsConfig
     backup: BackupConfig
+    retention: RetentionConfig
 
 
 class ConfigLoader:
@@ -44,3 +51,4 @@ class ConfigLoader:
             data = yaml.safe_load(file)
 
         return AppConfig.model_validate(data)
+    
