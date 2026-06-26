@@ -155,3 +155,35 @@ class Application:
             repository,
             Path(self.config.paths.password_file),
         )
+    
+    def snapshots(self) -> None:
+        restic = self._get_restic_repository()
+
+        if restic is None:
+            return
+
+        snapshots = restic.snapshots()
+
+        if not snapshots:
+            print("Keine Snapshots gefunden.")
+            return
+
+        print("Linux Backup Manager")
+        print("====================")
+        print()
+        print("Snapshots")
+        print("---------")
+        print(f"{'':<2}{'ID':<8} {'Datum':<20} {'Host'}")
+        print("-" * 45)
+
+        for index, snapshot in enumerate(reversed(snapshots)):
+            marker = "*" if index == 0 else " "
+
+            print(
+                f"{marker} {snapshot.snapshot_id:<8} "
+                f"{snapshot.time:<20} "
+                f"{snapshot.host}"
+            )
+
+        print()
+        print(f"Anzahl Snapshots: {len(snapshots)}")

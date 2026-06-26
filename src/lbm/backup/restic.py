@@ -1,7 +1,9 @@
+import json
 import os
 import re
 import subprocess
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 
@@ -22,6 +24,12 @@ class BackupResult:
     duration: str
     message: str
 
+@dataclass
+class SnapshotInfo:
+    snapshot_id: str
+    time: str
+    host: str
+    paths: list[str]
 
 class ResticRepository:
     def __init__(
@@ -133,4 +141,42 @@ class ResticRepository:
             processed_size="unbekannt",
             duration="unbekannt",
             message=result.stderr.strip(),
+        )
+    
+    def snapshots(self) -> list[SnapshotInfo]:
+        result = subprocess.run(
+            [
+                "restic",
+                "snapshots",
+                "--json",
+            ],
+            env={
+                **os.environ,
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            return []
+
+        data = json.loads(result.stdout)
+
+        return [
+            SnapshotInfo(
+                snapshot_id=item.get("short_id", item.get("id", "")),
+                time=self._format_timestamp(
+                    item.get("time", "")
+                ),
+                host=item.get("hostname", ""),
+                paths=item.get("paths", []),
+            )
+            for item in data
+        ]
+    
+    def _format_timestamp(self, timestamp: str) -> str:
+        return datetime.fromisoformat(timestamp).strftime(
+            "%d.%m.%Y %H:%M:%S"
         )
