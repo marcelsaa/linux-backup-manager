@@ -65,32 +65,17 @@ class Application:
         print(f"Gesamtstatus........ {'OK' if overall else 'FEHLER'}")
 
     def init_repository(self) -> None:
-        usb = USBTarget(self.config.targets.usb.label)
-        usb_info = usb.probe()
+        restic = self._get_restic_repository()
 
-        if not usb_info.found:
-            print("Fehler: Backup-Laufwerk wurde nicht gefunden.")
+        if restic is None:
             return
 
-        if usb_info.mountpoint is None:
-            print("Fehler: Backup-Laufwerk ist nicht eingehängt.")
-            return
-
-        repository = (
-            Path(usb_info.mountpoint)
-            / self.config.targets.usb.repository_path
-        )
-
-        restic = ResticRepository(
-            repository,
-            Path(self.config.paths.password_file),
-        )
 
         if restic.check().initialized:
             print("Repository ist bereits vorhanden.")
             return
 
-        print(f"Repository wird angelegt unter:\n{repository}")
+        print(f"Repository wird angelegt unter:\n{restic.repository}")
         answer = input("Fortfahren? [j/N]: ").strip().lower()
 
         if answer != "j":
@@ -106,26 +91,10 @@ class Application:
             print(result.message)
 
     def backup(self) -> None:
-        usb = USBTarget(self.config.targets.usb.label)
-        usb_info = usb.probe()
+        restic = self._get_restic_repository()
 
-        if not usb_info.found:
-            print("Fehler: Backup-Laufwerk wurde nicht gefunden.")
+        if restic is None:
             return
-
-        if usb_info.mountpoint is None:
-            print("Fehler: Backup-Laufwerk ist nicht eingehängt.")
-            return
-
-        repository = (
-            Path(usb_info.mountpoint)
-            / self.config.targets.usb.repository_path
-        )
-
-        restic = ResticRepository(
-            repository,
-            Path(self.config.paths.password_file),
-        )
 
         if not restic.check().initialized:
             print("Fehler: Restic-Repository ist nicht vorhanden.")
@@ -133,15 +102,56 @@ class Application:
             print("backup-manager init")
             return
 
-        sample_data = self.project_dir / "tests" / "sample-data"
+        backup_paths = [
+            Path(path).expanduser()
+            for path in self.config.backup.paths
+        ]
 
-        print("Starte Testbackup:")
-        print(sample_data)
+        print("Starte Backup folgender Pfade:")
 
-        result = restic.backup([sample_data])
+        for path in backup_paths:
+            print(f"- {path}")
 
-        if result.initialized:
-            print("Backup erfolgreich erstellt.")
+        excludes = [
+            str(Path(exclude).expanduser())
+            for exclude in self.config.backup.excludes
+]
+
+        result = restic.backup(backup_paths, excludes)
+
+        if result.ok:
+            print()
+            print("Backup erfolgreich")
+            print("------------------")
+            print(f"Snapshot-ID........ {result.snapshot_id}")
+            print(f"Neue Dateien...... {result.files_new}")
+            print(f"Geändert.......... {result.files_changed}")
+            print(f"Unverändert....... {result.files_unmodified}")
+            print(f"Verarbeitet....... {result.processed_files}")
+            print(f"Datenmenge........ {result.processed_size}")
+            print(f"Dauer............. {result.duration}")
         else:
             print("Backup fehlgeschlagen:")
             print(result.message)
+    
+    def _get_restic_repository(self) -> ResticRepository | None:
+        usb = USBTarget(self.config.targets.usb.label)
+        usb_info = usb.probe()
+
+        if not usb_info.found:
+            print("Fehler: Backup-Laufwerk wurde nicht gefunden.")
+            return None
+
+        if usb_info.mountpoint is None:
+            print("Fehler: Backup-Laufwerk ist nicht eingehängt.")
+            return None
+
+        repository = (
+            Path(usb_info.mountpoint)
+            / self.config.targets.usb.repository_path
+        )
+
+        return ResticRepository(
+            repository,
+            Path(self.config.paths.password_file),
+        )

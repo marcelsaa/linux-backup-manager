@@ -24,10 +24,15 @@ class TargetsConfig(BaseModel):
     usb: USBTargetConfig
 
 
+class BackupConfig(BaseModel):
+    paths: list[str]
+    excludes: list[str]
+
 class AppConfig(BaseModel):
     system: SystemConfig
     paths: PathsConfig
     targets: TargetsConfig
+    backup: BackupConfig
 
 
 class ConfigLoader:
