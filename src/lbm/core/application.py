@@ -97,7 +97,10 @@ class Application:
             print("Abgebrochen.")
             return
 
-        if restic.init_repository():
-            print("Repository erfolgreich erstellt.")
+        result = restic.init_repository()
+
+        if result.initialized:
+            print(result.message)
         else:
-            print("Fehler beim Erstellen des Repositorys.")
+            print("Fehler beim Erstellen des Repositorys:")
+            print(result.message)

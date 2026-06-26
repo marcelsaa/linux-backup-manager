@@ -1,3 +1,4 @@
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,7 +17,7 @@ class ResticRepository:
         password_file: Path,
     ) -> None:
         self.repository = repository
-        self.password_file = password_file
+        self.password_file = password_file.expanduser()
 
     def check(self) -> ResticRepositoryInfo:
         result = subprocess.run(
@@ -25,6 +26,7 @@ class ResticRepository:
                 "snapshots",
             ],
             env={
+                **os.environ,
                 "RESTIC_REPOSITORY": str(self.repository),
                 "RESTIC_PASSWORD_FILE": str(self.password_file),
             },
@@ -50,6 +52,7 @@ class ResticRepository:
                 "init",
             ],
             env={
+                **os.environ,
                 "RESTIC_REPOSITORY": str(self.repository),
                 "RESTIC_PASSWORD_FILE": str(self.password_file),
             },
