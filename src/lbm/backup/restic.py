@@ -64,3 +64,30 @@ class ResticRepository:
             return ResticRepositoryInfo(True, "Repository erfolgreich erstellt")
 
         return ResticRepositoryInfo(False, result.stderr.strip())
+    
+    def backup(self, paths: list[Path]) -> ResticRepositoryInfo:
+        command = ["restic", "backup"]
+
+        command.extend(str(path) for path in paths)
+
+        result = subprocess.run(
+            command,
+            env={
+                **os.environ,
+                "RESTIC_REPOSITORY": str(self.repository),
+                "RESTIC_PASSWORD_FILE": str(self.password_file),
+            },
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode == 0:
+            return ResticRepositoryInfo(
+                True,
+                "Backup erfolgreich erstellt",
+            )
+
+        return ResticRepositoryInfo(
+            False,
+            result.stderr.strip(),
+        )

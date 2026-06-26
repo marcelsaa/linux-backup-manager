@@ -19,7 +19,7 @@ class CommandLineInterface:
             "command",
             nargs="?",
             default="status",
-            choices=["status", "health", "init"],
+            choices=["status", "health", "init", "backup"],
             help="auszuführender Befehl"
         )
 
@@ -31,7 +31,8 @@ class CommandLineInterface:
             self.application.health()
         elif args.command == "init":
             self.application.init_repository()
-
+        elif args.command == "backup":
+            self.application.backup()
 
 def main() -> None:
     cli = CommandLineInterface()

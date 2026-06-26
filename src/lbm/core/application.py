@@ -104,3 +104,44 @@ class Application:
         else:
             print("Fehler beim Erstellen des Repositorys:")
             print(result.message)
+
+    def backup(self) -> None:
+        usb = USBTarget(self.config.targets.usb.label)
+        usb_info = usb.probe()
+
+        if not usb_info.found:
+            print("Fehler: Backup-Laufwerk wurde nicht gefunden.")
+            return
+
+        if usb_info.mountpoint is None:
+            print("Fehler: Backup-Laufwerk ist nicht eingehängt.")
+            return
+
+        repository = (
+            Path(usb_info.mountpoint)
+            / self.config.targets.usb.repository_path
+        )
+
+        restic = ResticRepository(
+            repository,
+            Path(self.config.paths.password_file),
+        )
+
+        if not restic.check().initialized:
+            print("Fehler: Restic-Repository ist nicht vorhanden.")
+            print("Bitte zuerst ausführen:")
+            print("backup-manager init")
+            return
+
+        sample_data = self.project_dir / "tests" / "sample-data"
+
+        print("Starte Testbackup:")
+        print(sample_data)
+
+        result = restic.backup([sample_data])
+
+        if result.initialized:
+            print("Backup erfolgreich erstellt.")
+        else:
+            print("Backup fehlgeschlagen:")
+            print(result.message)
