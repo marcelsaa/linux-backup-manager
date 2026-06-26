@@ -255,3 +255,21 @@ class Application:
         else:
             print("Restore fehlgeschlagen:")
             print(result.message)
+    
+    def stats(self) -> None:
+        restic = self._get_restic_repository()
+
+        if restic is None:
+            return
+
+        stats = restic.stats()
+
+        print("Linux Backup Manager")
+        print("====================")
+        print()
+        print("Repository-Statistik")
+        print("--------------------")
+        print(f"Snapshots........... {stats.snapshot_count}")
+        print(f"Erster Snapshot..... {stats.first_snapshot}")
+        print(f"Letzter Snapshot.... {stats.last_snapshot}")
+        print(f"Host................ {stats.host}")

@@ -31,6 +31,13 @@ class SnapshotInfo:
     host: str
     paths: list[str]
 
+@dataclass
+class RepositoryStats:
+    snapshot_count: int
+    first_snapshot: str
+    last_snapshot: str
+    host: str
+
 class ResticRepository:
     def __init__(
         self,
@@ -227,4 +234,22 @@ class ResticRepository:
             processed_size="",
             duration="",
             message=result.stderr.strip(),
+        )
+    
+    def stats(self) -> RepositoryStats:
+        snapshots = self.snapshots()
+
+        if not snapshots:
+            return RepositoryStats(
+                snapshot_count=0,
+                first_snapshot="-",
+                last_snapshot="-",
+                host="-",
+            )
+
+        return RepositoryStats(
+            snapshot_count=len(snapshots),
+            first_snapshot=snapshots[0].time,
+            last_snapshot=snapshots[-1].time,
+            host=snapshots[-1].host,
         )
