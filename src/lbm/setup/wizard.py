@@ -4,6 +4,7 @@ from shutil import which
 
 from lbm.backup.restic import ResticRepository
 from lbm.targets.usb import USBTarget
+from lbm.ui.console import Console
 
 
 class SetupWizard:
@@ -32,27 +33,27 @@ class SetupWizard:
         print()
 
         if all_ok:
-            print("System ist vollständig eingerichtet.")
+            Console.success("System ist vollständig eingerichtet.")
         else:
-            print("Setup abgeschlossen, es bestehen noch offene Punkte.")
+            Console.warning("Setup abgeschlossen, es bestehen noch offene Punkte.")
 
     def _check_config(self) -> bool:
         if self.config_file.exists():
-            print("✓ config.yaml vorhanden")
+            Console.success("config.yaml vorhanden")
             return True
 
-        print("✗ config.yaml fehlt")
+        Console.error("config.yaml fehlt")
         return False
 
     def _check_password(self) -> bool:
         if self.password_file.exists():
-            print("✓ Passwortdatei vorhanden")
+            Console.success("Passwortdatei vorhanden")
             return True
 
-        print("✗ Passwortdatei fehlt")
+        Console.error("Passwortdatei fehlt")
 
         if not self.interactive:
-            print("Passwortdatei fehlt. Automatische Erstellung übersprungen.")
+            Console.warning("Passwortdatei fehlt. Automatische Erstellung übersprungen.")
             return False
 
         answer = input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower()
@@ -78,7 +79,7 @@ class SetupWizard:
         self.password_file.write_text(password + "\n")
         self.password_file.chmod(0o600)
 
-        print("✓ Passwortdatei erstellt.")
+        Console.success("Passwortdatei erstellt.")
         return True
 
     def _check_program(
@@ -87,10 +88,10 @@ class SetupWizard:
         name: str,
     ) -> bool:
         if which(program):
-            print(f"✓ {name} installiert")
+            Console.success(f"{name} installiert")
             return True
 
-        print(f"✗ {name} fehlt")
+        Console.error(f"{name} fehlt")
         return False
 
     def _check_programs(self) -> bool:
@@ -109,19 +110,19 @@ class SetupWizard:
         info = usb.probe()
 
         if not info.found:
-            print(f"✗ USB-Laufwerk '{self.usb_label}' nicht gefunden")
+            Console.error(f"USB-Laufwerk '{self.usb_label}' nicht gefunden")
             return None
 
-        print(f"✓ USB-Laufwerk '{self.usb_label}' gefunden")
+        Console.success(f"USB-Laufwerk '{self.usb_label}' gefunden")
 
         if info.mountpoint is None:
-            print("✗ USB-Laufwerk ist nicht eingehängt")
+            Console.error("USB-Laufwerk ist nicht eingehängt")
             return None
 
         return info.mountpoint
 
-    def _check_repository(self, mountpoint: str) -> bool:
-        repository = Path(mountpoint) / self.repository_path
+    def _check_repository(self, mountpoint: Path) -> bool:
+        repository = mountpoint / self.repository_path
 
         restic = ResticRepository(
             repository,
@@ -129,19 +130,19 @@ class SetupWizard:
         )
 
         if restic.check().initialized:
-            print("✓ Repository vorhanden")
+            Console.success("Repository vorhanden")
             return True
 
-        print("✗ Repository fehlt")
+        Console.error("Repository fehlt")
 
         if not self.interactive:
-            print("Repository fehlt. Automatische Erstellung übersprungen.")
+            Console.warning("Repository fehlt. Automatische Erstellung übersprungen.")
             return False
 
         answer = input("Repository jetzt erstellen? [J/n]: ").strip().lower()
 
         if answer in ("", "j") and self._create_repository():
-            print("✓ Repository vorhanden")
+            Console.success("Repository vorhanden")
             return True
 
         print("Repository wurde nicht erstellt.")
@@ -165,10 +166,10 @@ class SetupWizard:
         result = restic.init_repository()
 
         if result.initialized:
-            print("✓ Repository erstellt.")
+            Console.success("Repository erstellt.")
             return True
 
-        print(result.message)
+        Console.error(result.message)
         return False
 
     def run(self) -> None:
