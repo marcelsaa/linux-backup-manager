@@ -20,12 +20,22 @@ class USBTarget:
         self.label = label
 
     def probe(self) -> USBTargetInfo:
-        result = subprocess.run(
-            ["lsblk", "-J", "-f"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        try:
+            result = subprocess.run(
+                ["lsblk", "-J", "-f"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except FileNotFoundError:
+            return USBTargetInfo(
+                found=False,
+                label=self.label,
+                mountpoint=None,
+                fsavail=None,
+                fsuse_percent=None,
+                writable=False,
+            )
 
         devices = json.loads(result.stdout)
 

@@ -1,8 +1,12 @@
 import argparse
 import logging
 
+import yaml
+from pydantic import ValidationError
+
 from lbm.core.application import Application
 from lbm.log_config import setup_logging
+from lbm.ui.console import Console
 
 
 class CommandLineInterface:
@@ -72,5 +76,39 @@ class CommandLineInterface:
 def main() -> None:
     setup_logging()
     logging.info("Linux Backup Manager gestartet.")
-    cli = CommandLineInterface()
-    cli.run()
+
+    try:
+        cli = CommandLineInterface()
+        cli.run()
+
+    except FileNotFoundError:
+        Console.error("Konfigurationsdatei nicht gefunden.")
+        Console.info(
+            "Bitte führen Sie zuerst 'backup-manager setup' aus."
+        )
+
+    except yaml.YAMLError:
+        Console.error("Konfigurationsdatei ist ungültig.")
+        Console.info(
+            "Bitte prüfen Sie die YAML-Syntax in config/config.yaml."
+        )
+
+    except ValidationError as error:
+        Console.error("Konfigurationsdatei ist unvollständig oder ungültig.")
+        
+        for err in error.errors():
+            field = ".".join(str(x) for x in err["loc"])
+            Console.info(f"{field}: {err['msg']}")
+
+    except IsADirectoryError:
+        Console.error("Konfigurationspfad ist ein Verzeichnis, keine Datei.")
+        Console.info(
+            "Erwartet wird die Datei config/config.yaml."
+        )
+
+    except PermissionError:
+        Console.error("Konfigurationsdatei kann nicht gelesen werden.")
+        Console.info(
+            "Bitte prüfen Sie die Dateirechte von config/config.yaml."
+        )
+    

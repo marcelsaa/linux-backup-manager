@@ -1,3 +1,4 @@
+import os
 import platform
 import shutil
 from pathlib import Path
@@ -13,9 +14,20 @@ from lbm.ui.console import Console
 class Application:
     """Zentrale Anwendungsklasse des Linux Backup Managers."""
 
+    # def __init__(self) -> None:
+    #     self.project_dir = Path(__file__).resolve().parents[3]
+    #     self.config_file = self.project_dir / "config" / "config.yaml"
+    #     self.config = ConfigLoader(self.config_file).load()
     def __init__(self) -> None:
         self.project_dir = Path(__file__).resolve().parents[3]
-        self.config_file = self.project_dir / "config" / "config.yaml"
+
+        config_file = os.environ.get("LBM_CONFIG_FILE")
+        self.config_file = (
+            Path(config_file).expanduser()
+            if config_file
+            else self.project_dir / "config" / "config.yaml"
+        )
+
         self.config = ConfigLoader(self.config_file).load()
 
     def status(self) -> None:
@@ -98,10 +110,11 @@ class Application:
         if restic is None:
             return
 
-        if not restic.check().initialized:
-            print("Fehler: Restic-Repository ist nicht vorhanden.")
-            print("Bitte zuerst ausführen:")
-            print("backup-manager init")
+        repository_check = restic.check()
+
+        if not repository_check.initialized:
+            Console.error("Repository ist nicht verfügbar:")
+            Console.error(repository_check.message)
             return
 
         backup_paths = [
