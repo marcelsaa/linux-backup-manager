@@ -7,6 +7,7 @@ from lbm.core.config import ConfigLoader
 from lbm.health.checks import HealthChecker
 from lbm.setup.wizard import SetupWizard
 from lbm.targets.usb import USBTarget
+from lbm.ui.console import Console
 
 
 class Application:
@@ -281,16 +282,16 @@ class Application:
         if restic is None:
             return
 
-        print("Repository wird geprüft...")
+        Console.info("Repository wird geprüft...")
         print()
 
         result = restic.check_repository()
 
         if result.initialized:
-            print("✓", result.message)
+            Console.success(result.message)
         else:
-            print("✗ Repository-Prüfung fehlgeschlagen:")
-            print(result.message)
+            Console.error("Repository-Prüfung fehlgeschlagen:")
+            Console.error(result.message)
 
     def forget(self) -> None:
         restic = self._get_restic_repository()

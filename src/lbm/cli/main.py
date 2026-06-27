@@ -1,6 +1,8 @@
 import argparse
+import logging
 
 from lbm.core.application import Application
+from lbm.log_config import setup_logging
 
 
 class CommandLineInterface:
@@ -68,5 +70,7 @@ class CommandLineInterface:
                 interactive=not args.yes,
             )
 def main() -> None:
+    setup_logging()
+    logging.info("Linux Backup Manager gestartet.")
     cli = CommandLineInterface()
     cli.run()
