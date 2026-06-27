@@ -104,7 +104,7 @@ class SetupWizard:
 
         return ok
 
-    def _check_usb(self) -> str | None:
+    def _check_usb(self) -> Path | None:
         usb = USBTarget(self.usb_label)
         info = usb.probe()
 

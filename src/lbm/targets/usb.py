@@ -2,13 +2,14 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
 class USBTargetInfo:
     found: bool
     label: str
-    mountpoint: str | None
+    mountpoint: Path | None
     fsavail: str | None
     fsuse_percent: str | None
     writable: bool
@@ -45,7 +46,7 @@ class USBTarget:
     def _search(self, node: dict) -> USBTargetInfo | None:
         if node.get("label") == self.label:
             mountpoints = node.get("mountpoints") or []
-            mountpoint = mountpoints[0] if mountpoints else None
+            mountpoint = Path(mountpoints[0]) if mountpoints else None
 
             writable = False
             if mountpoint is not None:
