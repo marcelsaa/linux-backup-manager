@@ -43,6 +43,30 @@ class SetupWizard:
         print("✓ Passwortdatei erstellt.")
 
         return True
+    
+    def _create_repository(self) -> bool:
+        usb = USBTarget(self.usb_label)
+        info = usb.probe()
+
+        if not info.found or info.mountpoint is None:
+            print("USB-Laufwerk nicht verfügbar.")
+            return False
+
+        repository = Path(info.mountpoint) / self.repository_path
+
+        restic = ResticRepository(
+            repository,
+            self.password_file,
+        )
+
+        result = restic.init_repository()
+
+        if result.initialized:
+            print("✓ Repository erstellt.")
+            return True
+
+        print(result.message)
+        return False    
 
     def run(self) -> None:
         print("Linux Backup Manager Setup")
@@ -91,3 +115,10 @@ class SetupWizard:
                 print("✓ Repository vorhanden")
             else:
                 print("✗ Repository fehlt")
+
+                answer = input("Repository jetzt erstellen? [J/n]: ").strip().lower()
+
+                if answer in ("", "j"):
+                    self._create_repository()
+                else:
+                    print("Repository wurde nicht erstellt.")
