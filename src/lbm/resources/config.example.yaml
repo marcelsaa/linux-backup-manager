@@ -1,0 +1,46 @@
+system:
+  host_name: blackpanther
+
+paths:
+  log_dir: logs
+  state_dir: state
+  password_file: ~/.config/linux-backup-manager/restic.pass
+
+backup:
+  paths:
+    - ~/Dokumente
+    - ~/Bilder
+    - ~/Schreibtisch
+    - ~/Downloads
+    - ~/Projekte
+
+  excludes:
+    - ~/.cache
+    - ~/.local/share/Trash
+    - ~/Downloads/*.iso
+    - ~/Downloads/*.img
+    - ~/Downloads/*.deb
+    - ~/Downloads/*.AppImage
+
+targets:
+  usb:
+    enabled: true
+    label: LinuxBackup
+    repository_path: restic/linux-mint
+
+timeshift:
+  enabled: true
+  interval_days: 7
+
+retention:
+  keep_daily: 14
+  keep_weekly: 8
+  keep_monthly: 12
+  keep_yearly: 3
+
+checks:
+  restic_check_interval_days: 30
+
+notifications:
+  notify_on_success: false
+  notify_on_error: true

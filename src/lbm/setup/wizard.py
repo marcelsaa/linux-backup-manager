@@ -1,8 +1,10 @@
 from getpass import getpass
+from importlib.resources import files
 from pathlib import Path
 from shutil import which
 
 from lbm.backup.restic import ResticRepository
+from lbm.core.config import ConfigLoader
 from lbm.targets.usb import USBTarget
 from lbm.ui.console import Console
 
@@ -11,16 +13,30 @@ class SetupWizard:
     def __init__(
         self,
         config_file: Path,
-        password_file: Path,
-        usb_label: str,
-        repository_path: str,
         interactive: bool = True,
     ) -> None:
         self.config_file = config_file
-        self.password_file = password_file.expanduser()
-        self.usb_label = usb_label
-        self.repository_path = repository_path
+        # self.password_file = Path("~/.config/linux-backup-manager/restic-password").expanduser()
+        # self.usb_label = "LinuxBackup"
+        # self.repository_path = "restic-repository"
+        self.password_file = Path()
+        self.usb_label = ""
+        self.repository_path = ""
         self.interactive = interactive
+
+    def _load_setup_config(self) -> bool:
+        try:
+            config = ConfigLoader(self.config_file).load()
+        except Exception as error:
+            Console.error("config.yaml konnte nicht geladen werden.")
+            Console.error(str(error))
+            return False
+
+        self.password_file = Path(config.paths.password_file).expanduser()
+        self.usb_label = config.targets.usb.label
+        self.repository_path = config.targets.usb.repository_path
+
+        return True
 
     def _print_header(self) -> None:
         print("Linux Backup Manager Setup")
@@ -43,7 +59,33 @@ class SetupWizard:
             return True
 
         Console.error("config.yaml fehlt")
-        return False
+
+        if not self.interactive:
+            Console.warning(
+                "config.yaml fehlt. Automatische Erstellung übersprungen."
+            )
+            return False
+
+        answer = input(
+            "Standardkonfiguration jetzt erstellen? [J/n]: "
+        ).strip().lower()
+
+        if answer not in ("", "j"):
+            print("config.yaml wurde nicht erstellt.")
+            return False
+
+        try:
+            template = files("lbm.resources").joinpath("config.example.yaml")
+            config_content = template.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            Console.error("Standardkonfiguration konnte nicht gefunden werden.")
+            return False
+
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        self.config_file.write_text(config_content, encoding="utf-8")
+
+        Console.success("config.yaml erstellt")
+        return True
 
     def _check_password(self) -> bool:
         if self.password_file.exists():
@@ -67,13 +109,37 @@ class SetupWizard:
 
     def _create_password_file(self) -> bool:
         print()
+        Console.info("Dieses Passwort schützt Ihr Backup-Repository.")
+        Console.info(
+            "Ohne dieses Passwort können Backups nicht wiederhergestellt werden."
+        )
+        Console.info("Die Mindestlänge des Passworts beträgt 8 Zeichen.")
+        print()
 
-        password = getpass("Neues Repository-Passwort: ")
-        confirmation = getpass("Passwort wiederholen: ")
+        while True:
+            password = getpass("Neues Backup-Passwort: ")
+            confirmation = getpass("Backup-Passwort wiederholen: ")
 
-        if password != confirmation:
-            print("Passwörter stimmen nicht überein.")
-            return False
+            if not password:
+                Console.error("Das Backup-Passwort darf nicht leer sein.")
+                print()
+                continue
+
+            if len(password) < 8:
+                Console.error(
+                    "Das Backup-Passwort muss mindestens 8 Zeichen lang sein."
+                )
+                print()
+                continue
+
+            if password != confirmation:
+                Console.error(
+                    "Die Passwörter stimmen nicht überein. Bitte erneut eingeben."
+                )
+                print()
+                continue
+
+            break
 
         self.password_file.parent.mkdir(parents=True, exist_ok=True)
         self.password_file.write_text(password + "\n")
@@ -178,6 +244,14 @@ class SetupWizard:
         status = True
 
         status &= self._check_config()
+        if not status:
+            self._print_summary(False)
+            return
+
+        if not self._load_setup_config():
+            self._print_summary(False)
+            return
+
         status &= self._check_password()
         status &= self._check_programs()
 

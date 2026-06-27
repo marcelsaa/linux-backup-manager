@@ -15,10 +15,6 @@ from lbm.ui.console import Console
 class Application:
     """Zentrale Anwendungsklasse des Linux Backup Managers."""
 
-    # def __init__(self) -> None:
-    #     self.project_dir = Path(__file__).resolve().parents[3]
-    #     self.config_file = self.project_dir / "config" / "config.yaml"
-    #     self.config = ConfigLoader(self.config_file).load()
     def __init__(self) -> None:
         self.project_dir = Path(__file__).resolve().parents[3]
 
@@ -26,16 +22,23 @@ class Application:
         self.config_file = (
             Path(config_file).expanduser()
             if config_file
-            else self.project_dir / "config" / "config.yaml"
+            else Path("~/.config/linux-backup-manager/config.yaml").expanduser()
         )
 
-        self.config = ConfigLoader(self.config_file).load()
+        self.config = None
+
+    def _load_config(self):
+        if self.config is None:
+            self.config = ConfigLoader(self.config_file).load()
+
+        return self.config
 
     def status(self) -> None:
-        password_file = Path(self.config.paths.password_file).expanduser()
+        config = self._load_config()
+        password_file = Path(config.paths.password_file).expanduser()
 
         print("Linux Backup Manager")
-        print(f"Version................ {__version__}")
+        print(f"Version {__version__}")
         print("====================")
         print()
         print("System")
@@ -48,17 +51,20 @@ class Application:
         print("-------------")
         print(f"Datei................ {self.config_file}")
         print(f"Konfiguration........ {'OK' if self.config_file.exists() else 'FEHLT'}")
-        print(f"Host................. {self.config.system.host_name}")
+        print(f"Host................. {config.system.host_name}")
         print()
         print("Sicherheit")
         print("----------")
         print(f"Passwortdatei........ {'OK' if password_file.exists() else 'FEHLT'}")
         print(f"Pfad................. {password_file}")
-    
+
     def health(self) -> None:
-        checker = HealthChecker(Path(self.config.paths.password_file),
-        self.config.targets.usb.label,
-        self.config.targets.usb.repository_path,
+        config = self._load_config()
+
+        checker = HealthChecker(
+            Path(config.paths.password_file),
+            config.targets.usb.label,
+            config.targets.usb.repository_path,
         )
         results = checker.run()
 
@@ -86,7 +92,6 @@ class Application:
         if restic is None:
             return
 
-
         if restic.check().initialized:
             print("Repository ist bereits vorhanden.")
             return
@@ -107,6 +112,7 @@ class Application:
             print(result.message)
 
     def backup(self) -> None:
+        config = self._load_config()
         restic = self._get_restic_repository()
 
         if restic is None:
@@ -121,7 +127,7 @@ class Application:
 
         backup_paths = [
             Path(path).expanduser()
-            for path in self.config.backup.paths
+            for path in config.backup.paths
         ]
 
         print("Starte Backup folgender Pfade:")
@@ -131,8 +137,8 @@ class Application:
 
         excludes = [
             str(Path(exclude).expanduser())
-            for exclude in self.config.backup.excludes
-]
+            for exclude in config.backup.excludes
+        ]
 
         result = restic.backup(backup_paths, excludes)
 
@@ -150,9 +156,11 @@ class Application:
         else:
             print("Backup fehlgeschlagen:")
             print(result.message)
-    
+
     def _get_restic_repository(self) -> ResticRepository | None:
-        usb = USBTarget(self.config.targets.usb.label)
+        config = self._load_config()
+
+        usb = USBTarget(config.targets.usb.label)
         usb_info = usb.probe()
 
         if not usb_info.found:
@@ -165,14 +173,14 @@ class Application:
 
         repository = (
             Path(usb_info.mountpoint)
-            / self.config.targets.usb.repository_path
+            / config.targets.usb.repository_path
         )
 
         return ResticRepository(
             repository,
-            Path(self.config.paths.password_file),
+            Path(config.paths.password_file),
         )
-    
+
     def snapshots(self) -> None:
         restic = self._get_restic_repository()
 
@@ -204,7 +212,7 @@ class Application:
 
         print()
         print(f"Anzahl Snapshots: {len(snapshots)}")
-    
+
     def restore(self) -> None:
         restic = self._get_restic_repository()
 
@@ -272,7 +280,7 @@ class Application:
         else:
             print("Restore fehlgeschlagen:")
             print(result.message)
-    
+
     def stats(self) -> None:
         restic = self._get_restic_repository()
 
@@ -290,7 +298,7 @@ class Application:
         print(f"Erster Snapshot..... {stats.first_snapshot}")
         print(f"Letzter Snapshot.... {stats.last_snapshot}")
         print(f"Host................ {stats.host}")
-    
+
     def check(self) -> None:
         restic = self._get_restic_repository()
 
@@ -309,6 +317,7 @@ class Application:
             Console.error(result.message)
 
     def forget(self) -> None:
+        config = self._load_config()
         restic = self._get_restic_repository()
 
         if restic is None:
@@ -318,10 +327,10 @@ class Application:
         print("--------------")
 
         dry_run = restic.forget_dry_run(
-            keep_daily=self.config.retention.keep_daily,
-            keep_weekly=self.config.retention.keep_weekly,
-            keep_monthly=self.config.retention.keep_monthly,
-            keep_yearly=self.config.retention.keep_yearly,
+            keep_daily=config.retention.keep_daily,
+            keep_weekly=config.retention.keep_weekly,
+            keep_monthly=config.retention.keep_monthly,
+            keep_yearly=config.retention.keep_yearly,
         )
 
         print(dry_run if dry_run else "Keine Snapshots würden gelöscht.")
@@ -334,15 +343,15 @@ class Application:
             return
 
         result = restic.forget(
-            keep_daily=self.config.retention.keep_daily,
-            keep_weekly=self.config.retention.keep_weekly,
-            keep_monthly=self.config.retention.keep_monthly,
-            keep_yearly=self.config.retention.keep_yearly,
+            keep_daily=config.retention.keep_daily,
+            keep_weekly=config.retention.keep_weekly,
+            keep_monthly=config.retention.keep_monthly,
+            keep_yearly=config.retention.keep_yearly,
         )
 
         print()
         print(result if result else "Forget abgeschlossen.")
-    
+
     def prune(self) -> None:
         restic = self._get_restic_repository()
 
@@ -362,13 +371,10 @@ class Application:
 
         print()
         print(result if result else "Prune abgeschlossen.")
-    
+
     def setup(self, interactive: bool = True) -> None:
         wizard = SetupWizard(
             self.config_file,
-            Path(self.config.paths.password_file),
-            self.config.targets.usb.label,
-            self.config.targets.usb.repository_path,
             interactive=interactive,
         )
         wizard.run()
