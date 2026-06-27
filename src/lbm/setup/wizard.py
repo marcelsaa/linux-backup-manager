@@ -13,11 +13,13 @@ class SetupWizard:
         password_file: Path,
         usb_label: str,
         repository_path: str,
+        interactive: bool = True,
     ) -> None:
         self.config_file = config_file
         self.password_file = password_file.expanduser()
         self.usb_label = usb_label
         self.repository_path = repository_path
+        self.interactive = interactive
 
     def _check_program(self, program: str, name: str) -> None:
         if which(program):
@@ -76,28 +78,32 @@ class SetupWizard:
         print()
 
         all_ok = True
-        #fixed_count = 0
-        
+
         if self.config_file.exists():
             print("✓ config.yaml vorhanden")
         else:
             print("✗ config.yaml fehlt")
             all_ok = False
-        
+
         if self.password_file.exists():
             print("✓ Passwortdatei vorhanden")
         else:
             print("✗ Passwortdatei fehlt")
-            answer = input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower()
+            all_ok = False
 
-            if answer in ("", "j"):
-                if self._create_password_file():
-                    all_ok = True
-                else:
-                    all_ok = False
+            if not self.interactive:
+                print("Passwortdatei fehlt. Automatische Erstellung übersprungen.")
             else:
-                print("Passwortdatei wurde nicht erstellt.")
-        
+                answer = input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower()
+
+                if answer in ("", "j"):
+                    if self._create_password_file():
+                        print("✓ Passwortdatei vorhanden")
+                    else:
+                        all_ok = False
+                else:
+                    print("Passwortdatei wurde nicht erstellt.")
+
         self._check_program("restic", "Restic")
         self._check_program("timeshift", "Timeshift")
 
@@ -113,7 +119,7 @@ class SetupWizard:
             print("Setup abgeschlossen, es bestehen noch offene Punkte.")
             return
 
-        if  info.mountpoint:
+        if info.mountpoint:
             repository = Path(info.mountpoint) / self.repository_path
 
             restic = ResticRepository(
@@ -127,13 +133,22 @@ class SetupWizard:
                 print("✗ Repository fehlt")
                 all_ok = False
 
-                answer = input("Repository jetzt erstellen? [J/n]: ").strip().lower()
-
-                if answer in ("", "j"):
-                    if self._create_repository():
-                        all_ok = True
+                if not self.interactive:
+                    print("Repository fehlt. Automatische Erstellung übersprungen.")
                 else:
-                    print("Repository wurde nicht erstellt.")
+                    answer = input("Repository jetzt erstellen? [J/n]: ").strip().lower()
+
+                    if answer in ("", "j"):
+                        if self._create_repository():
+                            print("✓ Repository vorhanden")
+                        else:
+                            all_ok = False
+                    else:
+                        print("Repository wurde nicht erstellt.")
+        else:
+            print("✗ USB-Laufwerk ist nicht eingehängt")
+            all_ok = False
+
         print()
 
         if all_ok:

@@ -347,11 +347,12 @@ class Application:
         print()
         print(result if result else "Prune abgeschlossen.")
     
-    def setup(self) -> None:
+    def setup(self, interactive: bool = True) -> None:
         wizard = SetupWizard(
             self.config_file,
             Path(self.config.paths.password_file),
             self.config.targets.usb.label,
             self.config.targets.usb.repository_path,
+            interactive=interactive,
         )
         wizard.run()

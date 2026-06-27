@@ -32,8 +32,14 @@ class CommandLineInterface:
                 "prune",
                 "setup",
             ],
-            help="auszuführender Befehl"
+            help="auszuführender Befehl",
         )
+
+        parser.add_argument(
+            "--yes",
+            action="store_true",
+            help="Alle Rückfragen automatisch bestätigen.",
+)
 
         args = parser.parse_args()
 
@@ -58,7 +64,9 @@ class CommandLineInterface:
         elif args.command == "prune":
             self.application.prune()
         elif args.command == "setup":
-            self.application.setup()
+            self.application.setup(
+                interactive=not args.yes,
+            )
 def main() -> None:
     cli = CommandLineInterface()
     cli.run()
