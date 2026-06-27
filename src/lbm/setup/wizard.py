@@ -75,10 +75,14 @@ class SetupWizard:
         print("Willkommen zum Einrichtungsassistenten.")
         print()
 
+        all_ok = True
+        #fixed_count = 0
+        
         if self.config_file.exists():
             print("✓ config.yaml vorhanden")
         else:
             print("✗ config.yaml fehlt")
+            all_ok = False
         
         if self.password_file.exists():
             print("✓ Passwortdatei vorhanden")
@@ -87,7 +91,10 @@ class SetupWizard:
             answer = input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower()
 
             if answer in ("", "j"):
-                self._create_password_file()
+                if self._create_password_file():
+                    all_ok = True
+                else:
+                    all_ok = False
             else:
                 print("Passwortdatei wurde nicht erstellt.")
         
@@ -96,14 +103,17 @@ class SetupWizard:
 
         usb = USBTarget(self.usb_label)
         info = usb.probe()
+
         if info.found:
             print(f"✓ USB-Laufwerk '{self.usb_label}' gefunden")
         else:
             print(f"✗ USB-Laufwerk '{self.usb_label}' nicht gefunden")
-        usb = USBTarget(self.usb_label)
-        info = usb.probe()
+            all_ok = False
+            print()
+            print("Setup abgeschlossen, es bestehen noch offene Punkte.")
+            return
 
-        if info.found and info.mountpoint:
+        if  info.mountpoint:
             repository = Path(info.mountpoint) / self.repository_path
 
             restic = ResticRepository(
@@ -115,10 +125,18 @@ class SetupWizard:
                 print("✓ Repository vorhanden")
             else:
                 print("✗ Repository fehlt")
+                all_ok = False
 
                 answer = input("Repository jetzt erstellen? [J/n]: ").strip().lower()
 
                 if answer in ("", "j"):
-                    self._create_repository()
+                    if self._create_repository():
+                        all_ok = True
                 else:
                     print("Repository wurde nicht erstellt.")
+        print()
+
+        if all_ok:
+            print("System ist vollständig eingerichtet.")
+        else:
+            print("Setup abgeschlossen, es bestehen noch offene Punkte.")
