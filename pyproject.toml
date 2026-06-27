@@ -1,9 +1,13 @@
 [project]
 name = "linux-backup-manager"
-version = "0.1.0"
+version = "1.0.0"
 description = "Backup-Manager für Linux-Systeme mit Restic, Timeshift und mehreren Backup-Zielen"
 requires-python = ">=3.12"
-dependencies = []
+
+dependencies = [
+    "PyYAML",
+    "pydantic>=2",
+]
 
 [project.scripts]
 backup-manager = "lbm.cli.main:main"

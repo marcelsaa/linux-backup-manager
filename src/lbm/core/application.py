@@ -3,6 +3,7 @@ import platform
 import shutil
 from pathlib import Path
 
+from lbm import __version__
 from lbm.backup.restic import ResticRepository
 from lbm.core.config import ConfigLoader
 from lbm.health.checks import HealthChecker
@@ -34,6 +35,7 @@ class Application:
         password_file = Path(self.config.paths.password_file).expanduser()
 
         print("Linux Backup Manager")
+        print(f"Version................ {__version__}")
         print("====================")
         print()
         print("System")

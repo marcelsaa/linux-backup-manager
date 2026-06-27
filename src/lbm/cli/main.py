@@ -4,6 +4,7 @@ import logging
 import yaml
 from pydantic import ValidationError
 
+from lbm import __version__
 from lbm.core.application import Application
 from lbm.log_config import setup_logging
 from lbm.ui.console import Console
@@ -13,7 +14,7 @@ class CommandLineInterface:
     """Kommandozeilenschnittstelle für LBM."""
 
     def __init__(self) -> None:
-        self.application = Application()
+        self.application: Application | None = None
 
     def run(self) -> None:
         parser = argparse.ArgumentParser(
@@ -45,9 +46,18 @@ class CommandLineInterface:
             "--yes",
             action="store_true",
             help="Alle Rückfragen automatisch bestätigen.",
-)
+        )
+
+        parser.add_argument(
+            "--version",
+            action="version",
+            version=f"%(prog)s {__version__}",
+        )
 
         args = parser.parse_args()
+
+        if self.application is None:
+            self.application = Application()
 
         if args.command == "status":
             self.application.status() 
