@@ -169,7 +169,10 @@ class ResticRepository:
         if result.returncode != 0:
             return []
 
-        data = json.loads(result.stdout)
+        try:
+            data = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            return []
 
         return [
             SnapshotInfo(
@@ -184,9 +187,12 @@ class ResticRepository:
         ]
     
     def _format_timestamp(self, timestamp: str) -> str:
-        return datetime.fromisoformat(timestamp).strftime(
-            "%d.%m.%Y %H:%M:%S"
-        )
+        try:
+            return datetime.fromisoformat(timestamp).strftime(
+                "%d.%m.%Y %H:%M:%S"
+            )
+        except ValueError:
+            return timestamp
     
     def restore(
         self,
