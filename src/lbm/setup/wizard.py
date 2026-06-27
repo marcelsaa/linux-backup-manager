@@ -53,6 +53,39 @@ class SetupWizard:
         else:
             Console.warning("Setup abgeschlossen, es bestehen noch offene Punkte.")
 
+    def _replace_backup_paths(
+        self,
+        config_content: str,
+        backup_paths: list[str],
+    ) -> str:
+        if not backup_paths:
+            return config_content
+
+        lines = config_content.splitlines()
+        result: list[str] = []
+
+        inside_backup_paths = False
+
+        for line in lines:
+            stripped = line.strip()
+
+            if stripped == "paths:" and result and result[-1].strip() == "backup:":
+                result.append(line)
+                for path in backup_paths:
+                    result.append(f"    - {path}")
+                inside_backup_paths = True
+                continue
+
+            if inside_backup_paths:
+                if stripped.startswith("- "):
+                    continue
+
+                inside_backup_paths = False
+
+            result.append(line)
+
+        return "\n".join(result) + "\n"
+
     def _check_config(self) -> bool:
         if self.config_file.exists():
             Console.success("config.yaml vorhanden")
@@ -82,10 +115,54 @@ class SetupWizard:
             return False
 
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        backup_paths = self._ask_backup_paths()
+        config_content = self._replace_backup_paths(config_content, backup_paths)
         self.config_file.write_text(config_content, encoding="utf-8")
 
         Console.success("config.yaml erstellt")
         return True
+    
+    def _ask_backup_paths(self) -> list[str]:
+        default_paths = [
+            "~/Dokumente",
+            "~/Bilder",
+            "~/Schreibtisch",
+            "~/Downloads",
+            "~/Projekte",
+        ]
+
+        print()
+        print("Welche Standardordner sollen gesichert werden?")
+        print()
+
+        selected_paths: list[str] = []
+
+        for path in default_paths:
+            answer = input(f"{path} sichern? [J/n]: ").strip().lower()
+
+            if answer in ("", "j"):
+                selected_paths.append(path)
+
+        print()
+        print("Weitere eigene Ordner hinzufügen?")
+        print("Leere Eingabe beendet die Auswahl.")
+        print()
+
+        while True:
+            value = input("Zusätzlicher Backup-Ordner: ").strip()
+
+            if not value:
+                break
+
+            selected_paths.append(value)
+        if not selected_paths:
+            Console.error(
+                "Es muss mindestens ein Backup-Ordner ausgewählt werden."
+            )
+            return self._ask_backup_paths()
+
+        return selected_paths
+        return selected_paths
 
     def _check_password(self) -> bool:
         if self.password_file.exists():
