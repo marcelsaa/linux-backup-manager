@@ -1,7 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from lbm.backup.restic import BackupResult
 from lbm.core.config import AppConfig
-from lbm.services.repository import RepositoryProvider
+from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.ui.console import Console
 
 
@@ -15,14 +17,8 @@ class BackupService:
         self.repository_provider = repository_provider or RepositoryProvider(config)
 
     def run(self) -> None:
-        restic = self.repository_provider.get()
-        if restic is None:
-            return
-
-        repository_check = restic.check()
-        if not repository_check.initialized:
-            Console.error("Repository ist nicht verfügbar:")
-            Console.error(repository_check.message)
+        destinations = self.repository_provider.get_all()
+        if not destinations:
             return
 
         backup_paths = [Path(path).expanduser() for path in self.config.backup.paths]
@@ -32,13 +28,50 @@ class BackupService:
         for path in backup_paths:
             print(f"- {path}")
 
-        result = restic.backup(backup_paths, excludes)
+        with ThreadPoolExecutor(max_workers=len(destinations)) as executor:
+            results = list(
+                executor.map(
+                    lambda destination: self._backup(
+                        destination,
+                        backup_paths,
+                        excludes,
+                    ),
+                    destinations,
+                )
+            )
+
+        for destination, result in zip(destinations, results, strict=True):
+            self._print_result(destination.name, result)
+
+    def _backup(
+        self,
+        destination: RepositoryDestination,
+        backup_paths: list[Path],
+        excludes: list[str],
+    ) -> BackupResult:
+        repository_check = destination.repository.check()
+        if not repository_check.initialized:
+            return BackupResult(
+                ok=False,
+                snapshot_id=None,
+                files_new=0,
+                files_changed=0,
+                files_unmodified=0,
+                processed_files=0,
+                processed_size="unbekannt",
+                duration="unbekannt",
+                message=repository_check.message,
+            )
+        return destination.repository.backup(backup_paths, excludes)
+
+    def _print_result(self, destination_name: str, result: BackupResult) -> None:
+        print()
+        Console.headline(destination_name)
         if not result.ok:
-            print("Backup fehlgeschlagen:")
-            print(result.message)
+            Console.error("Backup fehlgeschlagen:")
+            Console.error(result.message)
             return
 
-        print()
         print("Backup erfolgreich")
         print("------------------")
         print(f"Snapshot-ID........ {result.snapshot_id}")

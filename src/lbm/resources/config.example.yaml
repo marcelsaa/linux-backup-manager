@@ -28,6 +28,11 @@ targets:
     label: LinuxBackup
     repository_path: restic/linux-mint
 
+  nas:
+    enabled: false
+    mount_path: /mnt/backup-nas
+    repository_path: restic/linux-mint
+
 timeshift:
   enabled: true
   interval_days: 7

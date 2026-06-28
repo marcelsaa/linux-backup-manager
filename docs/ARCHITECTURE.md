@@ -38,7 +38,8 @@ Services
      │
      └── RepositoryProvider
           ├── USB Target
-          └── Restic Repository
+          ├── NAS Target
+          └── Restic Repositories
 ```
 
 ---
@@ -84,7 +85,10 @@ Responsibilities:
 * `BackupService`: backup workflow
 * `RestoreService`: guided restore workflow
 * `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
-* `RepositoryProvider`: resolve the configured target and create the Restic repository client
+* `RepositoryProvider`: resolve all configured targets and create Restic repository clients
+
+`BackupService` executes backups for all available destinations concurrently. Commands that
+operate on one repository ask the user to select a destination when more than one is available.
 
 Expected failures cross service boundaries as typed `ApplicationError` subclasses. The CLI
 renders these errors consistently without exposing internal tracebacks.
@@ -187,7 +191,6 @@ The current development work toward Version 1.1 introduces dedicated services an
 
 Further improvements may include:
 
-* Multiple repository providers for USB and NAS targets
 * Dependency injection at the application boundary
 
 ---

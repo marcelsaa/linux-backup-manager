@@ -5,7 +5,7 @@ from lbm.backup.restic import BackupResult, ResticRepositoryInfo
 from lbm.core.application import Application
 from lbm.core.config import AppConfig
 from lbm.services.backup import BackupService
-from lbm.services.repository import RepositoryProvider
+from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
 from lbm.targets.usb import USBTargetInfo
 
@@ -73,7 +73,7 @@ def test_backup_service_passes_configured_paths_to_repository() -> None:
         message="ok",
     )
     provider = Mock()
-    provider.get.return_value = restic
+    provider.get_all.return_value = [RepositoryDestination("USB", restic)]
 
     BackupService(make_config(), provider).run()
 
@@ -81,6 +81,64 @@ def test_backup_service_passes_configured_paths_to_repository() -> None:
         [Path("/home/test/Documents")],
         ["/home/test/.cache"],
     )
+
+
+def test_repository_provider_supports_a_mounted_nas(tmp_path: Path) -> None:
+    config = make_config()
+    config.targets.usb.enabled = False
+    config.targets.nas.enabled = True
+    config.targets.nas.mount_path = str(tmp_path)
+    config.targets.nas.repository_path = "restic/test-host"
+
+    destinations = RepositoryProvider(config).get_all()
+
+    assert len(destinations) == 1
+    assert destinations[0].name == f"NAS: {tmp_path}"
+    assert destinations[0].repository.repository == tmp_path / "restic/test-host"
+
+
+def test_backup_service_runs_for_every_available_destination() -> None:
+    first_repository = Mock()
+    first_repository.check.return_value = ResticRepositoryInfo(True, "ok")
+    first_repository.backup.return_value = BackupResult(
+        True, "first", 1, 0, 0, 1, "1 B", "0:01", "ok"
+    )
+    second_repository = Mock()
+    second_repository.check.return_value = ResticRepositoryInfo(True, "ok")
+    second_repository.backup.return_value = BackupResult(
+        True, "second", 1, 0, 0, 1, "1 B", "0:01", "ok"
+    )
+    provider = Mock()
+    provider.get_all.return_value = [
+        RepositoryDestination("USB", first_repository),
+        RepositoryDestination("NAS", second_repository),
+    ]
+
+    BackupService(make_config(), provider).run()
+
+    first_repository.backup.assert_called_once()
+    second_repository.backup.assert_called_once()
+
+
+def test_repository_provider_prompts_when_multiple_destinations_are_available() -> None:
+    first_repository = Mock()
+    second_repository = Mock()
+    provider = RepositoryProvider(make_config())
+
+    with (
+        patch.object(
+            provider,
+            "get_all",
+            return_value=[
+                RepositoryDestination("USB", first_repository),
+                RepositoryDestination("NAS", second_repository),
+            ],
+        ),
+        patch("builtins.input", return_value="2"),
+    ):
+        selected = provider.get()
+
+    assert selected is second_repository
 
 
 def test_forget_stops_after_dry_run_when_user_declines() -> None:

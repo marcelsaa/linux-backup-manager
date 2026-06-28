@@ -47,6 +47,11 @@ targets:
     label: LinuxBackup
     repository_path: restic/linux-mint
 
+  nas:
+    enabled: false
+    mount_path: /mnt/backup-nas
+    repository_path: restic/linux-mint
+
 timeshift:
   enabled: true
   interval_days: 7
@@ -111,6 +116,8 @@ Exclude patterns support wildcards where supported by Restic.
 
 Defines backup destinations.
 
+All enabled and available destinations receive a backup. USB and NAS backups run in parallel.
+
 ### usb
 
 | Option            | Description                                                  |
@@ -118,6 +125,16 @@ Defines backup destinations.
 | `enabled`         | Enables USB backups.                                         |
 | `label`           | Expected filesystem label of the USB drive.                  |
 | `repository_path` | Relative path of the Restic repository on the backup device. |
+
+### nas
+
+NAS support expects the network share to be mounted by the operating system.
+
+| Option            | Description                                             |
+| ----------------- | ------------------------------------------------------- |
+| `enabled`         | Enables backups to the mounted NAS share.               |
+| `mount_path`      | Local mount point of the NAS share.                      |
+| `repository_path` | Relative path of the Restic repository on the NAS share. |
 
 ---
 

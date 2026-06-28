@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from lbm.core.errors import ConfigurationError
 
@@ -22,8 +22,15 @@ class USBTargetConfig(BaseModel):
     repository_path: str
 
 
+class NASTargetConfig(BaseModel):
+    enabled: bool = False
+    mount_path: str = ""
+    repository_path: str = "restic/linux-backup-manager"
+
+
 class TargetsConfig(BaseModel):
     usb: USBTargetConfig
+    nas: NASTargetConfig = Field(default_factory=NASTargetConfig)
 
 
 class BackupConfig(BaseModel):

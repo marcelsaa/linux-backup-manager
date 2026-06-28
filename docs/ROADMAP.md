@@ -64,9 +64,9 @@ Status:
 
 ## Backup
 
-* Multiple backup targets
-* USB + NAS support
-* Parallel backup destinations
+* [x] Multiple backup targets
+* [x] USB + NAS support
+* [x] Parallel backup destinations
 * Interactive backup target selection
 
 ---

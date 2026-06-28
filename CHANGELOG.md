@@ -8,6 +8,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 27 – Multiple Backup Destinations
+
+### Added
+
+* Optional NAS target configuration for mounted network shares
+* Resolution and selection of multiple available repositories
+* Parallel backups to all enabled USB and NAS destinations
+
+### Changed
+
+* Existing USB-only configuration remains valid and NAS targets default to disabled
+* Single-repository commands prompt for a destination when several are available
+
+---
+
 ## Sprint 26 – Central Error Handling
 
 ### Added
