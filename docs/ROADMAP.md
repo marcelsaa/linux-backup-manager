@@ -54,13 +54,14 @@ Status:
 * [x] TestPyPI upload and clean installation
 * [x] TestPyPI revalidation of automatic backups with `1.0.1rc1`
 * [x] Local private-release preparation for `1.0.1` without a package-index upload
+* [x] Physical USB backup and restore validation on the production workstation
 * [x] CLI exit-code validation
 * [x] User-selectable restore destination
 * [x] NAS-only health checks
 * [x] Documentation and feature-claim audit
 
-Status: **Version 1.0.1 prepared as a private-use stable release. Regular restore validation on
-the production filesystem remains an operational requirement.**
+Status: **Version 1.0.1 approved for private local production use after a successful physical USB
+backup and byte-identical restore. Regular restore validation remains an operational requirement.**
 
 ---
 

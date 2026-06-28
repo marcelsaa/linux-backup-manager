@@ -12,6 +12,17 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # v1.0.1 – 2026-06-28
 
+## Production Acceptance
+
+### Validated
+
+* Persistent local wheel installation and CLI Version 1.0.1
+* Production USB repository initialization at `restic/production`
+* Real backup of 6,893 files in snapshot `f78aabcc`
+* Repository integrity, statistics and automatic-backup due checks
+* Active systemd user timers using the persistent production virtual environment
+* Successful restore to the normal user filesystem with byte-identical SHA-256 verification
+
 ## Sprint 33 – Private Stable Release Hardening
 
 ### Added
