@@ -2,7 +2,7 @@
 
 # Configuration Reference
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 
 ---
 
@@ -17,6 +17,8 @@ Default location:
 ```
 
 The configuration file is automatically created by the setup wizard during the first installation.
+On later runs, the wizard can update backup folders, destinations and scheduling settings. It saves
+the previous version as `config.yaml.bak` before replacing it.
 
 Manual editing is possible but normally not required.
 
@@ -194,9 +196,10 @@ Controls optional notifications.
 
 # Notes
 
-The setup wizard creates this file automatically.
+The setup wizard creates this file automatically and can update its main operational settings.
 
-Editing the configuration manually should only be necessary when changing backup paths, retention settings or backup targets.
+Manual editing should normally be necessary only for retention and other advanced settings that
+the setup wizard does not expose.
 
 Duplicate YAML keys are rejected because silently overwritten settings could select unintended
 backup paths or destinations.
@@ -205,4 +208,4 @@ backup paths or destinations.
 
 Linux Backup Manager Documentation
 
-Version 1.0.0
+Version 1.0.1

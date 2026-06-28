@@ -8,6 +8,31 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+---
+
+# v1.0.1 – 2026-06-28
+
+## Sprint 33 – Private Stable Release Hardening
+
+### Added
+
+* Interactive editing of backup folders, destinations and scheduling in an existing configuration
+* Automatic `config.yaml.bak` creation before an existing configuration is replaced
+* Explicit repository states for ready, missing, invalid-password and other error conditions
+
+### Changed
+
+* Configuration files are written through an atomic temporary-file replacement
+* Repository initialization is offered only when the repository is actually missing
+* Version advanced from `1.0.1rc1` to the private-use stable release `1.0.1`
+
+### Fixed
+
+* Existing repositories with an incorrect password are no longer reported as missing
+* Setup no longer attempts `restic init` against repositories that already contain a configuration
+
+---
+
 ## Sprint 32 – 1.0.1rc1 TestPyPI Revalidation
 
 ### Validated

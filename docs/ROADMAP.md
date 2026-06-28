@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.0.1rc1
+**Last updated:** Version 1.0.1
 
 ---
 
@@ -53,12 +53,14 @@ Status:
 * [x] Fresh virtual-environment installation
 * [x] TestPyPI upload and clean installation
 * [x] TestPyPI revalidation of automatic backups with `1.0.1rc1`
+* [x] Local private-release preparation for `1.0.1` without a package-index upload
 * [x] CLI exit-code validation
 * [x] User-selectable restore destination
 * [x] NAS-only health checks
 * [x] Documentation and feature-claim audit
 
-Status: **Release candidate ready; final hardware restore validation pending.**
+Status: **Version 1.0.1 prepared as a private-use stable release. Regular restore validation on
+the production filesystem remains an operational requirement.**
 
 ---
 
@@ -89,7 +91,9 @@ Status: **Release candidate ready; final hardware restore validation pending.**
 
 * [x] Interactive folder selection during setup
 * [x] Interactive backup destination selection
+* [x] Interactive editing of existing configurations with automatic backup
 * [x] Detection of duplicate YAML keys
+* [x] Distinct diagnostics for missing repositories and invalid passwords
 
 ---
 
@@ -155,4 +159,4 @@ Every release should improve usability without compromising reliability.
 
 Linux Backup Manager Documentation
 
-Version 1.0.1rc1
+Version 1.0.1

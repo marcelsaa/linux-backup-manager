@@ -33,8 +33,10 @@ The project is intended for Linux users who want a dependable backup solution wi
 
 * Interactive setup wizard
 * Automatic configuration generation
+* Safe interactive editing of existing configurations with automatic backup
 * Automatic password file creation
 * Automatic repository initialization
+* Clear distinction between missing repositories and invalid repository passwords
 * XDG-compliant configuration directory
 
 ## Backup
@@ -181,9 +183,10 @@ See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 # Project Status
 
-**Current Version:** 1.0.1rc1
+**Current Version:** 1.0.1
 
-Linux Backup Manager 1.0.1rc1 is in final release-candidate validation.
+Linux Backup Manager 1.0.1 is the private-use stable release. Distribution artifacts are built
+locally and are not published to production PyPI.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 

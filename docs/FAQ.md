@@ -2,7 +2,7 @@
 
 # Frequently Asked Questions (FAQ)
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 
 ---
 
@@ -147,4 +147,4 @@ The following features are already planned:
 
 Linux Backup Manager Documentation
 
-Version 1.0.0
+Version 1.0.1

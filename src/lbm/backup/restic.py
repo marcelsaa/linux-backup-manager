@@ -4,15 +4,24 @@ import re
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 
 from lbm.core.errors import ExternalCommandError
+
+
+class RepositoryStatus(Enum):
+    READY = "ready"
+    MISSING = "missing"
+    WRONG_PASSWORD = "wrong_password"
+    ERROR = "error"
 
 
 @dataclass
 class ResticRepositoryInfo:
     initialized: bool
     message: str
+    status: RepositoryStatus = RepositoryStatus.ERROR
 
 @dataclass
 class BackupResult:
@@ -75,11 +84,24 @@ class ResticRepository:
             return ResticRepositoryInfo(
                 True,
                 "Repository vorhanden",
+                RepositoryStatus.READY,
             )
+
+        message = result.stderr.strip()
+        normalized_message = message.lower()
+        if "wrong password" in normalized_message or "no key found" in normalized_message:
+            status = RepositoryStatus.WRONG_PASSWORD
+        elif "permission denied" in normalized_message:
+            status = RepositoryStatus.ERROR
+        elif not (self.repository / "config").is_file():
+            status = RepositoryStatus.MISSING
+        else:
+            status = RepositoryStatus.ERROR
 
         return ResticRepositoryInfo(
             False,
-            result.stderr.strip(),
+            message,
+            status,
         )
     
     def _parse_backup_output(self, output: str) -> BackupResult:
@@ -109,9 +131,17 @@ class ResticRepository:
         result = self._run(["restic", "init"])
 
         if result.returncode == 0:
-            return ResticRepositoryInfo(True, "Repository erfolgreich erstellt")
+            return ResticRepositoryInfo(
+                True,
+                "Repository erfolgreich erstellt",
+                RepositoryStatus.READY,
+            )
 
-        return ResticRepositoryInfo(False, result.stderr.strip())
+        return ResticRepositoryInfo(
+            False,
+            result.stderr.strip(),
+            RepositoryStatus.ERROR,
+        )
     
     def backup(self, paths: list[Path], excludes: list[str]) -> BackupResult:
         command = ["restic", "backup"]
@@ -235,11 +265,13 @@ class ResticRepository:
             return ResticRepositoryInfo(
                 initialized=True,
                 message="Repository-Prüfung erfolgreich.",
+                status=RepositoryStatus.READY,
             )
 
         return ResticRepositoryInfo(
             initialized=False,
             message=result.stderr.strip(),
+            status=RepositoryStatus.ERROR,
         )
     
     def forget_dry_run(

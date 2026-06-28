@@ -2,7 +2,7 @@
 
 # User Guide
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 
 ---
 
@@ -56,6 +56,7 @@ During execution the wizard performs the following tasks:
 
 * Creates the configuration directory
 * Creates the configuration file
+* Offers to edit an existing configuration and saves the previous file as `config.yaml.bak`
 * Creates the password file
 * Lets the user select USB, NAS or both backup destinations
 * Configures target-specific labels, mount paths and repository paths
@@ -64,7 +65,12 @@ During execution the wizard performs the following tasks:
 * Checks every configured Restic repository
 * Creates missing repositories if requested
 
-The setup wizard can safely be executed multiple times.
+The setup wizard can safely be executed multiple times. When a configuration already exists, it
+asks whether backup folders, destinations and the automatic schedule should be edited. Declining
+keeps the file unchanged. Accepting creates `config.yaml.bak` before the updated file is written.
+
+An invalid repository password is reported separately from a missing repository. Setup never
+offers to initialize an existing repository that cannot be opened with the configured password.
 
 ---
 
@@ -267,4 +273,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Version 1.0.0
+Version 1.0.1

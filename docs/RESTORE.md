@@ -2,7 +2,7 @@
 
 # Restore Guide
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 
 ---
 
@@ -143,4 +143,4 @@ Regular restore tests are the best way to ensure that valuable data can actually
 
 Linux Backup Manager Documentation
 
-Version 1.0.0
+Version 1.0.1

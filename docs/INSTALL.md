@@ -2,7 +2,7 @@
 
 # Installation Guide
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 
 ---
 
@@ -91,8 +91,18 @@ backup-manager --version
 Expected output:
 
 ```text
-backup-manager 1.0.0
+backup-manager 1.0.1
 ```
+
+For private use, install the locally built wheel directly instead of uploading it to a package
+index:
+
+```bash
+python -m pip install dist/linux_backup_manager-1.0.1-py3-none-any.whl
+```
+
+Keep the wheel in private storage or distribute it through a private channel. A private GitHub
+repository does not make a package uploaded to TestPyPI or PyPI private.
 
 ---
 
@@ -108,13 +118,16 @@ During setup, LBM automatically:
 
 * creates the configuration directory
 * creates the configuration file
+* offers safe interactive reconfiguration when the file already exists
 * creates the password file
 * checks required software
 * detects the configured USB backup drive
 * initializes the Restic repository if necessary
 * installs user-level systemd timers when automatic backups are enabled
 
-The setup wizard can safely be executed multiple times.
+The setup wizard can safely be executed multiple times. Before changing an existing configuration,
+it stores the previous file as `config.yaml.bak`. Existing repositories with an invalid password
+are reported and are never reinitialized.
 
 ---
 
@@ -154,4 +167,4 @@ After the installation has completed successfully, continue with the **User Guid
 
 Linux Backup Manager Documentation
 
-Version 1.0.0
+Version 1.0.1

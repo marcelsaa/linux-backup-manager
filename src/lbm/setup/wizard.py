@@ -2,11 +2,12 @@ from datetime import datetime
 from getpass import getpass
 from importlib.resources import files
 from pathlib import Path
-from shutil import which
+from shutil import copy2, which
 
 import yaml
 
-from lbm.core.config import AppConfig, ConfigLoader
+from lbm.backup.restic import RepositoryStatus
+from lbm.core.config import AppConfig, ConfigLoader, UniqueKeyLoader
 from lbm.core.errors import ApplicationError
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.scheduler import SystemdScheduler
@@ -52,7 +53,12 @@ class SetupWizard:
     def _check_config(self) -> bool:
         if self.config_file.exists():
             Console.success("config.yaml vorhanden")
-            return True
+            if not self.interactive:
+                return True
+            answer = input("Bestehende Konfiguration bearbeiten? [j/N]: ")
+            if answer.strip().lower() != "j":
+                return True
+            return self._edit_config()
 
         Console.error("config.yaml fehlt")
         if not self.interactive:
@@ -78,14 +84,63 @@ class SetupWizard:
         self._configure_schedule(data)
 
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
-        self.config_file.write_text(
-            yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
-            encoding="utf-8",
-        )
+        self._write_config(data)
         Console.success("config.yaml erstellt")
         return True
 
-    def _ask_backup_paths(self) -> list[str]:
+    def _edit_config(self) -> bool:
+        try:
+            ConfigLoader(self.config_file).load()
+            data = yaml.load(
+                self.config_file.read_text(encoding="utf-8"),
+                Loader=UniqueKeyLoader,
+            )
+        except ApplicationError as error:
+            Console.error(error.message)
+            if error.hint:
+                Console.info(error.hint)
+            for detail in error.details:
+                Console.info(detail)
+            return False
+        except (OSError, yaml.YAMLError) as error:
+            Console.error(f"Konfiguration konnte nicht bearbeitet werden: {error}")
+            return False
+
+        print()
+        Console.info("Backup-Ordner, Backup-Ziele und Zeitplan werden neu abgefragt.")
+        data["backup"]["paths"] = self._ask_backup_paths(data["backup"]["paths"])
+        self._configure_targets(data)
+        self._configure_schedule(data)
+
+        try:
+            AppConfig.model_validate(data)
+            backup_file = self.config_file.with_name(f"{self.config_file.name}.bak")
+            copy2(self.config_file, backup_file)
+            self._write_config(data)
+        except (OSError, ValueError, yaml.YAMLError) as error:
+            Console.error(f"Konfiguration konnte nicht gespeichert werden: {error}")
+            return False
+
+        Console.success("config.yaml aktualisiert")
+        Console.info(f"Sicherung der vorherigen Konfiguration: {backup_file}")
+        return True
+
+    def _write_config(self, data: dict) -> None:
+        temporary_file = self.config_file.with_name(f".{self.config_file.name}.tmp")
+        temporary_file.write_text(
+            yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+        temporary_file.replace(self.config_file)
+
+    def _ask_yes_no(self, prompt: str, default: bool) -> bool:
+        suffix = "[J/n]" if default else "[j/N]"
+        answer = input(f"{prompt} {suffix}: ").strip().lower()
+        if not answer:
+            return default
+        return answer == "j"
+
+    def _ask_backup_paths(self, current_paths: list[str] | None = None) -> list[str]:
         default_paths = [
             "~/Dokumente",
             "~/Bilder",
@@ -97,11 +152,19 @@ class SetupWizard:
         print("Welche Standardordner sollen gesichert werden?")
         print()
 
-        selected_paths = [
-            path
-            for path in default_paths
-            if input(f"{path} sichern? [J/n]: ").strip().lower() in ("", "j")
-        ]
+        selected_paths = []
+        for path in default_paths:
+            default = current_paths is None or path in current_paths
+            if self._ask_yes_no(f"{path} sichern?", default):
+                selected_paths.append(path)
+
+        custom_paths = [path for path in current_paths or [] if path not in default_paths]
+        if custom_paths:
+            print()
+            print("Bereits konfigurierte eigene Ordner:")
+            for path in custom_paths:
+                if self._ask_yes_no(f"{path} weiter sichern?", True):
+                    selected_paths.append(path)
 
         print()
         print("Weitere eigene Ordner hinzufügen?")
@@ -120,14 +183,15 @@ class SetupWizard:
         print("Welche Backup-Ziele sollen verwendet werden?")
         print()
 
-        use_usb = input("USB-Laufwerk verwenden? [J/n]: ").strip().lower() in ("", "j")
-        use_nas = input("Eingehängtes NAS verwenden? [j/N]: ").strip().lower() == "j"
+        usb = data["targets"]["usb"]
+        nas = data["targets"]["nas"]
+        use_usb = self._ask_yes_no("USB-Laufwerk verwenden?", usb["enabled"])
+        use_nas = self._ask_yes_no("Eingehängtes NAS verwenden?", nas["enabled"])
         if not use_usb and not use_nas:
             Console.error("Es muss mindestens ein Backup-Ziel ausgewählt werden.")
             self._configure_targets(data)
             return
 
-        usb = data["targets"]["usb"]
         usb["enabled"] = use_usb
         if use_usb:
             usb["label"] = self._ask_value("USB-Dateisystemlabel", usb["label"])
@@ -136,7 +200,6 @@ class SetupWizard:
                 usb["repository_path"],
             )
 
-        nas = data["targets"]["nas"]
         nas["enabled"] = use_nas
         if use_nas:
             nas["mount_path"] = self._ask_value("NAS-Mountpfad", nas["mount_path"])
@@ -150,8 +213,10 @@ class SetupWizard:
 
     def _configure_schedule(self, data: dict) -> None:
         print()
-        answer = input("Automatische Backups aktivieren? [J/n]: ")
-        enabled = answer.strip().lower() in ("", "j")
+        enabled = self._ask_yes_no(
+            "Automatische Backups aktivieren?",
+            data["schedule"]["enabled"],
+        )
         data["schedule"]["enabled"] = enabled
         if not enabled:
             return
@@ -254,6 +319,20 @@ class SetupWizard:
         if result.initialized:
             Console.success(f"Repository vorhanden: {destination.name}")
             return True
+
+        if result.status is RepositoryStatus.WRONG_PASSWORD:
+            Console.error(f"Repository-Passwort ungültig: {destination.name}")
+            Console.info(result.message)
+            Console.info(
+                "Bitte die konfigurierte Passwortdatei prüfen. "
+                "Das Repository wird nicht neu initialisiert."
+            )
+            return False
+
+        if result.status is RepositoryStatus.ERROR:
+            Console.error(f"Repository konnte nicht geprüft werden: {destination.name}")
+            Console.info(result.message)
+            return False
 
         Console.error(f"Repository fehlt: {destination.name}")
         if not self.interactive:

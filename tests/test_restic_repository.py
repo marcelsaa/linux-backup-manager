@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from lbm.backup.restic import ResticRepository
+from lbm.backup.restic import RepositoryStatus, ResticRepository
 
 
 def test_backup_uses_argument_list_without_shell() -> None:
@@ -80,6 +80,45 @@ def test_backup_returns_failed_result_on_restic_error() -> None:
     assert result.ok is False
     assert result.snapshot_id is None
     assert result.message == "Fatal: wrong password or no key found"
+
+
+def test_check_distinguishes_missing_repository(tmp_path: Path) -> None:
+    repository = ResticRepository(tmp_path / "missing", tmp_path / "password")
+    fake_result = Mock(returncode=1, stderr="Fatal: repository does not exist")
+
+    with patch("lbm.backup.restic.subprocess.run", return_value=fake_result):
+        result = repository.check()
+
+    assert result.initialized is False
+    assert result.status is RepositoryStatus.MISSING
+
+
+def test_check_distinguishes_wrong_password(tmp_path: Path) -> None:
+    repository_path = tmp_path / "repository"
+    repository_path.mkdir()
+    (repository_path / "config").write_text("repository config", encoding="utf-8")
+    repository = ResticRepository(repository_path, tmp_path / "password")
+    fake_result = Mock(returncode=1, stderr="Fatal: wrong password or no key found")
+
+    with patch("lbm.backup.restic.subprocess.run", return_value=fake_result):
+        result = repository.check()
+
+    assert result.initialized is False
+    assert result.status is RepositoryStatus.WRONG_PASSWORD
+
+
+def test_check_preserves_other_repository_errors(tmp_path: Path) -> None:
+    repository_path = tmp_path / "repository"
+    repository_path.mkdir()
+    (repository_path / "config").write_text("repository config", encoding="utf-8")
+    repository = ResticRepository(repository_path, tmp_path / "password")
+    fake_result = Mock(returncode=1, stderr="Fatal: repository is damaged")
+
+    with patch("lbm.backup.restic.subprocess.run", return_value=fake_result):
+        result = repository.check()
+
+    assert result.initialized is False
+    assert result.status is RepositoryStatus.ERROR
 
 def test_snapshots_parses_restic_json() -> None:
     repository = ResticRepository(

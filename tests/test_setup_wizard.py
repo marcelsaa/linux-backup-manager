@@ -2,8 +2,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+import yaml
 
-from lbm.backup.restic import ResticRepositoryInfo
+from lbm.backup.restic import RepositoryStatus, ResticRepositoryInfo
 from lbm.core.config import AppConfig, ConfigLoader
 from lbm.services.repository import RepositoryDestination
 from lbm.setup.wizard import SetupWizard
@@ -90,10 +91,18 @@ def test_configure_targets_requires_at_least_one_target() -> None:
 
 def test_check_repositories_initializes_all_destinations() -> None:
     first = Mock()
-    first.check.return_value = ResticRepositoryInfo(False, "missing")
+    first.check.return_value = ResticRepositoryInfo(
+        False,
+        "missing",
+        RepositoryStatus.MISSING,
+    )
     first.init_repository.return_value = ResticRepositoryInfo(True, "created")
     second = Mock()
-    second.check.return_value = ResticRepositoryInfo(False, "missing")
+    second.check.return_value = ResticRepositoryInfo(
+        False,
+        "missing",
+        RepositoryStatus.MISSING,
+    )
     second.init_repository.return_value = ResticRepositoryInfo(True, "created")
     destinations = [
         RepositoryDestination("USB: TestUSB", first),
@@ -146,6 +155,57 @@ def test_first_run_writes_a_valid_usb_configuration(tmp_path: Path) -> None:
     assert config.schedule.enabled is True
     assert config.schedule.daily_time == "20:00"
     assert config.schedule.interval_days == 1
+
+
+def test_existing_configuration_can_be_edited_with_backup(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    data = app_config().model_dump()
+    data["backup"]["paths"] = ["~/Dokumente", "/tmp/source"]
+    data["targets"]["nas"]["enabled"] = False
+    data["checks"] = {"restic_check_interval_days": 30}
+    original = yaml.safe_dump(data, sort_keys=False)
+    config_file.write_text(original, encoding="utf-8")
+    answers = [
+        "j",  # edit existing configuration
+        "n",  # remove documents
+        "",  # images remain disabled
+        "",  # desktop remains disabled
+        "",  # downloads remain disabled
+        "j",  # add projects
+        "n",  # remove custom /tmp/source
+        "/tmp/new-source",
+        "",  # finish custom paths
+        "",  # keep USB enabled
+        "",  # keep NAS disabled
+        "TestUSB",
+        "usb-production",
+        "",  # keep schedule disabled
+    ]
+
+    with patch("builtins.input", side_effect=answers):
+        edited = SetupWizard(config_file)._check_config()
+
+    assert edited is True
+    assert (tmp_path / "config.yaml.bak").read_text(encoding="utf-8") == original
+    saved_data = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    assert saved_data["backup"]["paths"] == ["~/Projekte", "/tmp/new-source"]
+    assert saved_data["targets"]["usb"]["repository_path"] == "usb-production"
+    assert saved_data["checks"] == {"restic_check_interval_days": 30}
+
+
+def test_wrong_repository_password_is_not_treated_as_missing() -> None:
+    repository = Mock()
+    repository.check.return_value = ResticRepositoryInfo(
+        False,
+        "Fatal: wrong password or no key found",
+        RepositoryStatus.WRONG_PASSWORD,
+    )
+    wizard = SetupWizard(Path("/tmp/config.yaml"))
+
+    result = wizard._check_repository(RepositoryDestination("USB: TestUSB", repository))
+
+    assert result is False
+    repository.init_repository.assert_not_called()
 
 
 def test_config_model_rejects_disabled_usb_and_nas() -> None:
