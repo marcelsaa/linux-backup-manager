@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.0.0
+**Last updated:** Version 1.0.1rc1
 
 ---
 
@@ -154,4 +154,4 @@ Every release should improve usability without compromising reliability.
 
 Linux Backup Manager Documentation
 
-Version 1.0.0
+Version 1.0.1rc1

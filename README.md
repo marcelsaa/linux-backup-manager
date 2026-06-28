@@ -181,9 +181,9 @@ See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 # Project Status
 
-**Current Version:** 1.0.0
+**Current Version:** 1.0.1rc1
 
-Linux Backup Manager 1.0.0 is in final release-candidate validation.
+Linux Backup Manager 1.0.1rc1 is in final release-candidate validation.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 
