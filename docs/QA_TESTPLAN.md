@@ -201,6 +201,13 @@ backup-manager status
 backup-manager health
 backup-manager doctor
 backup-manager setup
+backup-manager backup
+backup-manager snapshots
+backup-manager restore
+backup-manager stats
+backup-manager check
+backup-manager recovery-info
+backup-manager recovery-sheet
 ```
 
 Verify that headings, labels, result states, prompts and application-generated errors use the

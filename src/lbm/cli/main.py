@@ -1,11 +1,15 @@
 import argparse
 import logging
+import os
+from pathlib import Path
 
 from lbm import __version__
 from lbm.cli.error_handler import ErrorHandler
 from lbm.core.application import Application
+from lbm.core.config import ConfigLoader
 from lbm.core.errors import ApplicationError
 from lbm.log_config import setup_logging
+from lbm.services.language import LanguageService
 from lbm.ui.console import Console
 
 
@@ -16,9 +20,10 @@ class CommandLineInterface:
         self.application: Application | None = None
 
     def run(self) -> bool:
+        language = _configured_language()
         parser = argparse.ArgumentParser(
             prog="backup-manager",
-            description="Linux Backup Manager"
+            description=language.translate("cli.description"),
         )
 
         parser.add_argument(
@@ -46,13 +51,13 @@ class CommandLineInterface:
                 "schedule-status",
                 "schedule-remove",
             ],
-            help="auszuführender Befehl",
+            help=language.translate("cli.command_help"),
         )
 
         parser.add_argument(
             "--non-interactive",
             action="store_true",
-            help="Keine interaktiven Änderungen durchführen.",
+            help=language.translate("cli.non_interactive_help"),
         )
 
         parser.add_argument(
@@ -109,5 +114,19 @@ def main() -> int:
 
     except KeyboardInterrupt:
         print()
-        Console.warning("Vorgang durch Benutzer abgebrochen.")
+        Console.warning(_configured_language().translate("cli.interrupted"))
         return 130
+
+
+def _configured_language() -> LanguageService:
+    configured_file = os.environ.get("LBM_CONFIG_FILE")
+    config_file = (
+        Path(configured_file).expanduser()
+        if configured_file
+        else Path("~/.config/linux-backup-manager/config.yaml").expanduser()
+    )
+    try:
+        config = ConfigLoader(config_file).load()
+    except ApplicationError:
+        return LanguageService()
+    return LanguageService(config.system.language)

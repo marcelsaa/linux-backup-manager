@@ -5,6 +5,7 @@ from stat import S_IMODE
 from lbm import __version__
 from lbm.core.config import AppConfig
 from lbm.core.errors import RecoverySheetError
+from lbm.services.language import LanguageService
 from lbm.ui.console import Console
 
 
@@ -15,17 +16,16 @@ class RecoveryInfoService:
         self.config = config
         self.config_file = config_file
         self.password_file = Path(config.paths.password_file).expanduser()
+        self.language = LanguageService(config.system.language)
 
     def run(self) -> None:
-        print("Linux Backup Manager")
-        print("Recovery-Informationen")
-        print("======================")
+        print(self._text("app.title"))
+        heading = self._text("recovery_info.heading")
+        print(heading)
+        print("=" * len(heading))
         print()
-        Console.warning("Das Repository-Passwort kann nicht wiederhergestellt werden.")
-        print(
-            "Ohne das richtige Passwort oder eine sichere Kopie der Passwortdatei "
-            "sind die Backups dauerhaft unzugänglich."
-        )
+        Console.warning(self._text("recovery_info.password_not_recoverable"))
+        print(self._text("recovery_info.password_required"))
 
         self._print_files()
         self._print_targets()
@@ -33,53 +33,58 @@ class RecoveryInfoService:
 
     def _print_files(self) -> None:
         print()
-        print("Wichtige Dateien")
-        print("-----------------")
-        print(f"Konfiguration....... {self.config_file}")
-        print(f"Passwortdatei........ {self.password_file}")
-        print(f"Passwortdatei-Status. {self._password_status()}")
-        print(f"Konfigurationskopie.. {self.config_file}.bak")
+        self._heading("recovery_info.important_files")
+        self._line("recovery_info.configuration", self.config_file)
+        self._line("recovery_info.password_file", self.password_file)
+        self._line("recovery_info.password_status", self._password_status())
+        self._line("recovery_info.config_copy", f"{self.config_file}.bak")
 
     def _password_status(self) -> str:
         try:
             mode = S_IMODE(self.password_file.stat().st_mode)
         except FileNotFoundError:
-            return "FEHLT"
+            return self._text("common.missing_upper")
         except OSError:
-            return "nicht prüfbar"
-        return f"vorhanden (Rechte {mode:04o})"
+            return self._text("recovery_info.not_checkable")
+        return self._text("recovery_info.present_permissions", mode=f"{mode:04o}")
 
     def _print_targets(self) -> None:
         print()
-        print("Konfigurierte Repository-Ziele")
-        print("------------------------------")
+        self._heading("recovery_info.configured_targets")
 
         usb = self.config.targets.usb
         if usb.enabled:
-            print(f"USB-Label............ {usb.label}")
-            print(f"USB-Repository....... {usb.repository_path}")
+            self._line("recovery_info.usb_label", usb.label)
+            self._line("recovery_info.usb_repository", usb.repository_path)
 
         nas = self.config.targets.nas
         if nas.enabled:
             repository = Path(nas.mount_path).expanduser() / nas.repository_path
-            print(f"NAS-Repository....... {repository}")
+            self._line("recovery_info.nas_repository", repository)
 
     def _print_recovery_steps(self) -> None:
         print()
-        print("Notfallablauf")
-        print("-------------")
-        print("1. Restic und Linux Backup Manager auf dem Ersatzsystem installieren.")
-        print("2. Das USB- oder NAS-Backup-Ziel einhängen.")
-        print("3. Konfiguration und Passwortdatei aus einer getrennten Kopie wiederherstellen.")
-        print(f"4. Dateirechte setzen: chmod 600 {self.password_file}")
-        print("5. Zugriff prüfen: backup-manager health")
-        print("6. Snapshots anzeigen: backup-manager snapshots")
-        print("7. Wiederherstellung starten: backup-manager restore")
+        self._heading("recovery_info.emergency_steps")
+        for number in range(1, 8):
+            print(
+                self._text(
+                    f"recovery_info.step_{number}",
+                    password_file=self.password_file,
+                )
+            )
         print()
-        Console.info(
-            "Bewahren Sie eine Kopie der Passwortdatei getrennt vom Backup-Repository "
-            "und vor unbefugtem Zugriff geschützt auf."
-        )
+        Console.info(self._text("recovery_info.store_separately"))
+
+    def _heading(self, key: str) -> None:
+        heading = self._text(key)
+        print(heading)
+        print("-" * len(heading))
+
+    def _line(self, key: str, value: object) -> None:
+        print(f"{self._text(key):.<21} {value}")
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)
 
 
 class RecoverySheetService:
@@ -89,31 +94,31 @@ class RecoverySheetService:
         self.config = config
         self.config_file = config_file
         self.password_file = Path(config.paths.password_file).expanduser()
+        self.language = LanguageService(config.system.language)
 
     def run(self) -> bool:
-        print("Linux Backup Manager Recovery Sheet")
-        print("===================================")
+        title = self._text("recovery_sheet.title")
+        print(title)
+        print("=" * len(title))
         print()
-        Console.warning("Das Recovery Sheet enthält absichtlich kein Passwort.")
-        Console.info(
-            "Es ersetzt keine getrennt und geschützt aufbewahrte Passwortkopie."
-        )
+        Console.warning(self._text("recovery_sheet.no_password"))
+        Console.info(self._text("recovery_sheet.not_password_backup"))
 
         target = self._ask_target()
         if target.exists():
-            answer = input(f"Datei existiert bereits: {target}. Überschreiben? [j/N]: ")
-            if answer.strip().lower() != "j":
-                Console.warning("Recovery Sheet wurde nicht überschrieben.")
+            answer = input(self._text("recovery_sheet.overwrite", path=target))
+            if not self._is_yes(answer):
+                Console.warning(self._text("recovery_sheet.not_overwritten"))
                 return False
 
         self._write(target, self._render())
-        Console.success(f"Recovery Sheet erstellt: {target}")
-        Console.info("Bitte ausdrucken oder an einem getrennten, geschützten Ort speichern.")
+        Console.success(self._text("recovery_sheet.created", path=target))
+        Console.info(self._text("recovery_sheet.store_safely"))
         return True
 
     def _ask_target(self) -> Path:
         default = Path.home() / "linux-backup-manager-recovery.txt"
-        value = input(f"Ausgabedatei [{default}]: ").strip()
+        value = input(self._text("recovery_sheet.output_file", default=default)).strip()
         return Path(value).expanduser() if value else default
 
     def _write(self, target: Path, content: str) -> None:
@@ -130,55 +135,54 @@ class RecoverySheetService:
             except OSError:
                 pass
             raise RecoverySheetError(
-                "Recovery Sheet konnte nicht sicher gespeichert werden.",
-                hint=f"Bitte Ausgabepfad und Schreibrechte prüfen: {target}",
+                self._text("recovery_sheet.write_failed"),
+                hint=self._text("recovery_sheet.write_hint", path=target),
             ) from error
 
     def _render(self) -> str:
         generated = datetime.now().astimezone().isoformat(timespec="seconds")
         lines = [
-            "LINUX BACKUP MANAGER – RECOVERY SHEET",
-            "=====================================",
+            self._text("recovery_sheet.document.title"),
+            "=" * len(self._text("recovery_sheet.document.title")),
             "",
-            "WICHTIG: Dieses Dokument enthält KEIN Repository-Passwort.",
-            "Ohne Passwort oder geschützte Passwortdatei sind die Backups unzugänglich.",
+            self._text("recovery_sheet.document.warning"),
+            self._text("recovery_sheet.document.password_required"),
             "",
-            "SYSTEM",
-            "------",
-            f"Erstellt: {generated}",
-            f"Linux Backup Manager: {__version__}",
-            f"Host: {self.config.system.host_name}",
+            self._text("recovery_sheet.document.system"),
+            "-" * len(self._text("recovery_sheet.document.system")),
+            self._text("recovery_sheet.document.created", value=generated),
+            self._text("recovery_sheet.document.version", value=__version__),
+            self._text("recovery_sheet.document.host", value=self.config.system.host_name),
             "",
-            "WICHTIGE DATEIEN",
-            "----------------",
-            f"Konfiguration: {self.config_file}",
-            f"Konfigurationskopie: {self.config_file}.bak",
-            f"Passwortdatei: {self.password_file}",
+            self._text("recovery_sheet.document.files"),
+            "-" * len(self._text("recovery_sheet.document.files")),
+            self._text("recovery_sheet.document.configuration", value=self.config_file),
+            self._text("recovery_sheet.document.config_copy", value=f"{self.config_file}.bak"),
+            self._text("recovery_sheet.document.password_file", value=self.password_file),
             "",
-            "REPOSITORY-ZIELE",
-            "-----------------",
+            self._text("recovery_sheet.document.targets"),
+            "-" * len(self._text("recovery_sheet.document.targets")),
             *self._target_lines(),
             "",
-            "EXTERNE VORSORGE – MANUELL AUSFÜLLEN",
-            "------------------------------------",
-            "Aufbewahrungsort der Passwortkopie: ______________________________",
-            "Aufbewahrungsort der Konfigurationskopie: _________________________",
-            "Datum des letzten erfolgreichen Restore-Tests: ____________________",
-            "Notizen: __________________________________________________________",
+            self._text("recovery_sheet.document.external_records"),
+            "-" * len(self._text("recovery_sheet.document.external_records")),
+            self._text("recovery_sheet.document.password_copy_location"),
+            self._text("recovery_sheet.document.config_copy_location"),
+            self._text("recovery_sheet.document.restore_test_date"),
+            self._text("recovery_sheet.document.notes"),
             "",
-            "NOTFALLABLAUF",
-            "-------------",
-            "1. Python 3.12+, Restic und Linux Backup Manager installieren.",
-            "2. USB- oder NAS-Backup-Ziel einhängen.",
-            "3. Konfiguration und geschützte Passwortdatei wiederherstellen.",
-            f"4. Dateirechte setzen: chmod 600 {self.password_file}",
-            "5. Zugriff prüfen: backup-manager health",
-            "6. Snapshots anzeigen: backup-manager snapshots",
-            "7. Repository prüfen: backup-manager check",
-            "8. Restore starten: backup-manager restore",
+            self._text("recovery_sheet.document.emergency_steps"),
+            "-" * len(self._text("recovery_sheet.document.emergency_steps")),
+            *[
+                self._text(
+                    f"recovery_sheet.document.step_{number}",
+                    password_file=self.password_file,
+                )
+                for number in range(1, 9)
+            ],
             "",
-            "Dieses Sheet getrennt vom Rechner und Backup-Repository aufbewahren.",
-            "Wer Repository und Passwort besitzt, kann die Backup-Inhalte lesen.",
+            self._text("recovery_sheet.document.keep_separate"),
+            self._text("recovery_sheet.document.access_warning"),
             "",
         ]
         return "\n".join(lines)
@@ -189,13 +193,24 @@ class RecoverySheetService:
         if usb.enabled:
             lines.extend(
                 [
-                    f"USB-Dateisystemlabel: {usb.label}",
-                    f"USB-Repository-Pfad: {usb.repository_path}",
+                    self._text("recovery_sheet.document.usb_label", value=usb.label),
+                    self._text(
+                        "recovery_sheet.document.usb_repository",
+                        value=usb.repository_path,
+                    ),
                 ]
             )
 
         nas = self.config.targets.nas
         if nas.enabled:
             repository = Path(nas.mount_path).expanduser() / nas.repository_path
-            lines.append(f"NAS-Repository: {repository}")
+            lines.append(
+                self._text("recovery_sheet.document.nas_repository", value=repository)
+            )
         return lines
+
+    def _is_yes(self, answer: str) -> bool:
+        return answer.strip().lower() in {"j", "y", self._text("common.yes_short")}
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)

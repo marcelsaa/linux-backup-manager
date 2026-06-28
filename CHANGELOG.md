@@ -109,6 +109,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * Shared health checks, repository target resolution and systemd scheduler accept the selected
   language while preserving German defaults for existing callers
 
+## Sprint 40 – Complete CLI Internationalization
+
+### Added
+
+* German and English messages for backup, restore, snapshot and repository-maintenance commands
+* German and English recovery information and generated recovery-sheet content
+* Localized backup-due decisions, CLI help and keyboard-interruption messages
+* Installed command-group regression tests for all remaining English workflows
+
+### Changed
+
+* Backup, restore, maintenance and recovery services now resolve user-facing text through
+  `LanguageService`
+* Successful Restic operations use consistent application translations while raw external errors
+  and diagnostic output remain unchanged
+* The roadmap now marks the complete switchable German/English CLI as implemented
+
 ---
 
 # v1.0.1 – 2026-06-28

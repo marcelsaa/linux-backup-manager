@@ -3,6 +3,7 @@ from pathlib import Path
 
 from lbm.backup.restic import BackupResult
 from lbm.core.config import AppConfig
+from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.ui.console import Console
 
@@ -14,6 +15,7 @@ class BackupService:
         repository_provider: RepositoryProvider | None = None,
     ) -> None:
         self.config = config
+        self.language = LanguageService(config.system.language)
         self.repository_provider = repository_provider or RepositoryProvider(config)
 
     def run(self) -> bool:
@@ -29,7 +31,7 @@ class BackupService:
         backup_paths = [Path(path).expanduser() for path in self.config.backup.paths]
         excludes = [str(Path(exclude).expanduser()) for exclude in self.config.backup.excludes]
 
-        print("Starte Backup folgender Pfade:")
+        print(self._text("backup.start_paths"))
         for path in backup_paths:
             print(f"- {path}")
 
@@ -64,8 +66,8 @@ class BackupService:
                 files_changed=0,
                 files_unmodified=0,
                 processed_files=0,
-                processed_size="unbekannt",
-                duration="unbekannt",
+                processed_size=self._text("common.unknown"),
+                duration=self._text("common.unknown"),
                 message=repository_check.message,
             )
         return destination.repository.backup(backup_paths, excludes)
@@ -74,16 +76,23 @@ class BackupService:
         print()
         Console.headline(destination_name)
         if not result.ok:
-            Console.error("Backup fehlgeschlagen:")
+            Console.error(self._text("backup.failed"))
             Console.error(result.message)
             return
 
-        print("Backup erfolgreich")
-        print("------------------")
-        print(f"Snapshot-ID........ {result.snapshot_id}")
-        print(f"Neue Dateien...... {result.files_new}")
-        print(f"Geändert.......... {result.files_changed}")
-        print(f"Unverändert....... {result.files_unmodified}")
-        print(f"Verarbeitet....... {result.processed_files}")
-        print(f"Datenmenge........ {result.processed_size}")
-        print(f"Dauer............. {result.duration}")
+        heading = self._text("backup.success")
+        print(heading)
+        print("-" * len(heading))
+        self._line("backup.snapshot_id", result.snapshot_id)
+        self._line("backup.new_files", result.files_new)
+        self._line("backup.changed", result.files_changed)
+        self._line("backup.unchanged", result.files_unmodified)
+        self._line("backup.processed", result.processed_files)
+        self._line("backup.data_size", result.processed_size)
+        self._line("backup.duration", result.duration)
+
+    def _line(self, key: str, value: object) -> None:
+        print(f"{self._text(key):.<20} {value}")
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)

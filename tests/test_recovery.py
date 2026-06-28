@@ -46,10 +46,14 @@ def test_recovery_info_displays_metadata_without_password_content(
     config.paths.password_file = str(password_file)
     config_file = tmp_path / "config.yaml"
 
-    with patch(
-        "pathlib.Path.read_text",
-        side_effect=AssertionError("recovery-info must not read file contents"),
-    ):
+    original_read_text = Path.read_text
+
+    def reject_password_read(path: Path, *args, **kwargs) -> str:
+        if path == password_file:
+            raise AssertionError("recovery-info must not read the password file")
+        return original_read_text(path, *args, **kwargs)
+
+    with patch("pathlib.Path.read_text", autospec=True, side_effect=reject_password_read):
         RecoveryInfoService(config, config_file).run()
 
     output = capsys.readouterr().out
@@ -80,13 +84,16 @@ def test_recovery_sheet_is_password_free_and_has_secure_permissions(
     password_file.write_text("never-copy-this-secret\n", encoding="utf-8")
     config.paths.password_file = str(password_file)
     target = tmp_path / "recovery" / "sheet.txt"
+    original_read_text = Path.read_text
+
+    def reject_password_read(path: Path, *args, **kwargs) -> str:
+        if path == password_file:
+            raise AssertionError("recovery-sheet must not read the password file")
+        return original_read_text(path, *args, **kwargs)
 
     with (
         patch("builtins.input", return_value=str(target)),
-        patch(
-            "pathlib.Path.read_text",
-            side_effect=AssertionError("recovery-sheet must not read file contents"),
-        ),
+        patch("pathlib.Path.read_text", autospec=True, side_effect=reject_password_read),
     ):
         created = RecoverySheetService(config, tmp_path / "config.yaml").run()
 

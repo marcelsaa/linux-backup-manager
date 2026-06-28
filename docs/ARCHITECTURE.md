@@ -109,7 +109,9 @@ Language catalogs are packaged below `lbm.resources/i18n`. `system.language` sel
 older configurations default to German. Message lookup falls back through English and German
 before returning a stable untranslated key. `StatusService`, `DoctorService`, `HealthService`,
 `HealthChecker` and `SetupWizard` obtain all their user-facing messages from this layer. Setup also
-passes the language into target resolution and scheduler installation.
+passes the language into target resolution and scheduler installation. Backup, restore,
+maintenance and recovery services use the same per-configuration language instance. The CLI reads
+the configured language for help and interruption messages before dispatching a command.
 
 ---
 

@@ -6,6 +6,7 @@ from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
 from lbm.services.doctor import DoctorService
 from lbm.services.health import HealthService
+from lbm.services.language import LanguageService
 from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
 from lbm.services.restore import RestoreService
@@ -64,11 +65,12 @@ class Application:
         state = BackupStateStore.from_config(config.paths.state_dir)
         max_age_hours = config.schedule.interval_days * 24
         if not state.is_due(max_age_hours):
-            print("Backup ist noch nicht fällig.")
+            print(LanguageService(config.system.language).translate("backup.not_due"))
             return True
         print(
-            "Letztes erfolgreiches Backup ist älter als "
-            f"{max_age_hours} Stunden oder unbekannt."
+            LanguageService(config.system.language).translate(
+                "backup.overdue_or_unknown", hours=max_age_hours
+            )
         )
         return self.backup()
 
@@ -76,7 +78,11 @@ class Application:
         config = self._load_config()
         state = BackupStateStore.from_config(config.paths.state_dir)
         if not state.is_scheduled_due(config.schedule.interval_days):
-            print("Das konfigurierte Backup-Intervall ist noch nicht erreicht.")
+            print(
+                LanguageService(config.system.language).translate(
+                    "backup.interval_not_reached"
+                )
+            )
             return True
         return self.backup()
 

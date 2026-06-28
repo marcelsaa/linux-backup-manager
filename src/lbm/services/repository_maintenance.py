@@ -1,4 +1,5 @@
 from lbm.core.config import AppConfig
+from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryProvider
 from lbm.ui.console import Console
 
@@ -10,6 +11,7 @@ class RepositoryMaintenanceService:
         repository_provider: RepositoryProvider | None = None,
     ) -> None:
         self.config = config
+        self.language = LanguageService(config.system.language)
         self.repository_provider = repository_provider or RepositoryProvider(config)
 
     def init_repository(self) -> None:
@@ -17,19 +19,19 @@ class RepositoryMaintenanceService:
         if restic is None:
             return
         if restic.check().initialized:
-            print("Repository ist bereits vorhanden.")
+            print(self._text("maintenance.repository_exists"))
             return
 
-        print(f"Repository wird angelegt unter:\n{restic.repository}")
-        if input("Fortfahren? [j/N]: ").strip().lower() != "j":
-            print("Abgebrochen.")
+        print(self._text("maintenance.create_at", path=restic.repository))
+        if not self._is_yes(input(self._text("maintenance.continue_prompt"))):
+            print(self._text("common.cancelled"))
             return
 
         result = restic.init_repository()
         if result.initialized:
-            print(result.message)
+            print(self._text("maintenance.repository_created"))
         else:
-            print("Fehler beim Erstellen des Repositorys:")
+            print(self._text("maintenance.create_failed"))
             print(result.message)
 
     def snapshots(self) -> None:
@@ -38,48 +40,54 @@ class RepositoryMaintenanceService:
             return
         snapshots = restic.snapshots()
         if not snapshots:
-            print("Keine Snapshots gefunden.")
+            print(self._text("maintenance.no_snapshots"))
             return
 
-        print("Linux Backup Manager")
-        print("====================")
+        title = self._text("app.title")
+        print(title)
+        print("=" * len(title))
         print()
-        print("Snapshots")
-        print("---------")
-        print(f"{'':<2}{'ID':<8} {'Datum':<20} {'Host'}")
+        heading = self._text("maintenance.snapshots")
+        print(heading)
+        print("-" * len(heading))
+        date_label = self._text("maintenance.date")
+        host_label = self._text("maintenance.host")
+        print(f"{'':<2}{'ID':<8} {date_label:<20} {host_label}")
         print("-" * 45)
         for index, snapshot in enumerate(reversed(snapshots)):
             marker = "*" if index == 0 else " "
             print(f"{marker} {snapshot.snapshot_id:<8} {snapshot.time:<20} {snapshot.host}")
         print()
-        print(f"Anzahl Snapshots: {len(snapshots)}")
+        print(self._text("maintenance.snapshot_count", count=len(snapshots)))
 
     def stats(self) -> None:
         restic = self.repository_provider.get()
         if restic is None:
             return
         stats = restic.stats()
-        print("Linux Backup Manager")
-        print("====================")
+        title = self._text("app.title")
+        print(title)
+        print("=" * len(title))
         print()
-        print("Repository-Statistik")
-        print("--------------------")
-        print(f"Snapshots........... {stats.snapshot_count}")
-        print(f"Erster Snapshot..... {stats.first_snapshot}")
-        print(f"Letzter Snapshot.... {stats.last_snapshot}")
-        print(f"Host................ {stats.host}")
+        heading = self._text("maintenance.statistics")
+        print(heading)
+        print("-" * len(heading))
+        self._line("maintenance.snapshots", stats.snapshot_count)
+        self._line("maintenance.first_snapshot", stats.first_snapshot)
+        self._line("maintenance.last_snapshot", stats.last_snapshot)
+        self._line("maintenance.host", stats.host)
 
     def check(self) -> None:
         restic = self.repository_provider.get()
         if restic is None:
             return
-        Console.info("Repository wird geprüft...")
+        Console.info(self._text("maintenance.checking"))
         print()
         result = restic.check_repository()
         if result.initialized:
-            Console.success(result.message)
+            Console.success(self._text("maintenance.check_success"))
         else:
-            Console.error("Repository-Prüfung fehlgeschlagen:")
+            Console.error(self._text("maintenance.check_failed"))
             Console.error(result.message)
 
     def forget(self) -> None:
@@ -88,18 +96,19 @@ class RepositoryMaintenanceService:
             return
 
         retention = self.config.retention
-        print("Forget Dry-Run")
-        print("--------------")
+        heading = self._text("maintenance.forget_dry_run")
+        print(heading)
+        print("-" * len(heading))
         dry_run = restic.forget_dry_run(
             keep_daily=retention.keep_daily,
             keep_weekly=retention.keep_weekly,
             keep_monthly=retention.keep_monthly,
             keep_yearly=retention.keep_yearly,
         )
-        print(dry_run if dry_run else "Keine Snapshots würden gelöscht.")
+        print(dry_run if dry_run else self._text("maintenance.none_deleted"))
         print()
-        if input("Snapshots wirklich löschen? [j/N]: ").strip().lower() != "j":
-            print("Abgebrochen.")
+        if not self._is_yes(input(self._text("maintenance.delete_snapshots"))):
+            print(self._text("common.cancelled"))
             return
 
         result = restic.forget(
@@ -109,17 +118,26 @@ class RepositoryMaintenanceService:
             keep_yearly=retention.keep_yearly,
         )
         print()
-        print(result if result else "Forget abgeschlossen.")
+        print(result if result else self._text("maintenance.forget_complete"))
 
     def prune(self) -> None:
         restic = self.repository_provider.get()
         if restic is None:
             return
-        print("Repository wird optimiert.")
+        print(self._text("maintenance.optimizing"))
         print()
-        if input("Prune starten? [j/N]: ").strip().lower() != "j":
-            print("Abgebrochen.")
+        if not self._is_yes(input(self._text("maintenance.start_prune"))):
+            print(self._text("common.cancelled"))
             return
         result = restic.prune()
         print()
-        print(result if result else "Prune abgeschlossen.")
+        print(result if result else self._text("maintenance.prune_complete"))
+
+    def _line(self, key: str, value: object) -> None:
+        print(f"{self._text(key):.<22} {value}")
+
+    def _is_yes(self, answer: str) -> bool:
+        return answer.strip().lower() in {"j", "y", self._text("common.yes_short")}
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)

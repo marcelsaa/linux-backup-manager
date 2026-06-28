@@ -113,8 +113,8 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Central `LanguageService` and packaged YAML message catalogs
 * [x] Persisted German/English language selection with fallback
 * [x] Complete `status`, `doctor`, `health` and `setup` CLI migration
-* [ ] Consistent translated CLI terminology
-* [ ] Migrate backup, restore, maintenance, recovery and schedule commands
+* [x] Backup, restore, maintenance, recovery and schedule command migration
+* [x] Consistent translated CLI terminology and generated recovery sheets
 * [ ] Complete German and English documentation
 
 ---

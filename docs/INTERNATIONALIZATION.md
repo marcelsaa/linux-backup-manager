@@ -4,9 +4,9 @@
 
 ## Scope
 
-Sprint 38 provided the infrastructure. Sprint 39 migrated the complete user-facing output of
-`status`, `doctor`, `health` and `setup`, including target-resolution and scheduler messages used by
-those workflows. German remains the default for configurations created before Sprint 38.
+Sprint 38 provided the infrastructure, Sprint 39 migrated the four central interactive workflows,
+and Sprint 40 completed the remaining command groups. All application-generated CLI output now
+uses the selected language. German remains the default for configurations created before Sprint 38.
 
 ## Language Configuration
 
@@ -48,12 +48,11 @@ Messages are resolved in this order:
 An unsupported language passed directly to `LanguageService` falls back to English. Configuration
 validation only accepts `de` and `en`, preventing misspelled persisted values.
 
-## Next Steps
+## Completed CLI Scope
 
-The following command groups remain to be migrated:
+The translated command surface includes setup, status, health, doctor, backup, restore, snapshot
+and repository maintenance, recovery information and sheets, due checks, scheduler actions and CLI
+help. Generated recovery-sheet content follows the selected language as well.
 
-* backup, restore, snapshots, stats, check, forget and prune;
-* recovery-info and recovery-sheet;
-* standalone schedule commands and remaining shared error messages.
-
-Complete German and English user documentation remains a later milestone.
+Raw Restic and systemctl output remains unchanged because it belongs to those external programs.
+Complete German and English long-form user documentation remains a later milestone.
