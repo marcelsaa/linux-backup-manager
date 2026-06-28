@@ -35,18 +35,23 @@ Verify that a completely new user can install the application.
 
 ### Steps
 
-* Create a new virtual environment.
-* Install using `pip install .`.
-* Verify the installation.
+* Build the wheel and source distribution using `python -m build`.
+* Validate both artifacts using `python -m twine check dist/*`.
+* Create a new virtual environment outside the project directory.
+* Install the generated wheel, not the source checkout.
+* Verify the installation and its dependencies.
 
 ```bash
+python -m pip install dist/linux_backup_manager-<version>-py3-none-any.whl
 backup-manager --version
+python -m pip check
 ```
 
 ### Expected Result
 
 * Installation succeeds.
 * The correct application version is displayed.
+* No dependency conflicts are reported.
 
 ---
 
@@ -215,6 +220,12 @@ selected language consistently. External Restic and systemctl output may remain 
 provided by those programs. Existing configurations without `system.language` must continue to
 use German.
 
+For each language, use an isolated configuration, password file, state directory and local test
+repository. Initialize the repository, create a backup, list its snapshot, check repository
+integrity and restore the snapshot to a separate target. Compare at least one restored file
+byte-for-byte with its source and verify that a failed Restic restore produces a nonzero CLI exit
+status.
+
 ---
 
 # First-User Tests (Layer 8)
@@ -223,8 +234,8 @@ Verify that a first-time user with no prior knowledge of the project can success
 
 ### Test Procedure
 
-* Create a completely fresh Python virtual environment.
-* Install the application using `pip install .`.
+* Create a completely fresh Python virtual environment outside the source checkout.
+* Install the application from the generated wheel.
 * Run:
 
 ```bash
@@ -274,6 +285,12 @@ backup-manager --help
 pip check
 ```
 
+### Local CI Quality Gate
+
+Run the complete Python 3.12 quality sequence defined in `.github/workflows/ci.yml` locally on the
+final release-candidate commit. The project is maintained locally, so no remote CI result is
+required.
+
 ### Git Status
 
 ```bash
@@ -286,6 +303,8 @@ git status
 * All unit tests pass.
 * Wheel and source distribution build successfully.
 * A clean installation from the built artifact succeeds.
+* German and English end-to-end backup and restore tests pass.
+* The complete local CI quality gate succeeds.
 * The working tree is clean.
 
 ---
@@ -300,11 +319,11 @@ A release candidate is considered ready when:
 * backups can be created.
 * restores can be completed successfully.
 * repository checks pass.
-* the documentation is complete and up to date.
+* documentation and release claims are consistent and up to date.
 * the First-User Test (Layer 8) passes without requiring manual intervention.
 
 ---
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Development Version 1.1.0-dev · Stable Version 1.0.1

@@ -126,6 +126,24 @@ The project follows Semantic Versioning and keeps a chronological history of all
   and diagnostic output remain unchanged
 * The roadmap now marks the complete switchable German/English CLI as implemented
 
+## Sprint 41 – 1.1 Release Candidate Stabilization
+
+### Fixed
+
+* Failed Restic restores now propagate a nonzero command-line exit status
+
+### Changed
+
+* Release installation checks now require the generated wheel instead of a source checkout
+* The QA plan now requires isolated German and English backup-and-restore end-to-end tests
+* Development and stable version claims in the installation and QA documentation were aligned
+
+### Validated
+
+* German and English catalogs retain matching keys and format placeholders
+* The complete Python 3.12 quality gate, distributions and fresh wheel installation pass locally
+* Real local Restic repositories complete backup, snapshot, integrity and byte-identity checks
+
 ---
 
 # v1.0.1 – 2026-06-28

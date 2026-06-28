@@ -135,6 +135,18 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Automated test, lint and package-build quality gate
 * [x] Continuous integration for `main`, `develop` and pull requests
 
+## 1.1 Release Candidate Stabilization
+
+* [x] Changelog, roadmap and documentation claim audit
+* [x] German and English catalog parity
+* [x] Python 3.12 local CI reproduction
+* [x] Wheel and source-distribution metadata validation
+* [x] Fresh installation from the generated wheel
+* [x] Isolated German and English backup-and-restore end-to-end tests
+* [x] Complete local CI quality gate on the final stabilization state
+
+Status: **The Version 1.1 local release gate is passed. `1.1.0rc1` is approved for a local build.**
+
 ## Automation
 
 * [x] systemd user service and timer installation

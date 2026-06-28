@@ -216,6 +216,25 @@ def test_restore_prompts_for_a_user_target(tmp_path: Path) -> None:
     target = tmp_path / "restore"
 
     with patch("builtins.input", side_effect=["1", str(target), "j"]):
-        RestoreService(make_config(), repository_provider=provider).run()
+        result = RestoreService(make_config(), repository_provider=provider).run()
 
+    assert result is True
     repository.restore.assert_called_once_with("abc123", target)
+
+
+def test_restore_failure_is_propagated(tmp_path: Path) -> None:
+    repository = Mock()
+    repository.snapshots.return_value = [
+        SnapshotInfo("abc123", "28.06.2026 12:00:00", "test-host", ["/tmp/source"])
+    ]
+    repository.restore.return_value = BackupResult(
+        False, "abc123", 0, 0, 0, 0, "", "", "Fatal: restore failed"
+    )
+    provider = Mock()
+    provider.get.return_value = repository
+    target = tmp_path / "restore"
+
+    with patch("builtins.input", side_effect=["1", str(target), "j"]):
+        result = RestoreService(make_config(), repository_provider=provider).run()
+
+    assert result is False

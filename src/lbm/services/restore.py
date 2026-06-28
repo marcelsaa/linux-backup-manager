@@ -16,15 +16,15 @@ class RestoreService:
         self.target = target
         self.repository_provider = repository_provider or RepositoryProvider(config)
 
-    def run(self) -> None:
+    def run(self) -> bool:
         restic = self.repository_provider.get()
         if restic is None:
-            return
+            return False
 
         snapshots = restic.snapshots()
         if not snapshots:
             print(self._text("maintenance.no_snapshots"))
-            return
+            return False
 
         newest_first = list(reversed(snapshots))
         heading = self._text("restore.available_snapshots")
@@ -38,11 +38,11 @@ class RestoreService:
             index = int(selection)
         except ValueError:
             print(self._text("restore.invalid_input"))
-            return
+            return False
 
         if index < 1 or index > len(newest_first):
             print(self._text("restore.snapshot_not_exists"))
-            return
+            return False
 
         snapshot = newest_first[index - 1]
         target = self.target or self._ask_target(snapshot.snapshot_id)
@@ -58,11 +58,11 @@ class RestoreService:
             warning = input(self._text("restore.nonempty_target"))
             if not self._is_yes(warning):
                 print(self._text("common.cancelled"))
-                return
+                return False
 
         if not self._is_yes(input(self._text("restore.start"))):
             print(self._text("common.cancelled"))
-            return
+            return False
 
         result = restic.restore(snapshot.snapshot_id, target)
         print()
@@ -71,6 +71,7 @@ class RestoreService:
         else:
             print(self._text("restore.failed"))
             print(result.message)
+        return result.ok
 
     def _ask_target(self, snapshot_id: str) -> Path:
         default = Path.home() / "lbm-restore" / snapshot_id

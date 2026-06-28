@@ -107,8 +107,8 @@ class Application:
     def snapshots(self) -> None:
         self._maintenance().snapshots()
 
-    def restore(self) -> None:
-        RestoreService(self._load_config()).run()
+    def restore(self) -> bool:
+        return RestoreService(self._load_config()).run()
 
     def stats(self) -> None:
         self._maintenance().stats()

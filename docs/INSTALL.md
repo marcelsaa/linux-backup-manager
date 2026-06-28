@@ -91,8 +91,11 @@ backup-manager --version
 Expected output:
 
 ```text
-backup-manager 1.0.1
+backup-manager 1.1.0.dev0
 ```
+
+This is the version reported by the current `develop` checkout. The private stable wheel remains
+Version 1.0.1 until the Version 1.1 release process is complete.
 
 For private use, install the locally built wheel directly instead of uploading it to a package
 index:
