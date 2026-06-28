@@ -183,10 +183,13 @@ See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 # Project Status
 
-**Current Version:** 1.0.1
+**Stable Version:** 1.0.1
 
-Linux Backup Manager 1.0.1 is the private-use stable release. Distribution artifacts are built
-locally and are not published to production PyPI.
+**Development Version:** 1.1.0.dev0 (`1.1.0-dev`)
+
+Linux Backup Manager 1.0.1 remains the private-use stable release. New work takes place on the
+`develop` branch as Version 1.1.0.dev0. Private stable artifacts are built locally and are not
+published to production PyPI.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 

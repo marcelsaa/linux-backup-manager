@@ -8,6 +8,13 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Version 1.1.0 Development
+
+### Changed
+
+* Development continues on the `develop` branch while Version 1.0.1 remains stable on `main`
+* Package version advanced to the PEP 440 development version `1.1.0.dev0`
+
 ---
 
 # v1.0.1 – 2026-06-28
