@@ -2,7 +2,7 @@
 
 # User Guide
 
-**Version:** 1.1.0-dev
+**Version:** 1.1.0-rc1
 
 ---
 
@@ -352,4 +352,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Development Version 1.1.0-dev
+Release Candidate 1.1.0-rc1

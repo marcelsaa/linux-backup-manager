@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.1.0-dev
+**Version:** 1.1.0-rc1
 
 ---
 
@@ -230,4 +230,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Development Version 1.1.0-dev
+Release Candidate 1.1.0-rc1

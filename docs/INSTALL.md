@@ -2,7 +2,7 @@
 
 # Installation Guide
 
-**Version:** 1.1.0-dev
+**Version:** 1.1.0-rc1
 
 ---
 
@@ -91,11 +91,11 @@ backup-manager --version
 Expected output:
 
 ```text
-backup-manager 1.1.0.dev0
+backup-manager 1.1.0rc1
 ```
 
-This is the version reported by the current `develop` checkout. The private stable wheel remains
-Version 1.0.1 until the Version 1.1 release process is complete.
+This is the version reported by the current release-candidate checkout. The private stable wheel
+remains Version 1.0.1 until the Version 1.1 release process is complete.
 
 For private use, install the locally built wheel directly instead of uploading it to a package
 index:
@@ -193,4 +193,4 @@ After the installation has completed successfully, continue with the **User Guid
 
 Linux Backup Manager Documentation
 
-Development Version 1.1.0-dev
+Release Candidate 1.1.0-rc1

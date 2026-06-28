@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.1.0-dev
+**Last updated:** Version 1.1.0-rc1
 
 ---
 
@@ -147,6 +147,14 @@ backup and byte-identical restore. Regular restore validation remains an operati
 
 Status: **The Version 1.1 local release gate is passed. `1.1.0rc1` is approved for a local build.**
 
+## Release Candidate Policy
+
+* [x] Feature freeze begins with `1.1.0rc1`
+* [ ] Apply only bug fixes, documentation and translation corrections
+* [ ] Build `1.1.0rc2` only if candidate changes require another validation cycle
+* [ ] Release Version 1.1.0
+* [ ] Begin Version 1.2 development after the Version 1.1.0 release
+
 ## Automation
 
 * [x] systemd user service and timer installation
@@ -185,4 +193,4 @@ Every release should improve usability without compromising reliability.
 
 Linux Backup Manager Documentation
 
-Development Version 1.1.0-dev · Stable Version 1.0.1
+Release Candidate 1.1.0-rc1 · Stable Version 1.0.1

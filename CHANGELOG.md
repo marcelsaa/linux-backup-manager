@@ -8,6 +8,14 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Version 1.1.0 Release Candidate 1
+
+### Changed
+
+* Package version advanced from `1.1.0.dev0` to `1.1.0rc1`
+* Version 1.1 entered feature freeze after the successful Sprint 41 release gate
+* Until Version 1.1.0, changes are limited to bug fixes, documentation and translations
+
 ## Version 1.1.0 Development
 
 ### Changed

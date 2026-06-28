@@ -2,7 +2,7 @@
 
 # Configuration Reference
 
-**Version:** 1.1.0-dev
+**Version:** 1.1.0-rc1
 
 ---
 
@@ -210,4 +210,4 @@ backup paths or destinations.
 
 Linux Backup Manager Documentation
 
-Version 1.1.0-dev
+Version 1.1.0-rc1
