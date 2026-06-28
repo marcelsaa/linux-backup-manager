@@ -34,6 +34,7 @@ Services
  ├── SetupService
  ├── BackupService
  ├── RestoreService
+ ├── SystemdScheduler
  └── RepositoryMaintenanceService
      │
      └── RepositoryProvider
@@ -86,6 +87,11 @@ Responsibilities:
 * `RestoreService`: guided restore workflow
 * `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
 * `RepositoryProvider`: resolve all configured targets and create Restic repository clients
+* `SystemdScheduler`: install daily and startup-check user timers
+
+Successful backups are recorded by `BackupStateStore`. A daily timer checks the user-selected
+interval at the configured time. The startup timer invokes `backup-if-due`, which only runs when
+the last recorded success is older than that interval.
 
 `BackupService` executes backups for all available destinations concurrently. Commands that
 operate on one repository ask the user to select a destination when more than one is available.

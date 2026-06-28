@@ -43,6 +43,8 @@ The project is intended for Linux users who want a dependable backup solution wi
 * USB backup support
 * NAS backup support for mounted network shares
 * Parallel backups to multiple destinations
+* User-configurable backup time and interval through systemd user timers
+* Immediate catch-up backup when the configured interval has been exceeded
 * Configurable backup paths
 * Configurable exclude patterns
 
@@ -143,6 +145,9 @@ backup-manager check
 | `backup-manager status`    | Display system information            |
 | `backup-manager health`    | Run health checks                     |
 | `backup-manager backup`    | Create a backup                       |
+| `backup-manager schedule-install` | Install and activate automatic backups |
+| `backup-manager schedule-status` | Display the systemd timer status |
+| `backup-manager schedule-remove` | Disable automatic backups |
 | `backup-manager snapshots` | List available snapshots              |
 | `backup-manager restore`   | Restore data from a snapshot          |
 | `backup-manager stats`     | Display repository statistics         |
@@ -164,6 +169,7 @@ Detailed documentation is available in the `docs/` directory.
 * Architecture Overview
 * Quality Assurance Test Plan
 * Project Roadmap
+* Automatic Backup Guide
 
 ---
 

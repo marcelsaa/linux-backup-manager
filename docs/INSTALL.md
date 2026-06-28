@@ -25,6 +25,7 @@ The Linux Backup Manager has been developed and tested on modern Linux distribut
 * Linux
 * Python 3.12 or newer
 * Restic
+* systemd with user services for optional automatic backups
 
 ### Recommended
 
@@ -111,6 +112,7 @@ During setup, LBM automatically:
 * checks required software
 * detects the configured USB backup drive
 * initializes the Restic repository if necessary
+* installs user-level systemd timers when automatic backups are enabled
 
 The setup wizard can safely be executed multiple times.
 

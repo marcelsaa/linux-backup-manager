@@ -8,6 +8,25 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 31 – Automatic systemd Backups
+
+### Added
+
+* User-selectable backup time and interval in days
+* Daily systemd user timer checking the configured interval at the selected time
+* Startup timer checking shortly after boot/login whether the selected interval was exceeded
+* Persistent timestamp for the last fully successful backup
+* `backup-if-due`, `schedule-install`, `schedule-status` and `schedule-remove` commands
+* Automatic timer installation during first-user setup
+
+### Changed
+
+* Backup commands now return failure when a configured destination is unavailable or fails
+* Only fully successful multi-destination backups update the success timestamp
+* Status output includes automation settings and the last successful backup
+
+---
+
 ## Sprint 30 – TestPyPI Release Validation
 
 ### Validated

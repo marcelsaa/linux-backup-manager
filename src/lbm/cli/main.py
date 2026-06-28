@@ -30,6 +30,8 @@ class CommandLineInterface:
                 "health",
                 "init",
                 "backup",
+                "backup-if-due",
+                "backup-scheduled",
                 "snapshots",
                 "restore",
                 "stats",
@@ -37,6 +39,9 @@ class CommandLineInterface:
                 "forget",
                 "prune",
                 "setup",
+                "schedule-install",
+                "schedule-status",
+                "schedule-remove",
             ],
             help="auszuführender Befehl",
         )
@@ -68,15 +73,20 @@ class CommandLineInterface:
             "health": self.application.health,
             "init": self.application.init_repository,
             "backup": self.application.backup,
+            "backup-if-due": self.application.backup_if_due,
+            "backup-scheduled": self.application.backup_scheduled,
             "snapshots": self.application.snapshots,
             "restore": self.application.restore,
             "stats": self.application.stats,
             "check": self.application.check,
             "forget": self.application.forget,
             "prune": self.application.prune,
+            "schedule-install": self.application.schedule_install,
+            "schedule-status": self.application.schedule_status,
+            "schedule-remove": self.application.schedule_remove,
         }
-        command_methods[args.command]()
-        return True
+        result = command_methods[args.command]()
+        return result is not False
 
 
 def main() -> int:

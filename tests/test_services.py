@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 from lbm.backup.restic import BackupResult, ResticRepositoryInfo, SnapshotInfo
 from lbm.core.application import Application
 from lbm.core.config import AppConfig
+from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
@@ -165,6 +166,41 @@ def test_setup_does_not_require_an_existing_config(monkeypatch) -> None:
     setup_service.assert_called_once_with(Path("/tmp/lbm-test-config.yaml"))
     setup_service.return_value.run.assert_called_once_with(interactive=False)
     assert application.config is None
+
+
+def test_successful_backup_records_state(tmp_path: Path) -> None:
+    application = Application()
+    application.config = make_config()
+    application.config.paths.state_dir = str(tmp_path)
+
+    with patch("lbm.core.application.BackupService.run", return_value=True):
+        assert application.backup() is True
+
+    assert (tmp_path / "backup-state.json").is_file()
+
+
+def test_backup_if_due_skips_a_recent_backup(tmp_path: Path) -> None:
+    application = Application()
+    application.config = make_config()
+    application.config.paths.state_dir = str(tmp_path)
+    state = BackupStateStore(tmp_path)
+    state.record_success()
+
+    with patch("lbm.core.application.BackupService.run") as backup:
+        assert application.backup_if_due() is True
+
+    backup.assert_not_called()
+
+
+def test_failed_backup_does_not_record_success(tmp_path: Path) -> None:
+    application = Application()
+    application.config = make_config()
+    application.config.paths.state_dir = str(tmp_path)
+
+    with patch("lbm.core.application.BackupService.run", return_value=False):
+        assert application.backup() is False
+
+    assert not (tmp_path / "backup-state.json").exists()
 
 
 def test_restore_prompts_for_a_user_target(tmp_path: Path) -> None:

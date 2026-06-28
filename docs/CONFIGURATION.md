@@ -58,6 +58,12 @@ retention:
   keep_monthly: 12
   keep_yearly: 3
 
+schedule:
+  enabled: true
+  daily_time: "20:00"
+  interval_days: 1
+  boot_delay_minutes: 2
+
 checks:
   restic_check_interval_days: 30
 
@@ -154,6 +160,24 @@ Repository maintenance settings.
 | Option                       | Description                                   |
 | ---------------------------- | --------------------------------------------- |
 | `restic_check_interval_days` | Interval between repository integrity checks. |
+
+---
+
+## schedule
+
+Controls automatic backups through systemd user timers.
+
+| Option                  | Description                                             |
+| ----------------------- | ------------------------------------------------------- |
+| `enabled`               | Install automatic backups during interactive setup.     |
+| `daily_time`            | Time at which the interval is checked.                  |
+| `interval_days`         | Number of days between successful backups.              |
+| `boot_delay_minutes`    | Delay before checking after system/user-manager start.  |
+
+The timer checks the chosen interval at 20:00 by default. Both time and interval are selected
+during setup and may be edited later. A second timer starts shortly after boot or login and
+creates a catch-up backup when no successful backup is known or the selected interval has been
+exceeded. Failed or incomplete multi-destination backups do not update the success timestamp.
 
 ---
 

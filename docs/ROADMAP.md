@@ -115,6 +115,14 @@ Status: **Release candidate ready; final hardware restore validation pending.**
 * Improved testing
 * Continuous integration
 
+## Automation
+
+* [x] systemd user service and timer installation
+* [x] User-selectable backup time and interval
+* [x] Default daily backup at 20:00
+* [x] Startup catch-up backup after the selected interval
+* [x] Persistent last-success state
+
 ---
 
 # Version 1.2

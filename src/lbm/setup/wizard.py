@@ -1,3 +1,4 @@
+from datetime import datetime
 from getpass import getpass
 from importlib.resources import files
 from pathlib import Path
@@ -8,6 +9,7 @@ import yaml
 from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.errors import ApplicationError
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
+from lbm.services.scheduler import SystemdScheduler
 from lbm.ui.console import Console
 
 
@@ -73,6 +75,7 @@ class SetupWizard:
 
         data["backup"]["paths"] = self._ask_backup_paths()
         self._configure_targets(data)
+        self._configure_schedule(data)
 
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
         self.config_file.write_text(
@@ -144,6 +147,41 @@ class SetupWizard:
 
     def _ask_value(self, label: str, default: str) -> str:
         return input(f"{label} [{default}]: ").strip() or default
+
+    def _configure_schedule(self, data: dict) -> None:
+        print()
+        answer = input("Automatische Backups aktivieren? [J/n]: ")
+        enabled = answer.strip().lower() in ("", "j")
+        data["schedule"]["enabled"] = enabled
+        if not enabled:
+            return
+        data["schedule"]["daily_time"] = self._ask_schedule_time(
+            data["schedule"]["daily_time"]
+        )
+        data["schedule"]["interval_days"] = self._ask_interval_days(
+            data["schedule"]["interval_days"]
+        )
+
+    def _ask_schedule_time(self, default: str) -> str:
+        while True:
+            value = input(f"Backup-Uhrzeit [{default}]: ").strip() or default
+            try:
+                parsed = datetime.strptime(value, "%H:%M")
+            except ValueError:
+                Console.error("Bitte eine Uhrzeit im Format HH:MM eingeben.")
+                continue
+            return parsed.strftime("%H:%M")
+
+    def _ask_interval_days(self, default: int) -> int:
+        while True:
+            value = input(f"Backup alle wie viele Tage? [{default}]: ").strip()
+            try:
+                interval = int(value) if value else default
+            except ValueError:
+                interval = 0
+            if 1 <= interval <= 365:
+                return interval
+            Console.error("Das Intervall muss zwischen 1 und 365 Tagen liegen.")
 
     def _check_password(self) -> bool:
         if self.password_file.exists():
@@ -233,6 +271,11 @@ class SetupWizard:
         Console.error(created.message)
         return False
 
+    def _check_scheduler(self) -> bool:
+        if self.config is None or not self.config.schedule.enabled:
+            return True
+        return SystemdScheduler(self.config_file, self.config.schedule).install()
+
     def run(self) -> bool:
         self._print_header()
         if not self._check_config():
@@ -245,5 +288,6 @@ class SetupWizard:
         status = self._check_password()
         status &= self._check_programs()
         status &= self._check_repositories()
+        status &= self._check_scheduler()
         self._print_summary(status)
         return status

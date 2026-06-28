@@ -128,6 +128,9 @@ def test_first_run_writes_a_valid_usb_configuration(tmp_path: Path) -> None:
         "n",  # do not use NAS
         "TestUSB",
         "restic/test",
+        "",  # enable automatic backups
+        "",  # default 20:00
+        "",  # default daily interval
     ]
 
     with patch("builtins.input", side_effect=answers):
@@ -140,6 +143,9 @@ def test_first_run_writes_a_valid_usb_configuration(tmp_path: Path) -> None:
     assert config.targets.usb.label == "TestUSB"
     assert config.targets.usb.repository_path == "restic/test"
     assert config.targets.nas.enabled is False
+    assert config.schedule.enabled is True
+    assert config.schedule.daily_time == "20:00"
+    assert config.schedule.interval_days == 1
 
 
 def test_config_model_rejects_disabled_usb_and_nas() -> None:
@@ -149,3 +155,21 @@ def test_config_model_rejects_disabled_usb_and_nas() -> None:
 
     with pytest.raises(ValueError, match="at least one backup target"):
         AppConfig.model_validate(data)
+
+
+def test_configure_schedule_accepts_custom_time_and_interval() -> None:
+    data = {
+        "schedule": {
+            "enabled": True,
+            "daily_time": "20:00",
+            "interval_days": 1,
+            "boot_delay_minutes": 2,
+        }
+    }
+
+    with patch("builtins.input", side_effect=["", "18:30", "7"]):
+        SetupWizard(Path("/tmp/config.yaml"))._configure_schedule(data)
+
+    assert data["schedule"]["enabled"] is True
+    assert data["schedule"]["daily_time"] == "18:30"
+    assert data["schedule"]["interval_days"] == 7

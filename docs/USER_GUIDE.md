@@ -24,6 +24,9 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
 | `backup`    | Create a new backup                                    |
+| `schedule-install` | Install and activate automatic backups           |
+| `schedule-status` | Display automatic-backup timer status             |
+| `schedule-remove` | Disable and remove automatic-backup timers         |
 | `snapshots` | Display available snapshots                            |
 | `restore`   | Restore files from a snapshot                          |
 | `stats`     | Show repository statistics                             |
@@ -235,6 +238,30 @@ The following workflow is recommended for regular usage.
 4. Apply the retention policy.
 5. Prune the repository.
 6. Test restores regularly.
+
+---
+
+# Automatic Backups
+
+Install or repair the user-level systemd timers with:
+
+```bash
+backup-manager schedule-install
+```
+
+During setup, the user chooses the time and interval in days. The default is daily at 20:00.
+After a restart or login, a second timer checks whether the chosen interval since the last
+successful backup has elapsed and immediately catches up when required.
+
+Inspect or remove the timers with:
+
+```bash
+backup-manager schedule-status
+backup-manager schedule-remove
+```
+
+The timers run as the current user and do not require a permanently running LBM process. Backup
+targets must be mounted and accessible when a timer fires.
 
 ---
 

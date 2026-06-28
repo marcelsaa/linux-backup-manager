@@ -4,6 +4,7 @@ from pathlib import Path
 
 from lbm import __version__
 from lbm.core.config import AppConfig
+from lbm.core.state import BackupStateStore
 
 
 class StatusService:
@@ -33,3 +34,14 @@ class StatusService:
         print("----------")
         print(f"Passwortdatei........ {'OK' if password_file.exists() else 'FEHLT'}")
         print(f"Pfad................. {password_file}")
+        print()
+        print("Automatische Backups")
+        print("--------------------")
+        print(f"Aktiviert............ {'JA' if self.config.schedule.enabled else 'NEIN'}")
+        print(f"Prüfzeit............. {self.config.schedule.daily_time} Uhr")
+        print(f"Intervall............ {self.config.schedule.interval_days} Tag(e)")
+        last_backup = BackupStateStore.from_config(
+            self.config.paths.state_dir
+        ).last_successful_backup()
+        last_text = last_backup.astimezone().strftime("%d.%m.%Y %H:%M:%S") if last_backup else "-"
+        print(f"Letztes Backup....... {last_text}")

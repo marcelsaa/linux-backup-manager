@@ -75,12 +75,21 @@ class RetentionConfig(BaseModel):
     keep_monthly: int
     keep_yearly: int
 
+
+class ScheduleConfig(BaseModel):
+    enabled: bool = False
+    daily_time: str = "20:00"
+    interval_days: int = Field(default=1, ge=1, le=365)
+    boot_delay_minutes: int = Field(default=2, ge=1)
+
+
 class AppConfig(BaseModel):
     system: SystemConfig
     paths: PathsConfig
     targets: TargetsConfig
     backup: BackupConfig
     retention: RetentionConfig
+    schedule: ScheduleConfig = Field(default_factory=ScheduleConfig)
 
 
 class ConfigLoader:

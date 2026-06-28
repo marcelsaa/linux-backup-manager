@@ -3,7 +3,7 @@ system:
 
 paths:
   log_dir: logs
-  state_dir: state
+  state_dir: ~/.local/state/linux-backup-manager
   password_file: ~/.config/linux-backup-manager/restic.pass
 
 backup:
@@ -38,6 +38,12 @@ retention:
   keep_weekly: 8
   keep_monthly: 12
   keep_yearly: 3
+
+schedule:
+  enabled: true
+  daily_time: "20:00"
+  interval_days: 1
+  boot_delay_minutes: 2
 
 checks:
   restic_check_interval_days: 30

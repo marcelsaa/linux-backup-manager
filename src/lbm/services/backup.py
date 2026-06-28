@@ -16,10 +16,15 @@ class BackupService:
         self.config = config
         self.repository_provider = repository_provider or RepositoryProvider(config)
 
-    def run(self) -> None:
+    def run(self) -> bool:
         destinations = self.repository_provider.get_all()
         if not destinations:
-            return
+            return False
+
+        expected_destinations = int(self.config.targets.usb.enabled) + int(
+            self.config.targets.nas.enabled
+        )
+        all_destinations_available = len(destinations) == expected_destinations
 
         backup_paths = [Path(path).expanduser() for path in self.config.backup.paths]
         excludes = [str(Path(exclude).expanduser()) for exclude in self.config.backup.excludes]
@@ -42,6 +47,7 @@ class BackupService:
 
         for destination, result in zip(destinations, results, strict=True):
             self._print_result(destination.name, result)
+        return all_destinations_available and all(result.ok for result in results)
 
     def _backup(
         self,

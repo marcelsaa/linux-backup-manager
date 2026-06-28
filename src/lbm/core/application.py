@@ -2,10 +2,12 @@ import os
 from pathlib import Path
 
 from lbm.core.config import AppConfig, ConfigLoader
+from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
 from lbm.services.health import HealthService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
 from lbm.services.restore import RestoreService
+from lbm.services.scheduler import SystemdScheduler
 from lbm.services.setup import SetupService
 from lbm.services.status import StatusService
 
@@ -39,8 +41,45 @@ class Application:
     def init_repository(self) -> None:
         self._maintenance().init_repository()
 
-    def backup(self) -> None:
-        BackupService(self._load_config()).run()
+    def backup(self) -> bool:
+        config = self._load_config()
+        successful = BackupService(config).run()
+        if successful:
+            BackupStateStore.from_config(config.paths.state_dir).record_success()
+        return successful
+
+    def backup_if_due(self) -> bool:
+        config = self._load_config()
+        state = BackupStateStore.from_config(config.paths.state_dir)
+        max_age_hours = config.schedule.interval_days * 24
+        if not state.is_due(max_age_hours):
+            print("Backup ist noch nicht fällig.")
+            return True
+        print(
+            "Letztes erfolgreiches Backup ist älter als "
+            f"{max_age_hours} Stunden oder unbekannt."
+        )
+        return self.backup()
+
+    def backup_scheduled(self) -> bool:
+        config = self._load_config()
+        state = BackupStateStore.from_config(config.paths.state_dir)
+        if not state.is_scheduled_due(config.schedule.interval_days):
+            print("Das konfigurierte Backup-Intervall ist noch nicht erreicht.")
+            return True
+        return self.backup()
+
+    def schedule_install(self) -> bool:
+        config = self._load_config()
+        return SystemdScheduler(self.config_file, config.schedule).install()
+
+    def schedule_status(self) -> bool:
+        config = self._load_config()
+        return SystemdScheduler(self.config_file, config.schedule).status()
+
+    def schedule_remove(self) -> bool:
+        config = self._load_config()
+        return SystemdScheduler(self.config_file, config.schedule).remove()
 
     def snapshots(self) -> None:
         self._maintenance().snapshots()
