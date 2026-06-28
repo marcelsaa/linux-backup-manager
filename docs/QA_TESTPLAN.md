@@ -2,7 +2,7 @@
 
 # Quality Assurance Test Plan
 
-**Version:** 1.0.1
+**Version:** 1.1.0-dev
 
 ---
 
@@ -189,6 +189,24 @@ Verify the application's behaviour when:
 ### Expected Result
 
 All error messages should be clear, understandable and provide actionable information.
+
+---
+
+# Internationalization Tests
+
+Set `system.language` to `de` and then to `en`. Run:
+
+```bash
+backup-manager status
+backup-manager health
+backup-manager doctor
+backup-manager setup
+```
+
+Verify that headings, labels, result states, prompts and application-generated errors use the
+selected language consistently. External Restic and systemctl output may remain in the language
+provided by those programs. Existing configurations without `system.language` must continue to
+use German.
 
 ---
 

@@ -10,14 +10,15 @@ from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.errors import ApplicationError, ConfigurationError
 from lbm.core.state import BackupStateStore
 from lbm.health.checks import HealthChecker
+from lbm.services.language import LanguageService
 from lbm.targets.usb import USBTarget
 
 
 class DoctorStatus(Enum):
-    OK = "OK"
-    WARNING = "WARNUNG"
-    ERROR = "FEHLER"
-    SKIPPED = "ÜBERSPRUNGEN"
+    OK = "ok"
+    WARNING = "warning"
+    ERROR = "error"
+    SKIPPED = "skipped"
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,7 @@ class DoctorService:
 
     def __init__(self, config_file: Path) -> None:
         self.config_file = config_file
+        self.language = LanguageService()
 
     def run(self) -> bool:
         results: list[DoctorResult] = []
@@ -61,29 +63,43 @@ class DoctorService:
             config = ConfigLoader(self.config_file).load()
         except ConfigurationError as error:
             results.append(
-                DoctorResult("Konfiguration", DoctorStatus.ERROR, error.message)
+                DoctorResult(
+                    self._text("doctor.configuration"),
+                    DoctorStatus.ERROR,
+                    error.message,
+                )
             )
             return None
 
+        self.language = LanguageService(config.system.language)
         results.append(
-            DoctorResult("Konfiguration", DoctorStatus.OK, str(self.config_file))
+            DoctorResult(
+                self._text("doctor.configuration"),
+                DoctorStatus.OK,
+                str(self.config_file),
+            )
         )
         return config
 
     def _check_restic(self, results: list[DoctorResult]) -> bool:
         try:
-            result = HealthChecker(Path("unused")).check_restic()
+            result = HealthChecker(Path("unused"), self.language).check_restic()
         except (OSError, subprocess.SubprocessError) as error:
             results.append(
                 DoctorResult(
-                    "Restic",
+                    self._text("doctor.restic"),
                     DoctorStatus.ERROR,
-                    f"nicht prüfbar: {self._first_line(str(error))}",
+                    self._text(
+                        "doctor.not_checkable",
+                        error=self._first_line(str(error)),
+                    ),
                 )
             )
             return False
         status = DoctorStatus.OK if result.ok else DoctorStatus.ERROR
-        results.append(DoctorResult("Restic", status, result.message))
+        results.append(
+            DoctorResult(self._text("doctor.restic"), status, result.message)
+        )
         return result.ok
 
     def _check_password_file(
@@ -95,16 +111,23 @@ class DoctorService:
         try:
             if not password_file.is_file():
                 results.append(
-                    DoctorResult("Passwortdatei", DoctorStatus.ERROR, "fehlt")
+                    DoctorResult(
+                        self._text("doctor.password_file"),
+                        DoctorStatus.ERROR,
+                        self._text("common.missing"),
+                    )
                 )
                 return
             mode = S_IMODE(password_file.stat().st_mode)
         except OSError as error:
             results.append(
                 DoctorResult(
-                    "Passwortdatei",
+                    self._text("doctor.password_file"),
                     DoctorStatus.ERROR,
-                    f"nicht prüfbar: {self._first_line(str(error))}",
+                    self._text(
+                        "doctor.not_checkable",
+                        error=self._first_line(str(error)),
+                    ),
                 )
             )
             return
@@ -112,18 +135,26 @@ class DoctorService:
         if mode & 0o077 or not mode & 0o400:
             results.append(
                 DoctorResult(
-                    "Passwortdatei",
+                    self._text("doctor.password_file"),
                     DoctorStatus.ERROR,
-                    f"unsichere oder unplausible Rechte {mode:04o}: {password_file}",
+                    self._text(
+                        "doctor.unsafe_permissions",
+                        mode=f"{mode:04o}",
+                        path=password_file,
+                    ),
                 )
             )
             return
 
         results.append(
             DoctorResult(
-                "Passwortdatei",
+                self._text("doctor.password_file"),
                 DoctorStatus.OK,
-                f"vorhanden, Rechte {mode:04o}: {password_file}",
+                self._text(
+                    "doctor.password_present",
+                    mode=f"{mode:04o}",
+                    path=password_file,
+                ),
             )
         )
 
@@ -145,7 +176,10 @@ class DoctorService:
                     DoctorResult(
                         name,
                         DoctorStatus.ERROR,
-                        f"nicht prüfbar: {self._first_line(str(error))}",
+                        self._text(
+                            "doctor.not_checkable",
+                            error=self._first_line(str(error)),
+                        ),
                     )
                 )
                 destinations.append(DoctorDestination(name, None, False))
@@ -153,12 +187,20 @@ class DoctorService:
             if info is not None:
                 if not info.found:
                     results.append(
-                        DoctorResult(name, DoctorStatus.ERROR, "nicht gefunden")
+                        DoctorResult(
+                            name,
+                            DoctorStatus.ERROR,
+                            self._text("doctor.not_found"),
+                        )
                     )
                     destinations.append(DoctorDestination(name, None, False))
                 elif info.mountpoint is None:
                     results.append(
-                        DoctorResult(name, DoctorStatus.ERROR, "nicht eingehängt")
+                        DoctorResult(
+                            name,
+                            DoctorStatus.ERROR,
+                            self._text("doctor.not_mounted"),
+                        )
                     )
                     destinations.append(DoctorDestination(name, None, False))
                 elif not info.writable:
@@ -166,7 +208,10 @@ class DoctorService:
                         DoctorResult(
                             name,
                             DoctorStatus.ERROR,
-                            f"eingehängt, aber nicht beschreibbar: {info.mountpoint}",
+                            self._text(
+                                "doctor.mounted_not_writable",
+                                path=info.mountpoint,
+                            ),
                         )
                     )
                     destinations.append(DoctorDestination(name, None, False))
@@ -175,7 +220,7 @@ class DoctorService:
                         DoctorResult(
                             name,
                             DoctorStatus.OK,
-                            f"erreichbar: {info.mountpoint}",
+                            self._text("doctor.reachable_path", path=info.mountpoint),
                         )
                     )
                     destinations.append(
@@ -194,15 +239,27 @@ class DoctorService:
             mount_path = Path(nas.mount_path).expanduser()
             name = f"NAS: {mount_path}"
             if not mount_path.is_dir():
-                results.append(DoctorResult(name, DoctorStatus.ERROR, "nicht erreichbar"))
+                results.append(
+                    DoctorResult(
+                        name,
+                        DoctorStatus.ERROR,
+                        self._text("doctor.not_reachable"),
+                    )
+                )
                 destinations.append(DoctorDestination(name, None, False))
             elif not os.access(mount_path, os.W_OK):
                 results.append(
-                    DoctorResult(name, DoctorStatus.ERROR, "nicht beschreibbar")
+                    DoctorResult(
+                        name,
+                        DoctorStatus.ERROR,
+                        self._text("doctor.not_writable"),
+                    )
                 )
                 destinations.append(DoctorDestination(name, None, False))
             else:
-                results.append(DoctorResult(name, DoctorStatus.OK, "erreichbar"))
+                results.append(
+                    DoctorResult(name, DoctorStatus.OK, self._text("doctor.reachable"))
+                )
                 destinations.append(
                     DoctorDestination(
                         name,
@@ -223,15 +280,23 @@ class DoctorService:
         results: list[DoctorResult],
     ) -> None:
         for destination in destinations:
-            name = f"Repository {destination.name}"
+            name = self._text("doctor.repository", target=destination.name)
             if not destination.reachable or destination.repository is None:
                 results.append(
-                    DoctorResult(name, DoctorStatus.SKIPPED, "Ziel nicht erreichbar")
+                    DoctorResult(
+                        name,
+                        DoctorStatus.SKIPPED,
+                        self._text("doctor.target_not_reachable"),
+                    )
                 )
                 continue
             if not restic_available:
                 results.append(
-                    DoctorResult(name, DoctorStatus.SKIPPED, "Restic nicht verfügbar")
+                    DoctorResult(
+                        name,
+                        DoctorStatus.SKIPPED,
+                        self._text("doctor.restic_unavailable"),
+                    )
                 )
                 continue
 
@@ -245,9 +310,12 @@ class DoctorService:
                 continue
 
             status = DoctorStatus.OK if info.initialized else DoctorStatus.ERROR
-            results.append(
-                DoctorResult(name, status, self._first_line(info.message) or "unbekannt")
+            message = (
+                self._text("doctor.repository_ready")
+                if info.initialized
+                else self._first_line(info.message) or self._text("common.unknown")
             )
+            results.append(DoctorResult(name, status, message))
 
     def _check_last_backup(
         self,
@@ -261,29 +329,43 @@ class DoctorService:
         except OSError as error:
             results.append(
                 DoctorResult(
-                    "Letztes Backup",
+                    self._text("doctor.last_backup"),
                     DoctorStatus.ERROR,
-                    f"nicht prüfbar: {self._first_line(str(error))}",
+                    self._text(
+                        "doctor.not_checkable",
+                        error=self._first_line(str(error)),
+                    ),
                 )
             )
             return
         if completed_at is None:
             results.append(
                 DoctorResult(
-                    "Letztes Backup",
+                    self._text("doctor.last_backup"),
                     DoctorStatus.WARNING,
-                    "kein erfolgreicher Zeitpunkt gespeichert",
+                    self._text("doctor.no_success_time"),
                 )
             )
             return
 
         timestamp = completed_at.astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")
-        results.append(DoctorResult("Letztes Backup", DoctorStatus.OK, timestamp))
+        results.append(
+            DoctorResult(self._text("doctor.last_backup"), DoctorStatus.OK, timestamp)
+        )
 
     def _append_config_dependent_skips(self, results: list[DoctorResult]) -> None:
-        for name in ("Passwortdatei", "Backup-Ziele", "Repositories", "Letztes Backup"):
+        for key in (
+            "doctor.password_file",
+            "doctor.backup_targets",
+            "doctor.repositories",
+            "doctor.last_backup",
+        ):
             results.append(
-                DoctorResult(name, DoctorStatus.SKIPPED, "Konfiguration nicht ladbar")
+                DoctorResult(
+                    self._text(key),
+                    DoctorStatus.SKIPPED,
+                    self._text("doctor.config_not_loadable"),
+                )
             )
 
     def _print(self, results: list[DoctorResult]) -> None:
@@ -293,25 +375,30 @@ class DoctorService:
             DoctorStatus.ERROR: "✗",
             DoctorStatus.SKIPPED: "-",
         }
-        print("Linux Backup Manager Doctor")
-        print("===========================")
+        title = self._text("doctor.title")
+        print(title)
+        print("=" * len(title))
         print()
         for result in results:
             print(
                 f"{symbols[result.status]} {result.name:<28} "
-                f"{result.status.value}: {result.message}"
+                f"{self._text(f'doctor.status.{result.status.value}')}: {result.message}"
             )
 
         statuses = {result.status for result in results}
         if DoctorStatus.ERROR in statuses:
-            overall = "FEHLER"
+            overall = self._text("doctor.status.error")
         elif DoctorStatus.WARNING in statuses:
-            overall = "WARNUNG"
+            overall = self._text("doctor.status.warning")
         else:
-            overall = "OK"
+            overall = self._text("doctor.status.ok")
         print()
-        print(f"Gesamtstatus............... {overall}")
-        print("Es wurden keine Reparaturen oder Konfigurationsänderungen durchgeführt.")
+        label = self._text("common.overall_status")
+        print(f"{label:.<27} {overall}")
+        print(self._text("doctor.no_changes"))
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)
 
     @staticmethod
     def _first_line(message: str) -> str:

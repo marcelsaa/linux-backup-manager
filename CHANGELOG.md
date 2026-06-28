@@ -92,6 +92,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * Existing configurations without a language setting continue to load and default to German
 * Existing CLI output remains largely unchanged until later translation sprints
 
+## Sprint 39 – Core CLI Internationalization
+
+### Added
+
+* Complete German and English catalogs for `status`, `doctor`, `health` and `setup`
+* Localized setup prompts, validation messages, password warnings and repository diagnostics
+* Localized target-resolution and scheduler-installation messages used by core workflows
+* German and English regression tests for all four migrated commands
+
+### Changed
+
+* Status, doctor and health labels and result states now resolve through `LanguageService`
+* Setup loads the configured language before printing its header and switches immediately after a
+  new language selection
+* Shared health checks, repository target resolution and systemd scheduler accept the selected
+  language while preserving German defaults for existing callers
+
 ---
 
 # v1.0.1 – 2026-06-28

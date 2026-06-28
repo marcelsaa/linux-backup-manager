@@ -74,7 +74,7 @@ The project is intended for Linux users who want a dependable backup solution wi
 * Consistent command structure
 * Robust first-run experience
 * Read-only `doctor` diagnostics for configuration, credentials, targets and repositories
-* Internationalization foundation with selectable German/English catalogs and fallback
+* German/English `status`, `doctor`, `health` and `setup` output with catalog fallback
 
 ---
 

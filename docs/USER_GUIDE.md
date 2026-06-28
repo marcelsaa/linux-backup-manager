@@ -73,9 +73,9 @@ The setup wizard can safely be executed multiple times. When a configuration alr
 asks whether backup folders, destinations and the automatic schedule should be edited. Declining
 keeps the file unchanged. Accepting creates `config.yaml.bak` before the updated file is written.
 
-The language selection and catalog fallback are available as an internationalization foundation.
-Most command output remains German until the following translation sprints migrate the existing
-messages.
+The selected language controls all output and prompts of `setup`, `status`, `health` and `doctor`.
+The remaining backup, restore, maintenance, recovery and schedule commands will be migrated in
+following sprints.
 
 An invalid repository password is reported separately from a missing repository. Setup never
 offers to initialize an existing repository that cannot be opened with the configured password.

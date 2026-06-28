@@ -82,15 +82,21 @@ class Application:
 
     def schedule_install(self) -> bool:
         config = self._load_config()
-        return SystemdScheduler(self.config_file, config.schedule).install()
+        return SystemdScheduler(
+            self.config_file, config.schedule, language=config.system.language
+        ).install()
 
     def schedule_status(self) -> bool:
         config = self._load_config()
-        return SystemdScheduler(self.config_file, config.schedule).status()
+        return SystemdScheduler(
+            self.config_file, config.schedule, language=config.system.language
+        ).status()
 
     def schedule_remove(self) -> bool:
         config = self._load_config()
-        return SystemdScheduler(self.config_file, config.schedule).remove()
+        return SystemdScheduler(
+            self.config_file, config.schedule, language=config.system.language
+        ).remove()
 
     def snapshots(self) -> None:
         self._maintenance().snapshots()

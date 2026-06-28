@@ -107,7 +107,9 @@ renders these errors consistently without exposing internal tracebacks.
 
 Language catalogs are packaged below `lbm.resources/i18n`. `system.language` selects `de` or `en`;
 older configurations default to German. Message lookup falls back through English and German
-before returning a stable untranslated key. Existing command messages are migrated incrementally.
+before returning a stable untranslated key. `StatusService`, `DoctorService`, `HealthService`,
+`HealthChecker` and `SetupWizard` obtain all their user-facing messages from this layer. Setup also
+passes the language into target resolution and scheduler installation.
 
 ---
 

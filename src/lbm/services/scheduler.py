@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from lbm.core.config import ScheduleConfig
+from lbm.services.language import LanguageService
 from lbm.ui.console import Console
 
 
@@ -18,22 +19,26 @@ class SystemdScheduler:
         config_file: Path,
         schedule: ScheduleConfig,
         unit_dir: Path | None = None,
+        language: str = "de",
     ) -> None:
         self.config_file = config_file
         self.schedule = schedule
         self.unit_dir = unit_dir or Path.home() / ".config" / "systemd" / "user"
+        self.language = LanguageService(language)
 
     def install(self) -> bool:
         if shutil.which("systemctl") is None:
-            Console.error("systemd wurde nicht gefunden.")
+            Console.error(self.language.translate("scheduler.systemd_missing"))
             return False
 
         self.unit_dir.mkdir(parents=True, exist_ok=True)
         units = {
             self.DAILY_SERVICE: self._service_content(
-                "backup-scheduled", "geplantes Backup"
+                "backup-scheduled", self.language.translate("scheduler.scheduled_backup")
             ),
-            self.DUE_SERVICE: self._service_content("backup-if-due", "Fälligkeitsprüfung"),
+            self.DUE_SERVICE: self._service_content(
+                "backup-if-due", self.language.translate("scheduler.due_check")
+            ),
             self.DAILY_TIMER: self._daily_timer_content(),
             self.DUE_TIMER: self._due_timer_content(),
         }
@@ -44,7 +49,7 @@ class SystemdScheduler:
             return False
         if not self._systemctl("enable", "--now", self.DAILY_TIMER, self.DUE_TIMER):
             return False
-        Console.success("Automatische Backups wurden aktiviert.")
+        Console.success(self.language.translate("scheduler.enabled"))
         return True
 
     def remove(self) -> bool:
@@ -52,7 +57,7 @@ class SystemdScheduler:
         for name in (self.DAILY_SERVICE, self.DAILY_TIMER, self.DUE_SERVICE, self.DUE_TIMER):
             (self.unit_dir / name).unlink(missing_ok=True)
         self._systemctl("daemon-reload")
-        Console.success("Automatische Backups wurden deaktiviert.")
+        Console.success(self.language.translate("scheduler.disabled"))
         return True
 
     def status(self) -> bool:
@@ -71,7 +76,10 @@ class SystemdScheduler:
             if result.stdout.strip():
                 print(result.stdout.strip())
             return True
-        Console.error(result.stderr.strip() or "systemctl-Aufruf fehlgeschlagen.")
+        Console.error(
+            result.stderr.strip()
+            or self.language.translate("scheduler.systemctl_failed")
+        )
         return False
 
     def _service_content(self, command: str, description: str) -> str:
@@ -88,7 +96,7 @@ ExecStart=\"{sys.executable}\" -m lbm {command}
 
     def _daily_timer_content(self) -> str:
         return f"""[Unit]
-Description=Linux Backup Manager – tägliches Backup
+Description=Linux Backup Manager – {self.language.translate("scheduler.daily_backup")}
 
 [Timer]
 OnCalendar=*-*-* {self.schedule.daily_time}:00
@@ -100,7 +108,7 @@ WantedBy=timers.target
 
     def _due_timer_content(self) -> str:
         return f"""[Unit]
-Description=Linux Backup Manager – Backup-Prüfung nach Systemstart
+Description=Linux Backup Manager – {self.language.translate("scheduler.boot_check")}
 
 [Timer]
 OnBootSec={self.schedule.boot_delay_minutes}min

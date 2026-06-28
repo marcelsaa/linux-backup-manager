@@ -4,8 +4,9 @@
 
 ## Scope
 
-Sprint 38 provides the internationalization infrastructure. It does not translate every existing
-command yet. German remains the default for configurations created before this sprint.
+Sprint 38 provided the infrastructure. Sprint 39 migrated the complete user-facing output of
+`status`, `doctor`, `health` and `setup`, including target-resolution and scheduler messages used by
+those workflows. German remains the default for configurations created before Sprint 38.
 
 ## Language Configuration
 
@@ -49,5 +50,10 @@ validation only accepts `de` and `en`, preventing misspelled persisted values.
 
 ## Next Steps
 
-Future sprints will migrate CLI messages to catalog keys in small, testable groups and later
-provide complete German and English user documentation.
+The following command groups remain to be migrated:
+
+* backup, restore, snapshots, stats, check, forget and prune;
+* recovery-info and recovery-sheet;
+* standalone schedule commands and remaining shared error messages.
+
+Complete German and English user documentation remains a later milestone.
