@@ -14,7 +14,6 @@ class Application:
     """Coordinate CLI commands and their application services."""
 
     def __init__(self) -> None:
-        self.project_dir = Path(__file__).resolve().parents[3]
         configured_file = os.environ.get("LBM_CONFIG_FILE")
         self.config_file = (
             Path(configured_file).expanduser()
@@ -47,8 +46,7 @@ class Application:
         self._maintenance().snapshots()
 
     def restore(self) -> None:
-        target = self.project_dir / "tests" / "restore-test"
-        RestoreService(self._load_config(), target).run()
+        RestoreService(self._load_config()).run()
 
     def stats(self) -> None:
         self._maintenance().stats()
@@ -62,5 +60,5 @@ class Application:
     def prune(self) -> None:
         self._maintenance().prune()
 
-    def setup(self, interactive: bool = True) -> None:
-        SetupService(self.config_file).run(interactive=interactive)
+    def setup(self, interactive: bool = True) -> bool:
+        return SetupService(self.config_file).run(interactive=interactive)

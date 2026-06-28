@@ -1,7 +1,11 @@
 [project]
 name = "linux-backup-manager"
 version = "1.0.0"
-description = "Backup-Manager für Linux-Systeme mit Restic, Timeshift und mehreren Backup-Zielen"
+description = "Backup-Manager für Linux-Systeme mit Restic und mehreren Backup-Zielen"
+readme = "README.md"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Marcel Saager" }]
 requires-python = ">=3.12"
 
 dependencies = [
@@ -9,8 +13,19 @@ dependencies = [
     "pydantic>=2",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "build>=1",
+    "pytest>=8",
+    "ruff>=0.9",
+]
+
 [project.scripts]
 backup-manager = "lbm.cli.main:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

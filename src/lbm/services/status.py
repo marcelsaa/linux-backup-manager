@@ -22,7 +22,6 @@ class StatusService:
         print("------")
         print(f"Python............... {platform.python_version()}")
         print(f"Restic............... {'OK' if shutil.which('restic') else 'FEHLT'}")
-        print(f"Timeshift............ {'OK' if shutil.which('timeshift') else 'FEHLT'}")
         print()
         print("Konfiguration")
         print("-------------")

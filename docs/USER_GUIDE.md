@@ -171,9 +171,9 @@ backup-manager stats
 
 Typical information includes:
 
-* Repository size
 * Number of snapshots
-* Stored data
+* First and latest snapshot timestamp
+* Host of the latest snapshot
 
 ---
 

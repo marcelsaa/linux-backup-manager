@@ -196,9 +196,7 @@ class SetupWizard:
         return False
 
     def _check_programs(self) -> bool:
-        return self._check_program("restic", "Restic") & self._check_program(
-            "timeshift", "Timeshift"
-        )
+        return self._check_program("restic", "Restic")
 
     def _check_repositories(self) -> bool:
         if self.config is None:
@@ -235,16 +233,17 @@ class SetupWizard:
         Console.error(created.message)
         return False
 
-    def run(self) -> None:
+    def run(self) -> bool:
         self._print_header()
         if not self._check_config():
             self._print_summary(False)
-            return
+            return False
         if not self._load_setup_config():
             self._print_summary(False)
-            return
+            return False
 
         status = self._check_password()
         status &= self._check_programs()
         status &= self._check_repositories()
         self._print_summary(status)
+        return status

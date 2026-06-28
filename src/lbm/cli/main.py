@@ -15,7 +15,7 @@ class CommandLineInterface:
     def __init__(self) -> None:
         self.application: Application | None = None
 
-    def run(self) -> None:
+    def run(self) -> bool:
         parser = argparse.ArgumentParser(
             prog="backup-manager",
             description="Linux Backup Manager"
@@ -42,9 +42,9 @@ class CommandLineInterface:
         )
 
         parser.add_argument(
-            "--yes",
+            "--non-interactive",
             action="store_true",
-            help="Alle Rückfragen automatisch bestätigen.",
+            help="Keine interaktiven Änderungen durchführen.",
         )
 
         parser.add_argument(
@@ -59,10 +59,9 @@ class CommandLineInterface:
             self.application = Application()
 
         if args.command == "setup":
-            self.application.setup(
-                interactive=not args.yes,
+            return self.application.setup(
+                interactive=not args.non_interactive,
             )
-            return
 
         command_methods = {
             "status": self.application.status,
@@ -77,19 +76,22 @@ class CommandLineInterface:
             "prune": self.application.prune,
         }
         command_methods[args.command]()
+        return True
 
 
-def main() -> None:
+def main() -> int:
     setup_logging()
     logging.info("Linux Backup Manager gestartet.")
 
     try:
         cli = CommandLineInterface()
-        cli.run()
+        return 0 if cli.run() else 1
 
     except ApplicationError as error:
         ErrorHandler.show(error)
+        return 1
 
     except KeyboardInterrupt:
         print()
         Console.warning("Vorgang durch Benutzer abgebrochen.")
+        return 130

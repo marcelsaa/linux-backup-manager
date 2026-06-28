@@ -52,10 +52,6 @@ targets:
     mount_path: /mnt/backup-nas
     repository_path: restic/linux-mint
 
-timeshift:
-  enabled: true
-  interval_days: 7
-
 retention:
   keep_daily: 14
   keep_weekly: 8
@@ -138,17 +134,6 @@ NAS support expects the network share to be mounted by the operating system.
 
 ---
 
-## timeshift
-
-Controls automatic Timeshift snapshot creation.
-
-| Option          | Description                               |
-| --------------- | ----------------------------------------- |
-| `enabled`       | Enable or disable Timeshift integration.  |
-| `interval_days` | Minimum number of days between snapshots. |
-
----
-
 ## retention
 
 Retention policy for repository snapshots.
@@ -188,6 +173,9 @@ Controls optional notifications.
 The setup wizard creates this file automatically.
 
 Editing the configuration manually should only be necessary when changing backup paths, retention settings or backup targets.
+
+Duplicate YAML keys are rejected because silently overwritten settings could select unintended
+backup paths or destinations.
 
 ---
 

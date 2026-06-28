@@ -2,8 +2,34 @@ from pathlib import Path
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError, model_validator
+from yaml.constructor import ConstructorError
 
 from lbm.core.errors import ConfigurationError
+
+
+class UniqueKeyLoader(yaml.SafeLoader):
+    """YAML loader that rejects duplicate mapping keys."""
+
+
+def _construct_unique_mapping(loader: UniqueKeyLoader, node: yaml.MappingNode, deep=False):
+    mapping = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            raise ConstructorError(
+                "while constructing a mapping",
+                node.start_mark,
+                f"duplicate key: {key}",
+                key_node.start_mark,
+            )
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+    return mapping
+
+
+UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _construct_unique_mapping,
+)
 
 
 class SystemConfig(BaseModel):
@@ -64,7 +90,7 @@ class ConfigLoader:
     def load(self) -> AppConfig:
         try:
             with self.config_file.open("r", encoding="utf-8") as file:
-                data = yaml.safe_load(file)
+                data = yaml.load(file, Loader=UniqueKeyLoader)
         except FileNotFoundError as error:
             raise ConfigurationError(
                 "Konfigurationsdatei nicht gefunden.",

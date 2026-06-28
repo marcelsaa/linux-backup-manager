@@ -8,7 +8,7 @@ class RestoreService:
     def __init__(
         self,
         config: AppConfig,
-        target: Path,
+        target: Path | None = None,
         repository_provider: RepositoryProvider | None = None,
     ) -> None:
         self.target = target
@@ -42,22 +42,34 @@ class RestoreService:
             return
 
         snapshot = newest_first[index - 1]
+        target = self.target or self._ask_target(snapshot.snapshot_id)
         print()
         print("Ausgewählter Snapshot:")
         print(f"ID..... {snapshot.snapshot_id}")
         print(f"Datum.. {snapshot.time}")
         print(f"Host... {snapshot.host}")
         print()
-        print(f"Zielverzeichnis: {self.target}")
+        print(f"Zielverzeichnis: {target}")
+
+        if target.exists() and any(target.iterdir()):
+            warning = input("Zielverzeichnis ist nicht leer. Trotzdem fortfahren? [j/N]: ")
+            if warning.strip().lower() != "j":
+                print("Abgebrochen.")
+                return
 
         if input("Restore starten? [j/N]: ").strip().lower() != "j":
             print("Abgebrochen.")
             return
 
-        result = restic.restore(snapshot.snapshot_id, self.target)
+        result = restic.restore(snapshot.snapshot_id, target)
         print()
         if result.ok:
             print(result.message)
         else:
             print("Restore fehlgeschlagen:")
             print(result.message)
+
+    def _ask_target(self, snapshot_id: str) -> Path:
+        default = Path.home() / "lbm-restore" / snapshot_id
+        value = input(f"Restore-Ziel [{default}]: ").strip()
+        return Path(value).expanduser() if value else default

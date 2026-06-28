@@ -33,10 +33,6 @@ targets:
     mount_path: /mnt/backup-nas
     repository_path: restic/linux-mint
 
-timeshift:
-  enabled: true
-  interval_days: 7
-
 retention:
   keep_daily: 14
   keep_weekly: 8

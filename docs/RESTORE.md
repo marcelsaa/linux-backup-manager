@@ -59,6 +59,10 @@ Select the snapshot you want to restore.
 
 For safety reasons, files should always be restored into a separate directory.
 
+The restore command asks for a destination and suggests a directory below
+`~/lbm-restore/<snapshot-id>`. If the selected directory is not empty, an additional warning must
+be confirmed before the restore starts.
+
 Recommended workflow:
 
 * Restore into an empty directory.

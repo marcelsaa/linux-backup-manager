@@ -1,3 +1,3 @@
 from lbm.cli.main import main
 
-main()
+raise SystemExit(main())

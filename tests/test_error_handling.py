@@ -29,6 +29,16 @@ def test_invalid_yaml_is_wrapped_as_configuration_error(tmp_path: Path) -> None:
     assert raised.value.message == "Konfigurationsdatei ist ungültig."
 
 
+def test_duplicate_yaml_key_is_rejected(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system:\n  host_name: first\n  host_name: second\n", encoding="utf-8")
+
+    with pytest.raises(ConfigurationError) as raised:
+        ConfigLoader(config_file).load()
+
+    assert raised.value.message == "Konfigurationsdatei ist ungültig."
+
+
 def test_validation_errors_contain_field_details(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     config_file.write_text("system: {}\n", encoding="utf-8")

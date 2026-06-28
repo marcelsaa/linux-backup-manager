@@ -46,6 +46,18 @@ Status:
 
 **Completed**
 
+## Release Stabilization
+
+* [x] Packaging metadata and build configuration
+* [x] Wheel and source-distribution build
+* [x] Fresh virtual-environment installation
+* [x] CLI exit-code validation
+* [x] User-selectable restore destination
+* [x] NAS-only health checks
+* [x] Documentation and feature-claim audit
+
+Status: **Release candidate ready; final hardware restore validation pending.**
+
 ---
 
 # Version 1.1
@@ -75,7 +87,7 @@ Status:
 
 * [x] Interactive folder selection during setup
 * [x] Interactive backup destination selection
-* Detection of duplicate YAML keys
+* [x] Detection of duplicate YAML keys
 
 ---
 
@@ -98,7 +110,7 @@ Status:
 
 ## Development
 
-* Optional development dependencies
+* [x] Optional development dependencies
 * Improved testing
 * Continuous integration
 

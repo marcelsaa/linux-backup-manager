@@ -25,7 +25,6 @@ The Linux Backup Manager has been developed and tested on modern Linux distribut
 * Linux
 * Python 3.12 or newer
 * Restic
-* Timeshift
 
 ### Recommended
 
@@ -52,23 +51,15 @@ Python 3.12 or newer is required.
 restic version
 ```
 
-### Timeshift
-
-```bash
-timeshift --version
-```
-
 If one of these commands is not available, install the missing software using your Linux distribution's package manager.
 
 ---
 
 ## 4. Installing Linux Backup Manager
 
-Clone the project repository.
+Obtain the source archive or clone the project repository, then change into the project directory.
 
 ```bash
-git clone https://github.com/<your-account>/linux-backup-manager.git
-
 cd linux-backup-manager
 ```
 
@@ -79,6 +70,12 @@ pip install .
 ```
 
 Installation only takes a few seconds.
+
+For development, install the optional quality-assurance tools:
+
+```bash
+pip install ".[dev]"
+```
 
 ---
 

@@ -1,12 +1,13 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from lbm.backup.restic import BackupResult, ResticRepositoryInfo
+from lbm.backup.restic import BackupResult, ResticRepositoryInfo, SnapshotInfo
 from lbm.core.application import Application
 from lbm.core.config import AppConfig
 from lbm.services.backup import BackupService
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
+from lbm.services.restore import RestoreService
 from lbm.targets.usb import USBTargetInfo
 
 
@@ -164,3 +165,21 @@ def test_setup_does_not_require_an_existing_config(monkeypatch) -> None:
     setup_service.assert_called_once_with(Path("/tmp/lbm-test-config.yaml"))
     setup_service.return_value.run.assert_called_once_with(interactive=False)
     assert application.config is None
+
+
+def test_restore_prompts_for_a_user_target(tmp_path: Path) -> None:
+    repository = Mock()
+    repository.snapshots.return_value = [
+        SnapshotInfo("abc123", "28.06.2026 12:00:00", "test-host", ["/tmp/source"])
+    ]
+    repository.restore.return_value = BackupResult(
+        True, "abc123", 0, 0, 0, 0, "", "", "Restore erfolgreich."
+    )
+    provider = Mock()
+    provider.get.return_value = repository
+    target = tmp_path / "restore"
+
+    with patch("builtins.input", side_effect=["1", str(target), "j"]):
+        RestoreService(make_config(), repository_provider=provider).run()
+
+    repository.restore.assert_called_once_with("abc123", target)

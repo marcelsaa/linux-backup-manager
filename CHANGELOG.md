@@ -8,6 +8,31 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 29 – Release Stabilization
+
+### Added
+
+* Complete package metadata, build backend and source-distribution manifest
+* Optional `dev` dependencies for build, test and lint tooling
+* Duplicate YAML-key detection
+* User-selected restore destinations with non-empty-directory protection
+* Release-gate tests and Sprint 29 release report
+
+### Changed
+
+* NAS-only configurations now receive correct health checks
+* Expected CLI failures now return non-zero exit codes
+* Renamed misleading `--yes` option to `--non-interactive`
+* Removed Timeshift from 1.0 requirements and claims until an integration exists
+* Corrected repository-statistics and licensing documentation
+
+### Fixed
+
+* Restore no longer targets a development-only directory inside the source tree
+* Source distributions now include documentation, configuration examples and changelog
+
+---
+
 ## Sprint 28 – Interactive Backup Target Setup
 
 ### Added

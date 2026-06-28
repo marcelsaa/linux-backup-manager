@@ -23,7 +23,6 @@ The following environment has been used during development.
 | Linux Mint       | Current     |
 | Python           | 3.12        |
 | Restic           | Installed   |
-| Timeshift        | Installed   |
 | USB Backup Drive | LinuxBackup |
 
 ---
@@ -185,7 +184,6 @@ Verify the application's behaviour when:
 * the repository does not exist.
 * the repository is invalid.
 * Restic is not installed.
-* Timeshift is not installed.
 * the configuration file contains invalid YAML.
 
 ### Expected Result
@@ -237,6 +235,20 @@ ruff check .
 pytest
 ```
 
+### Distribution Build
+
+```bash
+python -m build
+```
+
+Install the generated wheel in a new virtual environment and verify:
+
+```bash
+backup-manager --version
+backup-manager --help
+pip check
+```
+
 ### Git Status
 
 ```bash
@@ -247,6 +259,8 @@ git status
 
 * No linting errors.
 * All unit tests pass.
+* Wheel and source distribution build successfully.
+* A clean installation from the built artifact succeeds.
 * The working tree is clean.
 
 ---

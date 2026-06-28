@@ -6,7 +6,7 @@ Linux Backup Manager (LBM) is an open-source command-line application that simpl
 
 Instead of manually configuring Restic repositories, password files and backup locations, LBM provides an interactive setup wizard that guides users through the complete initial configuration. Once configured, all backup and maintenance tasks can be performed through a consistent command-line interface.
 
-LBM focuses on reliability, predictable behaviour and long-term maintainability while building on proven open-source technologies such as **Restic** and **Timeshift**.
+LBM focuses on reliability, predictable behaviour and long-term maintainability while building on the proven open-source backup tool **Restic**.
 
 ---
 
@@ -41,6 +41,8 @@ The project is intended for Linux users who want a dependable backup solution wi
 
 * Restic-based backups
 * USB backup support
+* NAS backup support for mounted network shares
+* Parallel backups to multiple destinations
 * Configurable backup paths
 * Configurable exclude patterns
 
@@ -74,16 +76,14 @@ Linux Backup Manager requires:
 * Linux
 * Python 3.12 or newer
 * Restic
-* Timeshift
 
 ---
 
 # Installation
 
-Clone the repository:
+Obtain the source archive or clone the repository, then change into the project directory:
 
 ```bash
-git clone https://github.com/<your-account>/linux-backup-manager.git
 cd linux-backup-manager
 ```
 
@@ -169,15 +169,7 @@ Detailed documentation is available in the `docs/` directory.
 
 # Roadmap
 
-Planned features for Version 1.1 include:
-
-* Multiple backup targets (USB and NAS)
-* Interactive backup source selection
-* Interactive backup target selection
-* Refactoring into dedicated service classes
-* Improved recovery workflow
-* Warning during setup that repository passwords cannot be recovered
-* Complete internationalization (German and English)
+See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 ---
 
@@ -185,7 +177,7 @@ Planned features for Version 1.1 include:
 
 **Current Version:** 1.0.0
 
-Linux Backup Manager is currently approaching its first public release.
+Linux Backup Manager 1.0.0 is in final release-candidate validation.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 
@@ -207,7 +199,7 @@ The author assumes no liability for data loss or other damages resulting from th
 
 # License
 
-The licensing model will be finalized before the first public release.
+Linux Backup Manager is licensed under the GNU General Public License v3.0.
 
 ---
 
