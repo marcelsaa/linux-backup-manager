@@ -61,6 +61,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * The generated document states prominently that it does not replace a protected password copy
 * Users are instructed to store or print the sheet separately from computer and repository
 
+## Sprint 37 – Read-Only Doctor Diagnostics
+
+### Added
+
+* `doctor` command for a single support and self-check report
+* Aggregated configuration, password-file permission, Restic, USB, NAS and repository diagnostics
+* Last successfully recorded backup timestamp with a warning when no timestamp is available
+* Explicit `OK`, `WARNUNG`, `FEHLER` and `ÜBERSPRUNGEN` result states
+* Nonzero command exit status when at least one diagnosis fails
+
+### Safety
+
+* Doctor checks are read-only and contain no repair action
+* The command never initializes repositories, creates backups, changes configuration or alters
+  systemd timers
+
 ---
 
 # v1.0.1 – 2026-06-28

@@ -23,6 +23,7 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `setup`     | Configure Linux Backup Manager                         |
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
+| `doctor`    | Run comprehensive read-only diagnostics                |
 | `recovery-info` | Display password-safe recovery information         |
 | `recovery-sheet` | Create a password-free recovery document           |
 | `backup`    | Create a new backup                                    |
@@ -115,6 +116,34 @@ Typical checks include:
 * Required software
 
 Running the health check regularly is recommended.
+
+---
+
+# doctor
+
+## Purpose
+
+Runs a single read-only diagnosis for support and self-checks. The command reports:
+
+* whether the configuration can be loaded;
+* whether the password file exists and has plausible restrictive permissions;
+* whether Restic is installed and executable;
+* whether every configured USB or NAS target is reachable and writable;
+* whether each reachable Restic repository can be opened;
+* the last successfully recorded backup time.
+
+## Command
+
+```bash
+backup-manager doctor
+```
+
+Results are classified as `OK`, `WARNUNG`, `FEHLER` or `ÜBERSPRUNGEN`. A missing previously
+recorded backup is a warning. Configuration, password, Restic, target or repository failures make
+the command exit with status 1. Successful checks and warnings exit with status 0.
+
+`doctor` performs no repairs. It does not initialize repositories, create backups, change the
+configuration or alter automatic-backup timers.
 
 ---
 

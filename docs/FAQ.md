@@ -56,10 +56,10 @@ Verify the following:
 Running
 
 ```bash
-backup-manager health
+backup-manager doctor
 ```
 
-usually identifies the problem.
+reports USB reachability and the repository state without changing either one.
 
 ---
 

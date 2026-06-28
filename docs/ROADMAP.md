@@ -119,8 +119,10 @@ backup and byte-identical restore. Regular restore validation remains an operati
 
 ## Diagnostics
 
-* [ ] `backup-manager doctor` self-test command
-* [ ] Combined Restic, target, repository, timer and permission diagnostics
+* [x] Initial read-only `backup-manager doctor` self-test command
+* [x] Combined configuration, password-permission, Restic, target and repository diagnostics
+* [x] Last successful backup timestamp
+* [ ] systemd timer diagnostics
 * [ ] Last-backup age and optional last-restore-test status
 
 ---

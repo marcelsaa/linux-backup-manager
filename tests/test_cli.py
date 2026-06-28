@@ -27,6 +27,19 @@ def test_recovery_info_is_forwarded_to_application() -> None:
     application.recovery_info.assert_called_once_with()
 
 
+def test_doctor_is_forwarded_to_application() -> None:
+    application = Mock()
+    application.doctor.return_value = True
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "doctor"]):
+        result = cli.run()
+
+    assert result is True
+    application.doctor.assert_called_once_with()
+
+
 def test_recovery_sheet_is_forwarded_to_application() -> None:
     application = Mock()
     application.recovery_sheet.return_value = True

@@ -142,6 +142,15 @@ Optionally create a password-free recovery sheet and store it separately:
 backup-manager recovery-sheet
 ```
 
+Run the read-only system diagnosis after setup:
+
+```bash
+backup-manager doctor
+```
+
+Resolve every reported error before relying on automatic backups. The command only checks the
+environment and never repairs or changes it.
+
 ---
 
 ## 7. First Backup

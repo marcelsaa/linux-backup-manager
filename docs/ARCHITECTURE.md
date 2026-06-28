@@ -84,6 +84,7 @@ Responsibilities:
 
 * `StatusService`: system and configuration status
 * `HealthService`: health-check workflow
+* `DoctorService`: aggregated read-only support diagnostics and exit status
 * `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
 * `RecoverySheetService`: atomic password-free recovery-document generation
 * `SetupService`: first-run setup

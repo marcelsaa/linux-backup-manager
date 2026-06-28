@@ -73,6 +73,7 @@ The project is intended for Linux users who want a dependable backup solution wi
 * Clear error messages
 * Consistent command structure
 * Robust first-run experience
+* Read-only `doctor` diagnostics for configuration, credentials, targets and repositories
 
 ---
 
@@ -140,6 +141,12 @@ Verify the repository:
 backup-manager check
 ```
 
+Diagnose the complete backup environment without changing it:
+
+```bash
+backup-manager doctor
+```
+
 ---
 
 # Available Commands
@@ -149,6 +156,7 @@ backup-manager check
 | `backup-manager setup`     | Interactive setup wizard              |
 | `backup-manager status`    | Display system information            |
 | `backup-manager health`    | Run health checks                     |
+| `backup-manager doctor`    | Run read-only support diagnostics     |
 | `backup-manager recovery-info` | Display password-safe recovery information |
 | `backup-manager recovery-sheet` | Create a password-free recovery document |
 | `backup-manager backup`    | Create a backup                       |

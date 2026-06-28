@@ -4,6 +4,7 @@ from pathlib import Path
 from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
+from lbm.services.doctor import DoctorService
 from lbm.services.health import HealthService
 from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
@@ -38,6 +39,9 @@ class Application:
 
     def health(self) -> None:
         HealthService(self._load_config()).run()
+
+    def doctor(self) -> bool:
+        return DoctorService(self.config_file).run()
 
     def recovery_info(self) -> None:
         RecoveryInfoService(self._load_config(), self.config_file).run()
