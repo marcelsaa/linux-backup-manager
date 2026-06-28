@@ -2,7 +2,7 @@
 
 # User Guide
 
-**Version:** 1.0.1
+**Version:** 1.1.0-dev
 
 ---
 
@@ -23,6 +23,7 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `setup`     | Configure Linux Backup Manager                         |
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
+| `recovery-info` | Display password-safe recovery information         |
 | `backup`    | Create a new backup                                    |
 | `schedule-install` | Install and activate automatic backups           |
 | `schedule-status` | Display automatic-backup timer status             |
@@ -71,6 +72,8 @@ keeps the file unchanged. Accepting creates `config.yaml.bak` before the updated
 
 An invalid repository password is reported separately from a missing repository. Setup never
 offers to initialize an existing repository that cannot be opened with the configured password.
+Before creating a password file, setup requires explicit confirmation that a forgotten repository
+password cannot be reset and that a protected copy must be stored separately.
 
 ---
 
@@ -111,6 +114,25 @@ Typical checks include:
 * Required software
 
 Running the health check regularly is recommended.
+
+---
+
+# recovery-info
+
+## Purpose
+
+Displays the paths, repository targets and emergency steps required for recovery without reading or
+printing the repository password.
+
+## Command
+
+```bash
+backup-manager recovery-info
+```
+
+Run this command after setup and whenever the password-file path or repository target changes. Keep
+a protected password or password-file copy separate from the repository. See `docs/RECOVERY.md` for
+the complete recovery concept.
 
 ---
 
@@ -273,4 +295,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Development Version 1.1.0-dev

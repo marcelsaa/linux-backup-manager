@@ -2,7 +2,7 @@
 
 # Installation Guide
 
-**Version:** 1.0.1
+**Version:** 1.1.0-dev
 
 ---
 
@@ -120,6 +120,7 @@ During setup, LBM automatically:
 * creates the configuration file
 * offers safe interactive reconfiguration when the file already exists
 * creates the password file
+* requires acknowledgement that the repository password cannot be recovered
 * checks required software
 * detects the configured USB backup drive
 * initializes the Restic repository if necessary
@@ -128,6 +129,12 @@ During setup, LBM automatically:
 The setup wizard can safely be executed multiple times. Before changing an existing configuration,
 it stores the previous file as `config.yaml.bak`. Existing repositories with an invalid password
 are reported and are never reinitialized.
+
+After setup, review the recovery-critical paths and store a protected password copy separately:
+
+```bash
+backup-manager recovery-info
+```
 
 ---
 
@@ -167,4 +174,4 @@ After the installation has completed successfully, continue with the **User Guid
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Development Version 1.1.0-dev

@@ -35,6 +35,8 @@ The project is intended for Linux users who want a dependable backup solution wi
 * Automatic configuration generation
 * Safe interactive editing of existing configurations with automatic backup
 * Automatic password file creation
+* Explicit non-recoverable-password warning during setup
+* Recovery metadata and emergency instructions without exposing the password
 * Automatic repository initialization
 * Clear distinction between missing repositories and invalid repository passwords
 * XDG-compliant configuration directory
@@ -146,6 +148,7 @@ backup-manager check
 | `backup-manager setup`     | Interactive setup wizard              |
 | `backup-manager status`    | Display system information            |
 | `backup-manager health`    | Run health checks                     |
+| `backup-manager recovery-info` | Display password-safe recovery information |
 | `backup-manager backup`    | Create a backup                       |
 | `backup-manager schedule-install` | Install and activate automatic backups |
 | `backup-manager schedule-status` | Display the systemd timer status |
@@ -167,6 +170,7 @@ Detailed documentation is available in the `docs/` directory.
 * User Guide
 * Configuration Reference
 * Restore Guide
+* Recovery and Password Safety Guide
 * FAQ
 * Architecture Overview
 * Quality Assurance Test Plan

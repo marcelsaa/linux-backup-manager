@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.0.1
+**Version:** 1.1.0-dev
 
 ---
 
@@ -31,6 +31,7 @@ Services
  │
  ├── StatusService
  ├── HealthService
+ ├── RecoveryInfoService
  ├── SetupService
  ├── BackupService
  ├── RestoreService
@@ -82,6 +83,7 @@ Responsibilities:
 
 * `StatusService`: system and configuration status
 * `HealthService`: health-check workflow
+* `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
 * `SetupService`: first-run setup
 * `BackupService`: backup workflow
 * `RestoreService`: guided restore workflow
@@ -216,4 +218,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Development Version 1.1.0-dev

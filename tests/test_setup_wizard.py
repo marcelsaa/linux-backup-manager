@@ -208,6 +208,35 @@ def test_wrong_repository_password_is_not_treated_as_missing() -> None:
     repository.init_repository.assert_not_called()
 
 
+def test_password_creation_requires_recovery_warning_confirmation(tmp_path: Path) -> None:
+    wizard = SetupWizard(tmp_path / "config.yaml")
+    wizard.password_file = tmp_path / "restic.pass"
+
+    with (
+        patch("builtins.input", return_value="n"),
+        patch("lbm.setup.wizard.getpass") as getpass,
+    ):
+        created = wizard._create_password_file()
+
+    assert created is False
+    assert not wizard.password_file.exists()
+    getpass.assert_not_called()
+
+
+def test_confirmed_password_creation_uses_secure_file_permissions(tmp_path: Path) -> None:
+    wizard = SetupWizard(tmp_path / "config.yaml")
+    wizard.password_file = tmp_path / "restic.pass"
+
+    with (
+        patch("builtins.input", return_value="j"),
+        patch("lbm.setup.wizard.getpass", side_effect=["secure-password", "secure-password"]),
+    ):
+        created = wizard._create_password_file()
+
+    assert created is True
+    assert wizard.password_file.stat().st_mode & 0o777 == 0o600
+
+
 def test_config_model_rejects_disabled_usb_and_nas() -> None:
     data = app_config().model_dump()
     data["targets"]["usb"]["enabled"] = False

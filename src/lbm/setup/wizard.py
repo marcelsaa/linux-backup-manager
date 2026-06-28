@@ -268,8 +268,22 @@ class SetupWizard:
 
     def _create_password_file(self) -> bool:
         print()
-        Console.info("Dieses Passwort schützt Ihr Backup-Repository.")
-        Console.info("Ohne dieses Passwort können Backups nicht wiederhergestellt werden.")
+        Console.warning("WICHTIG: Das Repository-Passwort kann nicht wiederhergestellt werden.")
+        Console.info(
+            "Weder Linux Backup Manager noch Restic oder die Projektentwickler "
+            "können ein vergessenes Passwort zurücksetzen."
+        )
+        Console.info(
+            "Bewahren Sie das Passwort oder eine geschützte Kopie der Passwortdatei "
+            "getrennt vom Backup-Repository auf."
+        )
+        confirmation = input(
+            "Ich habe den möglichen Datenverlust verstanden. Fortfahren? [j/N]: "
+        )
+        if confirmation.strip().lower() != "j":
+            Console.warning("Passworterstellung wurde nicht bestätigt.")
+            return False
+
         Console.info("Die Mindestlänge des Passworts beträgt 8 Zeichen.")
         print()
         while True:

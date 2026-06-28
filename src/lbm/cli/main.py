@@ -28,6 +28,7 @@ class CommandLineInterface:
             choices=[
                 "status",
                 "health",
+                "recovery-info",
                 "init",
                 "backup",
                 "backup-if-due",
@@ -71,6 +72,7 @@ class CommandLineInterface:
         command_methods = {
             "status": self.application.status,
             "health": self.application.health,
+            "recovery-info": self.application.recovery_info,
             "init": self.application.init_repository,
             "backup": self.application.backup,
             "backup-if-due": self.application.backup_if_due,

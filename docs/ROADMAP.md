@@ -98,20 +98,30 @@ backup and byte-identical restore. Regular restore validation remains an operati
 
 ---
 
-## Restore
+## Recovery and Password Safety
 
-* Recovery information
-* Recovery concept for forgotten repository passwords
-* Optional recovery sheet
-* Display a clear warning during setup that the repository password cannot be recovered and must be stored in a safe place.
+* [x] Password-safe `recovery-info` command
+* [x] Recovery concept for password loss and system replacement
+* [x] Explicit setup warning that repository passwords cannot be recovered
+* [x] Guidance for separate, protected password-file storage
+* [ ] Optional recovery sheet without automatic password inclusion
 
 ---
 
 ## Internationalization
 
-* English and German documentation
-* Switchable application language
-* Consistent CLI terminology
+* [ ] Central language manager and message catalogs
+* [ ] Switchable German and English application language
+* [ ] Consistent translated CLI terminology
+* [ ] Complete German and English documentation
+
+---
+
+## Diagnostics
+
+* [ ] `backup-manager doctor` self-test command
+* [ ] Combined Restic, target, repository, timer and permission diagnostics
+* [ ] Last-backup age and optional last-restore-test status
 
 ---
 
@@ -135,18 +145,17 @@ backup and byte-identical restore. Regular restore validation remains an operati
 
 ## User Experience
 
-* Interactive configuration menus
-* Configuration import/export
-* Repository migration
-* Improved diagnostics
+* [ ] Interactive configuration menus
+* [ ] Configuration import/export
+* [ ] Repository migration
+* [ ] Improved diagnostic presentation
 
 ---
 
 ## Documentation
 
-* Complete German documentation
-* User tutorials
-* Additional examples
+* [ ] User tutorials
+* [ ] Additional examples
 
 ---
 

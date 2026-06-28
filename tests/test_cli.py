@@ -16,6 +16,17 @@ def test_non_interactive_setup_is_forwarded_to_application() -> None:
     application.setup.assert_called_once_with(interactive=False)
 
 
+def test_recovery_info_is_forwarded_to_application() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "recovery-info"]):
+        cli.run()
+
+    application.recovery_info.assert_called_once_with()
+
+
 def test_main_returns_nonzero_for_an_application_error() -> None:
     with (
         patch("lbm.cli.main.setup_logging"),

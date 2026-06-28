@@ -2,7 +2,7 @@
 
 # Restore Guide
 
-**Version:** 1.0.1
+**Version:** 1.1.0-dev
 
 ---
 
@@ -24,6 +24,12 @@ Before starting a restore operation, verify the following:
 * The USB backup drive is connected.
 * The repository password file exists.
 * The repository passes an integrity check.
+
+Display recovery-critical paths and target information without exposing the password:
+
+```bash
+backup-manager recovery-info
+```
 
 Running a repository check before restoring is recommended.
 
@@ -143,4 +149,4 @@ Regular restore tests are the best way to ensure that valuable data can actually
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Development Version 1.1.0-dev

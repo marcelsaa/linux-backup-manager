@@ -30,6 +30,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 * Added Twine to the optional development dependencies
 
+## Sprint 35 – Recovery Foundation
+
+### Added
+
+* `recovery-info` command showing recovery-critical paths, targets and emergency steps
+* Recovery information service that checks password-file metadata without reading its content
+* Recovery and password-safety guide for preparation, system replacement and password loss
+* Regression tests ensuring recovery output never contains the repository password
+
+### Changed
+
+* Password creation now requires explicit acknowledgement that repository passwords cannot be reset
+* Setup explains that the password or a protected password-file copy must be stored separately
+* Roadmap reorganized around Version 1.1 safety and maintainability and Version 1.2 user experience
+
 ---
 
 # v1.0.1 – 2026-06-28
