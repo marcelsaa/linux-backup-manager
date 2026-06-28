@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from lbm.core.errors import ConfigurationError
 
@@ -31,6 +31,12 @@ class NASTargetConfig(BaseModel):
 class TargetsConfig(BaseModel):
     usb: USBTargetConfig
     nas: NASTargetConfig = Field(default_factory=NASTargetConfig)
+
+    @model_validator(mode="after")
+    def require_enabled_target(self) -> "TargetsConfig":
+        if not self.usb.enabled and not self.nas.enabled:
+            raise ValueError("at least one backup target must be enabled")
+        return self
 
 
 class BackupConfig(BaseModel):

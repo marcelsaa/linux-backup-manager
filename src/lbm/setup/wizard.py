@@ -3,31 +3,24 @@ from importlib.resources import files
 from pathlib import Path
 from shutil import which
 
-from lbm.backup.restic import ResticRepository
-from lbm.core.config import ConfigLoader
+import yaml
+
+from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.errors import ApplicationError
-from lbm.targets.usb import USBTarget
+from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.ui.console import Console
 
 
 class SetupWizard:
-    def __init__(
-        self,
-        config_file: Path,
-        interactive: bool = True,
-    ) -> None:
+    def __init__(self, config_file: Path, interactive: bool = True) -> None:
         self.config_file = config_file
-        # self.password_file = Path("~/.config/linux-backup-manager/restic-password").expanduser()
-        # self.usb_label = "LinuxBackup"
-        # self.repository_path = "restic-repository"
         self.password_file = Path()
-        self.usb_label = ""
-        self.repository_path = ""
+        self.config: AppConfig | None = None
         self.interactive = interactive
 
     def _load_setup_config(self) -> bool:
         try:
-            config = ConfigLoader(self.config_file).load()
+            self.config = ConfigLoader(self.config_file).load()
         except ApplicationError as error:
             Console.error("config.yaml konnte nicht geladen werden.")
             Console.error(error.message)
@@ -37,10 +30,7 @@ class SetupWizard:
                 Console.info(detail)
             return False
 
-        self.password_file = Path(config.paths.password_file).expanduser()
-        self.usb_label = config.targets.usb.label
-        self.repository_path = config.targets.usb.repository_path
-
+        self.password_file = Path(self.config.paths.password_file).expanduser()
         return True
 
     def _print_header(self) -> None:
@@ -52,44 +42,10 @@ class SetupWizard:
 
     def _print_summary(self, all_ok: bool) -> None:
         print()
-
         if all_ok:
             Console.success("System ist vollständig eingerichtet.")
         else:
             Console.warning("Setup abgeschlossen, es bestehen noch offene Punkte.")
-
-    def _replace_backup_paths(
-        self,
-        config_content: str,
-        backup_paths: list[str],
-    ) -> str:
-        if not backup_paths:
-            return config_content
-
-        lines = config_content.splitlines()
-        result: list[str] = []
-
-        inside_backup_paths = False
-
-        for line in lines:
-            stripped = line.strip()
-
-            if stripped == "paths:" and result and result[-1].strip() == "backup:":
-                result.append(line)
-                for path in backup_paths:
-                    result.append(f"    - {path}")
-                inside_backup_paths = True
-                continue
-
-            if inside_backup_paths:
-                if stripped.startswith("- "):
-                    continue
-
-                inside_backup_paths = False
-
-            result.append(line)
-
-        return "\n".join(result) + "\n"
 
     def _check_config(self) -> bool:
         if self.config_file.exists():
@@ -97,36 +53,35 @@ class SetupWizard:
             return True
 
         Console.error("config.yaml fehlt")
-
         if not self.interactive:
-            Console.warning(
-                "config.yaml fehlt. Automatische Erstellung übersprungen."
-            )
+            Console.warning("config.yaml fehlt. Automatische Erstellung übersprungen.")
             return False
 
-        answer = input(
-            "Standardkonfiguration jetzt erstellen? [J/n]: "
-        ).strip().lower()
-
-        if answer not in ("", "j"):
+        if input("Standardkonfiguration jetzt erstellen? [J/n]: ").strip().lower() not in (
+            "",
+            "j",
+        ):
             print("config.yaml wurde nicht erstellt.")
             return False
 
         try:
             template = files("lbm.resources").joinpath("config.example.yaml")
-            config_content = template.read_text(encoding="utf-8")
-        except FileNotFoundError:
-            Console.error("Standardkonfiguration konnte nicht gefunden werden.")
+            data = yaml.safe_load(template.read_text(encoding="utf-8"))
+        except (FileNotFoundError, yaml.YAMLError):
+            Console.error("Standardkonfiguration konnte nicht geladen werden.")
             return False
 
-        self.config_file.parent.mkdir(parents=True, exist_ok=True)
-        backup_paths = self._ask_backup_paths()
-        config_content = self._replace_backup_paths(config_content, backup_paths)
-        self.config_file.write_text(config_content, encoding="utf-8")
+        data["backup"]["paths"] = self._ask_backup_paths()
+        self._configure_targets(data)
 
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        self.config_file.write_text(
+            yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
         Console.success("config.yaml erstellt")
         return True
-    
+
     def _ask_backup_paths(self) -> list[str]:
         default_paths = [
             "~/Dokumente",
@@ -135,38 +90,60 @@ class SetupWizard:
             "~/Downloads",
             "~/Projekte",
         ]
-
         print()
         print("Welche Standardordner sollen gesichert werden?")
         print()
 
-        selected_paths: list[str] = []
-
-        for path in default_paths:
-            answer = input(f"{path} sichern? [J/n]: ").strip().lower()
-
-            if answer in ("", "j"):
-                selected_paths.append(path)
+        selected_paths = [
+            path
+            for path in default_paths
+            if input(f"{path} sichern? [J/n]: ").strip().lower() in ("", "j")
+        ]
 
         print()
         print("Weitere eigene Ordner hinzufügen?")
         print("Leere Eingabe beendet die Auswahl.")
         print()
-
-        while True:
-            value = input("Zusätzlicher Backup-Ordner: ").strip()
-
-            if not value:
-                break
-
+        while value := input("Zusätzlicher Backup-Ordner: ").strip():
             selected_paths.append(value)
-        if not selected_paths:
-            Console.error(
-                "Es muss mindestens ein Backup-Ordner ausgewählt werden."
-            )
-            return self._ask_backup_paths()
 
+        if not selected_paths:
+            Console.error("Es muss mindestens ein Backup-Ordner ausgewählt werden.")
+            return self._ask_backup_paths()
         return selected_paths
+
+    def _configure_targets(self, data: dict) -> None:
+        print()
+        print("Welche Backup-Ziele sollen verwendet werden?")
+        print()
+
+        use_usb = input("USB-Laufwerk verwenden? [J/n]: ").strip().lower() in ("", "j")
+        use_nas = input("Eingehängtes NAS verwenden? [j/N]: ").strip().lower() == "j"
+        if not use_usb and not use_nas:
+            Console.error("Es muss mindestens ein Backup-Ziel ausgewählt werden.")
+            self._configure_targets(data)
+            return
+
+        usb = data["targets"]["usb"]
+        usb["enabled"] = use_usb
+        if use_usb:
+            usb["label"] = self._ask_value("USB-Dateisystemlabel", usb["label"])
+            usb["repository_path"] = self._ask_value(
+                "Repository-Pfad auf USB",
+                usb["repository_path"],
+            )
+
+        nas = data["targets"]["nas"]
+        nas["enabled"] = use_nas
+        if use_nas:
+            nas["mount_path"] = self._ask_value("NAS-Mountpfad", nas["mount_path"])
+            nas["repository_path"] = self._ask_value(
+                "Repository-Pfad auf NAS",
+                nas["repository_path"],
+            )
+
+    def _ask_value(self, label: str, default: str) -> str:
+        return input(f"{label} [{default}]: ").strip() or default
 
     def _check_password(self) -> bool:
         if self.password_file.exists():
@@ -174,174 +151,100 @@ class SetupWizard:
             return True
 
         Console.error("Passwortdatei fehlt")
-
         if not self.interactive:
             Console.warning("Passwortdatei fehlt. Automatische Erstellung übersprungen.")
             return False
-
-        answer = input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower()
-
-        if answer in ("", "j") and self._create_password_file():
-            print("✓ Passwortdatei vorhanden")
+        if input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower() in (
+            "",
+            "j",
+        ) and self._create_password_file():
+            Console.success("Passwortdatei vorhanden")
             return True
-
         print("Passwortdatei wurde nicht erstellt.")
         return False
 
     def _create_password_file(self) -> bool:
         print()
         Console.info("Dieses Passwort schützt Ihr Backup-Repository.")
-        Console.info(
-            "Ohne dieses Passwort können Backups nicht wiederhergestellt werden."
-        )
+        Console.info("Ohne dieses Passwort können Backups nicht wiederhergestellt werden.")
         Console.info("Die Mindestlänge des Passworts beträgt 8 Zeichen.")
         print()
-
         while True:
             password = getpass("Neues Backup-Passwort: ")
             confirmation = getpass("Backup-Passwort wiederholen: ")
-
             if not password:
                 Console.error("Das Backup-Passwort darf nicht leer sein.")
-                print()
-                continue
-
-            if len(password) < 8:
-                Console.error(
-                    "Das Backup-Passwort muss mindestens 8 Zeichen lang sein."
-                )
-                print()
-                continue
-
-            if password != confirmation:
-                Console.error(
-                    "Die Passwörter stimmen nicht überein. Bitte erneut eingeben."
-                )
-                print()
-                continue
-
-            break
+            elif len(password) < 8:
+                Console.error("Das Backup-Passwort muss mindestens 8 Zeichen lang sein.")
+            elif password != confirmation:
+                Console.error("Die Passwörter stimmen nicht überein. Bitte erneut eingeben.")
+            else:
+                break
+            print()
 
         self.password_file.parent.mkdir(parents=True, exist_ok=True)
         self.password_file.write_text(password + "\n")
         self.password_file.chmod(0o600)
-
         Console.success("Passwortdatei erstellt.")
         return True
 
-    def _check_program(
-        self,
-        program: str,
-        name: str,
-    ) -> bool:
+    def _check_program(self, program: str, name: str) -> bool:
         if which(program):
             Console.success(f"{name} installiert")
             return True
-
         Console.error(f"{name} fehlt")
         return False
 
     def _check_programs(self) -> bool:
-        ok = True
-
-        if not self._check_program("restic", "Restic"):
-            ok = False
-
-        if not self._check_program("timeshift", "Timeshift"):
-            ok = False
-
-        return ok
-
-    def _check_usb(self) -> Path | None:
-        usb = USBTarget(self.usb_label)
-        info = usb.probe()
-
-        if not info.found:
-            Console.error(f"USB-Laufwerk '{self.usb_label}' nicht gefunden")
-            return None
-
-        Console.success(f"USB-Laufwerk '{self.usb_label}' gefunden")
-
-        if info.mountpoint is None:
-            Console.error("USB-Laufwerk ist nicht eingehängt")
-            return None
-
-        return info.mountpoint
-
-    def _check_repository(self, mountpoint: Path) -> bool:
-        repository = mountpoint / self.repository_path
-
-        restic = ResticRepository(
-            repository,
-            self.password_file,
+        return self._check_program("restic", "Restic") & self._check_program(
+            "timeshift", "Timeshift"
         )
 
-        if restic.check().initialized:
-            Console.success("Repository vorhanden")
+    def _check_repositories(self) -> bool:
+        if self.config is None:
+            return False
+
+        destinations = RepositoryProvider(self.config).get_all()
+        enabled_count = int(self.config.targets.usb.enabled) + int(
+            self.config.targets.nas.enabled
+        )
+        status = len(destinations) == enabled_count
+        for destination in destinations:
+            status &= self._check_repository(destination)
+        return status
+
+    def _check_repository(self, destination: RepositoryDestination) -> bool:
+        result = destination.repository.check()
+        if result.initialized:
+            Console.success(f"Repository vorhanden: {destination.name}")
             return True
 
-        Console.error("Repository fehlt")
-
+        Console.error(f"Repository fehlt: {destination.name}")
         if not self.interactive:
             Console.warning("Repository fehlt. Automatische Erstellung übersprungen.")
             return False
-
-        answer = input("Repository jetzt erstellen? [J/n]: ").strip().lower()
-
-        if answer in ("", "j") and self._create_repository():
-            Console.success("Repository vorhanden")
-            return True
-
-        print("Repository wurde nicht erstellt.")
-        return False
-
-    def _create_repository(self) -> bool:
-        usb = USBTarget(self.usb_label)
-        info = usb.probe()
-
-        if not info.found or info.mountpoint is None:
-            print("USB-Laufwerk nicht verfügbar.")
+        answer = input(f"Repository für '{destination.name}' jetzt erstellen? [J/n]: ")
+        if answer.strip().lower() not in ("", "j"):
+            print("Repository wurde nicht erstellt.")
             return False
 
-        repository = Path(info.mountpoint) / self.repository_path
-
-        restic = ResticRepository(
-            repository,
-            self.password_file,
-        )
-
-        result = restic.init_repository()
-
-        if result.initialized:
-            Console.success("Repository erstellt.")
+        created = destination.repository.init_repository()
+        if created.initialized:
+            Console.success(f"Repository erstellt: {destination.name}")
             return True
-
-        Console.error(result.message)
+        Console.error(created.message)
         return False
 
     def run(self) -> None:
         self._print_header()
-
-        status = True
-
-        status &= self._check_config()
-        if not status:
+        if not self._check_config():
             self._print_summary(False)
             return
-
         if not self._load_setup_config():
             self._print_summary(False)
             return
 
-        status &= self._check_password()
+        status = self._check_password()
         status &= self._check_programs()
-
-        mountpoint = self._check_usb()
-
-        if mountpoint is None:
-            self._print_summary(False)
-            return
-
-        status &= self._check_repository(mountpoint)
-
+        status &= self._check_repositories()
         self._print_summary(status)

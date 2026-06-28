@@ -8,6 +8,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 28 – Interactive Backup Target Setup
+
+### Added
+
+* Interactive selection of USB, NAS or both destinations during first-time setup
+* Prompts for target-specific labels, mount paths and repository paths
+* Validation requiring at least one configured destination
+* Checks and optional initialization for every enabled repository
+* Sprint reports for Sprints 25 through 28
+
+### Changed
+
+* Setup configuration generation now edits parsed YAML instead of replacing template lines
+* Setup repository checks now use the shared multi-target repository provider
+
+---
+
 ## Sprint 27 – Multiple Backup Destinations
 
 ### Added

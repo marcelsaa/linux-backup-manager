@@ -54,10 +54,12 @@ During execution the wizard performs the following tasks:
 * Creates the configuration directory
 * Creates the configuration file
 * Creates the password file
+* Lets the user select USB, NAS or both backup destinations
+* Configures target-specific labels, mount paths and repository paths
 * Verifies the required software
-* Detects the configured USB backup device
-* Checks the Restic repository
-* Creates the repository if necessary
+* Detects every configured backup destination
+* Checks every configured Restic repository
+* Creates missing repositories if requested
 
 The setup wizard can safely be executed multiple times.
 

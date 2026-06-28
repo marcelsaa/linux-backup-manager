@@ -67,14 +67,14 @@ Status:
 * [x] Multiple backup targets
 * [x] USB + NAS support
 * [x] Parallel backup destinations
-* Interactive backup target selection
+* [x] Interactive backup target selection
 
 ---
 
 ## Configuration
 
 * [x] Interactive folder selection during setup
-* Interactive backup destination selection
+* [x] Interactive backup destination selection
 * Detection of duplicate YAML keys
 
 ---
