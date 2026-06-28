@@ -104,7 +104,7 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Recovery concept for password loss and system replacement
 * [x] Explicit setup warning that repository passwords cannot be recovered
 * [x] Guidance for separate, protected password-file storage
-* [ ] Optional recovery sheet without automatic password inclusion
+* [x] Optional recovery sheet without automatic password inclusion
 
 ---
 

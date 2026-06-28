@@ -24,6 +24,7 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
 | `recovery-info` | Display password-safe recovery information         |
+| `recovery-sheet` | Create a password-free recovery document           |
 | `backup`    | Create a new backup                                    |
 | `schedule-install` | Install and activate automatic backups           |
 | `schedule-status` | Display automatic-backup timer status             |
@@ -133,6 +134,29 @@ backup-manager recovery-info
 Run this command after setup and whenever the password-file path or repository target changes. Keep
 a protected password or password-file copy separate from the repository. See `docs/RECOVERY.md` for
 the complete recovery concept.
+
+---
+
+# recovery-sheet
+
+## Purpose
+
+Creates an optional recovery document containing the configured repository targets, important file
+paths, emergency commands and blank fields for external recovery records. The document never
+contains the repository password.
+
+## Command
+
+```bash
+backup-manager recovery-sheet
+```
+
+Choose an output path or accept `~/linux-backup-manager-recovery.txt`. Existing files require
+explicit overwrite confirmation. The result is written atomically with permissions `0600`.
+
+Print the sheet or copy it to a protected location separate from both the computer and backup
+repository. Manually record where the protected password copy is stored; do not write the password
+itself into an unprotected sheet.
 
 ---
 

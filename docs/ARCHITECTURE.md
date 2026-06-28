@@ -32,6 +32,7 @@ Services
  ├── StatusService
  ├── HealthService
  ├── RecoveryInfoService
+ ├── RecoverySheetService
  ├── SetupService
  ├── BackupService
  ├── RestoreService
@@ -84,6 +85,7 @@ Responsibilities:
 * `StatusService`: system and configuration status
 * `HealthService`: health-check workflow
 * `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
+* `RecoverySheetService`: atomic password-free recovery-document generation
 * `SetupService`: first-run setup
 * `BackupService`: backup workflow
 * `RestoreService`: guided restore workflow

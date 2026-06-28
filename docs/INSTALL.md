@@ -136,6 +136,12 @@ After setup, review the recovery-critical paths and store a protected password c
 backup-manager recovery-info
 ```
 
+Optionally create a password-free recovery sheet and store it separately:
+
+```bash
+backup-manager recovery-sheet
+```
+
 ---
 
 ## 7. First Backup

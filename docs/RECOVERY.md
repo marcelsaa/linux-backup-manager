@@ -140,8 +140,30 @@ separate from the old repository.
 
 # Recovery Sheet
 
-An optional generated recovery sheet is planned for the next recovery sprint. It will contain
-repository metadata and emergency instructions, but it will never insert the password automatically.
+Create an optional recovery sheet with:
+
+```bash
+backup-manager recovery-sheet
+```
+
+The default output is:
+
+```text
+~/linux-backup-manager-recovery.txt
+```
+
+The command asks before overwriting an existing file and writes the result atomically with mode
+`0600`. The sheet contains:
+
+* Linux Backup Manager version, host and creation time;
+* configuration and password-file paths;
+* USB and NAS repository locations;
+* empty fields for the separately stored password copy, configuration copy and last restore test;
+* emergency verification and restore commands.
+
+The sheet deliberately does not read or contain the repository password. It is an orientation and
+recovery-procedure document, not a password backup. Print it or copy it to a protected location
+separate from the computer and repository.
 
 ---
 

@@ -5,7 +5,7 @@ from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
 from lbm.services.health import HealthService
-from lbm.services.recovery import RecoveryInfoService
+from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
 from lbm.services.restore import RestoreService
 from lbm.services.scheduler import SystemdScheduler
@@ -41,6 +41,9 @@ class Application:
 
     def recovery_info(self) -> None:
         RecoveryInfoService(self._load_config(), self.config_file).run()
+
+    def recovery_sheet(self) -> bool:
+        return RecoverySheetService(self._load_config(), self.config_file).run()
 
     def init_repository(self) -> None:
         self._maintenance().init_repository()

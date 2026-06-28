@@ -1,8 +1,11 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from lbm.core.config import AppConfig
-from lbm.services.recovery import RecoveryInfoService
+from lbm.core.errors import RecoverySheetError
+from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 
 
 def make_config() -> AppConfig:
@@ -66,3 +69,62 @@ def test_recovery_info_reports_a_missing_password_file(tmp_path: Path, capsys) -
     RecoveryInfoService(config, tmp_path / "config.yaml").run()
 
     assert "Passwortdatei-Status. FEHLT" in capsys.readouterr().out
+
+
+def test_recovery_sheet_is_password_free_and_has_secure_permissions(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    config = make_config()
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("never-copy-this-secret\n", encoding="utf-8")
+    config.paths.password_file = str(password_file)
+    target = tmp_path / "recovery" / "sheet.txt"
+
+    with (
+        patch("builtins.input", return_value=str(target)),
+        patch(
+            "pathlib.Path.read_text",
+            side_effect=AssertionError("recovery-sheet must not read file contents"),
+        ),
+    ):
+        created = RecoverySheetService(config, tmp_path / "config.yaml").run()
+
+    content = target.read_text(encoding="utf-8")
+    assert created is True
+    assert target.stat().st_mode & 0o777 == 0o600
+    assert "Dieses Dokument enthält KEIN Repository-Passwort" in content
+    assert "LinuxBackup" in content
+    assert "restic/test-host" in content
+    assert "Aufbewahrungsort der Passwortkopie" in content
+    assert "Datum des letzten erfolgreichen Restore-Tests" in content
+    assert "never-copy-this-secret" not in content
+    assert "Recovery Sheet erstellt" in capsys.readouterr().out
+
+
+def test_recovery_sheet_does_not_overwrite_without_confirmation(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    target = tmp_path / "sheet.txt"
+    target.write_text("keep this content", encoding="utf-8")
+    service = RecoverySheetService(make_config(), tmp_path / "config.yaml")
+
+    with patch("builtins.input", side_effect=[str(target), "n"]):
+        created = service.run()
+
+    assert created is False
+    assert target.read_text(encoding="utf-8") == "keep this content"
+    assert "nicht überschrieben" in capsys.readouterr().out
+
+
+def test_recovery_sheet_translates_write_errors(tmp_path: Path) -> None:
+    target = tmp_path / "sheet.txt"
+    service = RecoverySheetService(make_config(), tmp_path / "config.yaml")
+
+    with (
+        patch("builtins.input", return_value=str(target)),
+        patch("pathlib.Path.write_text", side_effect=OSError("disk full")),
+        pytest.raises(RecoverySheetError, match="nicht sicher gespeichert"),
+    ):
+        service.run()

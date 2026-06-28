@@ -27,6 +27,19 @@ def test_recovery_info_is_forwarded_to_application() -> None:
     application.recovery_info.assert_called_once_with()
 
 
+def test_recovery_sheet_is_forwarded_to_application() -> None:
+    application = Mock()
+    application.recovery_sheet.return_value = True
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "recovery-sheet"]):
+        result = cli.run()
+
+    assert result is True
+    application.recovery_sheet.assert_called_once_with()
+
+
 def test_main_returns_nonzero_for_an_application_error() -> None:
     with (
         patch("lbm.cli.main.setup_logging"),

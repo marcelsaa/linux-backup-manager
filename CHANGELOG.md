@@ -45,6 +45,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * Setup explains that the password or a protected password-file copy must be stored separately
 * Roadmap reorganized around Version 1.1 safety and maintainability and Version 1.2 user experience
 
+## Sprint 36 – Password-Free Recovery Sheet
+
+### Added
+
+* `recovery-sheet` command with a selectable output path and safe default location
+* Password-free recovery document containing targets, paths, emergency commands and manual fields
+* Explicit overwrite confirmation for existing recovery documents
+* Atomic file replacement and restrictive `0600` permissions
+* Typed write-error handling through the central application error path
+
+### Security
+
+* Recovery sheet generation never opens or copies the repository password file
+* The generated document states prominently that it does not replace a protected password copy
+* Users are instructed to store or print the sheet separately from computer and repository
+
 ---
 
 # v1.0.1 – 2026-06-28

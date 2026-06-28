@@ -143,7 +143,7 @@ The following features are already planned:
 * Multiple backup targets
 * NAS support
 * Interactive backup configuration
-* Optional recovery sheet generation
+* German and English application language
 * German documentation
 
 ---
