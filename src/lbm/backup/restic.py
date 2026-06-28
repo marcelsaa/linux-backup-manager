@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from lbm.core.errors import ExternalCommandError
+
 
 @dataclass
 class ResticRepositoryInfo:
@@ -48,17 +50,23 @@ class ResticRepository:
         self.password_file = password_file.expanduser()
 
     def _run(self, command: list[str]) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(
-            command,
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        try:
+            return subprocess.run(
+                command,
+                env={
+                    **os.environ,
+                    "RESTIC_REPOSITORY": str(self.repository),
+                    "RESTIC_PASSWORD_FILE": str(self.password_file),
+                },
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except FileNotFoundError as error:
+            raise ExternalCommandError(
+                "Restic konnte nicht gestartet werden.",
+                hint="Bitte installieren Sie Restic und prüfen Sie den PATH.",
+            ) from error
 
     def check(self) -> ResticRepositoryInfo:
         result = self._run(["restic", "snapshots"])

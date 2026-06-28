@@ -21,6 +21,8 @@ The `Application` class delegates user-facing workflows to dedicated services.
 ```text
 CLI
  │
+ ├── ErrorHandler
+ │
  ▼
 Application
  │
@@ -52,6 +54,7 @@ Responsibilities:
 * Command parsing
 * Argument validation
 * Application startup
+* Central rendering of expected application errors
 
 ---
 
@@ -82,6 +85,9 @@ Responsibilities:
 * `RestoreService`: guided restore workflow
 * `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
 * `RepositoryProvider`: resolve the configured target and create the Restic repository client
+
+Expected failures cross service boundaries as typed `ApplicationError` subclasses. The CLI
+renders these errors consistently without exposing internal tracebacks.
 
 ---
 
@@ -183,7 +189,6 @@ Further improvements may include:
 
 * Multiple repository providers for USB and NAS targets
 * Dependency injection at the application boundary
-* A unified domain-level exception model
 
 ---
 

@@ -8,6 +8,25 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 26 – Central Error Handling
+
+### Added
+
+* Typed application errors for configuration and external command failures
+* Central CLI error handler for consistent user-facing diagnostics
+* Graceful handling of keyboard interrupts
+
+### Changed
+
+* Configuration loading now translates file, YAML and validation failures into domain errors
+* Setup reuses the same structured configuration diagnostics as the CLI
+
+### Fixed
+
+* A missing Restic executable is no longer reported as a missing configuration file
+
+---
+
 ## Sprint 25 – Service Architecture Refactoring
 
 ### Added

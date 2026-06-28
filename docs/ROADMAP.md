@@ -58,7 +58,7 @@ Status:
 * [x] SetupService
 * [x] HealthService
 * [x] RepositoryMaintenanceService
-* Central exception handling
+* [x] Central exception handling
 
 ---
 

@@ -5,6 +5,7 @@ from shutil import which
 
 from lbm.backup.restic import ResticRepository
 from lbm.core.config import ConfigLoader
+from lbm.core.errors import ApplicationError
 from lbm.targets.usb import USBTarget
 from lbm.ui.console import Console
 
@@ -27,9 +28,13 @@ class SetupWizard:
     def _load_setup_config(self) -> bool:
         try:
             config = ConfigLoader(self.config_file).load()
-        except Exception as error:
+        except ApplicationError as error:
             Console.error("config.yaml konnte nicht geladen werden.")
-            Console.error(str(error))
+            Console.error(error.message)
+            if error.hint:
+                Console.info(error.hint)
+            for detail in error.details:
+                Console.info(detail)
             return False
 
         self.password_file = Path(config.paths.password_file).expanduser()
