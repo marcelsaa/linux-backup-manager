@@ -51,6 +51,7 @@ Status:
 * [x] Packaging metadata and build configuration
 * [x] Wheel and source-distribution build
 * [x] Fresh virtual-environment installation
+* [x] TestPyPI upload and clean installation
 * [x] CLI exit-code validation
 * [x] User-selectable restore destination
 * [x] NAS-only health checks

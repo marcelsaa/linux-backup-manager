@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 30 – TestPyPI Release Validation
+
+### Validated
+
+* Wheel and source distribution uploaded successfully to TestPyPI
+* Installation performed exclusively from TestPyPI in a fresh virtual environment
+* Runtime dependencies installed separately from production PyPI
+* Console entry point, version, help, package resources and dependency integrity verified
+* Interactive first-user setup completed from the TestPyPI installation
+* NAS repository initialized and a real Restic backup created successfully
+* Health check, snapshot listing and repository integrity check passed
+
+---
+
 ## Sprint 29 – Release Stabilization
 
 ### Added
