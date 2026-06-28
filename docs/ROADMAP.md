@@ -144,8 +144,10 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Fresh installation from the generated wheel
 * [x] Isolated German and English backup-and-restore end-to-end tests
 * [x] Complete local CI quality gate on the final stabilization state
+* [x] Build and freshly install the local `1.1.0rc1` artifacts
 
-Status: **The Version 1.1 local release gate is passed. `1.1.0rc1` is approved for a local build.**
+Status: **The Version 1.1 local release gate is passed. `1.1.0rc1` has been built and passed its
+fresh-installation gate.**
 
 ## Release Candidate Policy
 
