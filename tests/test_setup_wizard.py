@@ -127,6 +127,7 @@ def test_first_run_writes_a_valid_usb_configuration(tmp_path: Path) -> None:
     wizard = SetupWizard(config_file)
     answers = [
         "",  # create configuration
+        "",  # keep German language
         "",  # include documents
         "n",
         "n",
@@ -148,6 +149,7 @@ def test_first_run_writes_a_valid_usb_configuration(tmp_path: Path) -> None:
     assert created is True
     config = ConfigLoader(config_file).load()
     assert config.backup.paths == ["~/Dokumente"]
+    assert config.system.language == "de"
     assert config.targets.usb.enabled is True
     assert config.targets.usb.label == "TestUSB"
     assert config.targets.usb.repository_path == "restic/test"
@@ -167,6 +169,7 @@ def test_existing_configuration_can_be_edited_with_backup(tmp_path: Path) -> Non
     config_file.write_text(original, encoding="utf-8")
     answers = [
         "j",  # edit existing configuration
+        "en",  # switch language
         "n",  # remove documents
         "",  # images remain disabled
         "",  # desktop remains disabled
@@ -189,6 +192,7 @@ def test_existing_configuration_can_be_edited_with_backup(tmp_path: Path) -> Non
     assert (tmp_path / "config.yaml.bak").read_text(encoding="utf-8") == original
     saved_data = yaml.safe_load(config_file.read_text(encoding="utf-8"))
     assert saved_data["backup"]["paths"] == ["~/Projekte", "/tmp/new-source"]
+    assert saved_data["system"]["language"] == "en"
     assert saved_data["targets"]["usb"]["repository_path"] == "usb-production"
     assert saved_data["checks"] == {"restic_check_interval_days": 30}
 
@@ -244,6 +248,29 @@ def test_config_model_rejects_disabled_usb_and_nas() -> None:
 
     with pytest.raises(ValueError, match="at least one backup target"):
         AppConfig.model_validate(data)
+
+
+def test_existing_config_without_language_defaults_to_german() -> None:
+    data = app_config().model_dump()
+    del data["system"]["language"]
+
+    config = AppConfig.model_validate(data)
+
+    assert config.system.language == "de"
+
+
+def test_configure_language_rejects_unknown_value_and_accepts_english(
+    capsys,
+) -> None:
+    data = {"system": {"host_name": "test", "language": "de"}}
+
+    with patch("builtins.input", side_effect=["fr", "en"]):
+        SetupWizard(Path("/tmp/config.yaml"))._configure_language(data)
+
+    assert data["system"]["language"] == "en"
+    output = capsys.readouterr().out
+    assert "Bitte 'de' oder 'en' eingeben" in output
+    assert "Language selected: en" in output
 
 
 def test_configure_schedule_accepts_custom_time_and_interval() -> None:

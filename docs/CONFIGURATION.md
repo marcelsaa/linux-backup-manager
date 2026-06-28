@@ -2,7 +2,7 @@
 
 # Configuration Reference
 
-**Version:** 1.0.1
+**Version:** 1.1.0-dev
 
 ---
 
@@ -29,6 +29,7 @@ Manual editing is possible but normally not required.
 ```yaml
 system:
   host_name: blackpanther
+  language: de
 
 paths:
   log_dir: logs
@@ -82,9 +83,10 @@ notifications:
 
 General system information.
 
-| Option      | Description                   |
-| ----------- | ----------------------------- |
-| `host_name` | Name of the current computer. |
+| Option      | Description                                              |
+| ----------- | -------------------------------------------------------- |
+| `host_name` | Name of the current computer.                            |
+| `language`  | Application language: `de` or `en`; defaults to `de`.    |
 
 ---
 
@@ -208,4 +210,4 @@ backup paths or destinations.
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Version 1.1.0-dev

@@ -59,6 +59,7 @@ During execution the wizard performs the following tasks:
 
 * Creates the configuration directory
 * Creates the configuration file
+* Selects and stores the application language (`de` or `en`)
 * Offers to edit an existing configuration and saves the previous file as `config.yaml.bak`
 * Creates the password file
 * Lets the user select USB, NAS or both backup destinations
@@ -71,6 +72,10 @@ During execution the wizard performs the following tasks:
 The setup wizard can safely be executed multiple times. When a configuration already exists, it
 asks whether backup folders, destinations and the automatic schedule should be edited. Declining
 keeps the file unchanged. Accepting creates `config.yaml.bak` before the updated file is written.
+
+The language selection and catalog fallback are available as an internationalization foundation.
+Most command output remains German until the following translation sprints migrate the existing
+messages.
 
 An invalid repository password is reported separately from a missing repository. Setup never
 offers to initialize an existing repository that cannot be opened with the configured password.

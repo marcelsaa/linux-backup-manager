@@ -40,4 +40,4 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.setuptools.package-data]
-"lbm.resources" = ["config.example.yaml"]
+"lbm.resources" = ["config.example.yaml", "i18n/*.yaml"]

@@ -77,6 +77,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * The command never initializes repositories, creates backups, changes configuration or alters
   systemd timers
 
+## Sprint 38 – Internationalization Foundation
+
+### Added
+
+* Central `LanguageService` with nested YAML message-catalog support and value formatting
+* Packaged German and English language catalogs
+* Interactive `de`/`en` selection during initial setup and configuration editing
+* Persisted `system.language` setting with strict configuration validation
+* English, German and stable-key fallback behavior for missing messages or catalogs
+
+### Compatibility
+
+* Existing configurations without a language setting continue to load and default to German
+* Existing CLI output remains largely unchanged until later translation sprints
+
 ---
 
 # v1.0.1 – 2026-06-28

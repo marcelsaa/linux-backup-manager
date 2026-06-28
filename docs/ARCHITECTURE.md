@@ -85,6 +85,7 @@ Responsibilities:
 * `StatusService`: system and configuration status
 * `HealthService`: health-check workflow
 * `DoctorService`: aggregated read-only support diagnostics and exit status
+* `LanguageService`: YAML message-catalog loading, formatting and fallback resolution
 * `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
 * `RecoverySheetService`: atomic password-free recovery-document generation
 * `SetupService`: first-run setup
@@ -103,6 +104,10 @@ operate on one repository ask the user to select a destination when more than on
 
 Expected failures cross service boundaries as typed `ApplicationError` subclasses. The CLI
 renders these errors consistently without exposing internal tracebacks.
+
+Language catalogs are packaged below `lbm.resources/i18n`. `system.language` selects `de` or `en`;
+older configurations default to German. Message lookup falls back through English and German
+before returning a stable untranslated key. Existing command messages are migrated incrementally.
 
 ---
 

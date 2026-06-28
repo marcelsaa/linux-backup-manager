@@ -9,6 +9,7 @@ import yaml
 from lbm.backup.restic import RepositoryStatus
 from lbm.core.config import AppConfig, ConfigLoader, UniqueKeyLoader
 from lbm.core.errors import ApplicationError
+from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.scheduler import SystemdScheduler
 from lbm.ui.console import Console
@@ -79,6 +80,7 @@ class SetupWizard:
             Console.error("Standardkonfiguration konnte nicht geladen werden.")
             return False
 
+        self._configure_language(data)
         data["backup"]["paths"] = self._ask_backup_paths()
         self._configure_targets(data)
         self._configure_schedule(data)
@@ -107,7 +109,8 @@ class SetupWizard:
             return False
 
         print()
-        Console.info("Backup-Ordner, Backup-Ziele und Zeitplan werden neu abgefragt.")
+        Console.info("Sprache, Backup-Ordner, Backup-Ziele und Zeitplan werden neu abgefragt.")
+        self._configure_language(data)
         data["backup"]["paths"] = self._ask_backup_paths(data["backup"]["paths"])
         self._configure_targets(data)
         self._configure_schedule(data)
@@ -139,6 +142,24 @@ class SetupWizard:
         if not answer:
             return default
         return answer == "j"
+
+    def _configure_language(self, data: dict) -> None:
+        system = data.setdefault("system", {})
+        current = system.get("language", LanguageService.default_language)
+        language = LanguageService(current)
+
+        while True:
+            prompt = language.translate("language.selection_prompt")
+            selected = input(f"{prompt} [{current}]: ").strip().lower() or current
+            if selected in LanguageService.supported_languages:
+                system["language"] = selected
+                confirmation = LanguageService(selected).translate(
+                    "language.selected",
+                    language=selected,
+                )
+                Console.info(confirmation)
+                return
+            Console.error(language.translate("language.invalid"))
 
     def _ask_backup_paths(self, current_paths: list[str] | None = None) -> list[str]:
         default_paths = [

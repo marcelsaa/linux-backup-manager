@@ -1,5 +1,6 @@
 system:
   host_name: blackpanther
+  language: de
 
 paths:
   log_dir: logs

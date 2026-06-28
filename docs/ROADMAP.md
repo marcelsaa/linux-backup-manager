@@ -110,8 +110,8 @@ backup and byte-identical restore. Regular restore validation remains an operati
 
 ## Internationalization
 
-* [ ] Central language manager and message catalogs
-* [ ] Switchable German and English application language
+* [x] Central `LanguageService` and packaged YAML message catalogs
+* [x] Persisted German/English language selection with fallback
 * [ ] Consistent translated CLI terminology
 * [ ] Complete German and English documentation
 

@@ -74,6 +74,7 @@ The project is intended for Linux users who want a dependable backup solution wi
 * Consistent command structure
 * Robust first-run experience
 * Read-only `doctor` diagnostics for configuration, credentials, targets and repositories
+* Internationalization foundation with selectable German/English catalogs and fallback
 
 ---
 
@@ -186,6 +187,7 @@ Detailed documentation is available in the `docs/` directory.
 * Quality Assurance Test Plan
 * Project Roadmap
 * Automatic Backup Guide
+* Internationalization Guide
 
 ---
 

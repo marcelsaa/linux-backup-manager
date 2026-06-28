@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError, model_validator
@@ -34,6 +35,7 @@ UniqueKeyLoader.add_constructor(
 
 class SystemConfig(BaseModel):
     host_name: str
+    language: Literal["de", "en"] = "de"
 
 
 class PathsConfig(BaseModel):

@@ -1,0 +1,4 @@
+language:
+  selection_prompt: "Sprache wählen (de/en)"
+  selected: "Sprache ausgewählt: {language}"
+  invalid: "Bitte 'de' oder 'en' eingeben."

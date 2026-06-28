@@ -118,6 +118,7 @@ During setup, LBM automatically:
 
 * creates the configuration directory
 * creates the configuration file
+* asks for the application language (`de` or `en`)
 * offers safe interactive reconfiguration when the file already exists
 * creates the password file
 * requires acknowledgement that the repository password cannot be recovered
