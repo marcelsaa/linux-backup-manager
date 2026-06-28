@@ -6,6 +6,31 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
+# Unreleased
+
+## Sprint 25 – Service Architecture Refactoring
+
+### Added
+
+* Dedicated services for status, health, setup, backup, restore and repository maintenance
+* Shared repository provider for resolving configured backup targets
+* Service-level tests for backup, retention, setup and repository resolution
+
+### Changed
+
+* Reduced the `Application` class to configuration loading and command orchestration
+* Centralized Restic process execution and environment configuration
+* Simplified CLI command dispatch
+* Updated architecture and roadmap documentation
+
+### Fixed
+
+* Invalid or failed `lsblk` output is handled as an unavailable USB target
+* Health checks now respect non-zero command exit codes
+* Removed unreachable duplicate code from the setup wizard
+
+---
+
 # v1.0.0
 
 ## Sprint 22.4 – First User Experience
@@ -119,4 +144,3 @@ The project follows Semantic Versioning and keeps a chronological history of all
 Linux Backup Manager
 
 Version 1.0.0
-

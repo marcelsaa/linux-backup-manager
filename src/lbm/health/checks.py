@@ -104,4 +104,4 @@ class HealthChecker:
         output = result.stdout.strip() or result.stderr.strip()
         first_line = output.splitlines()[0] if output else "gefunden"
 
-        return HealthResult(name, True, first_line)
+        return HealthResult(name, result.returncode == 0, first_line)

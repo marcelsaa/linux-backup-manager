@@ -52,12 +52,12 @@ Status:
 
 ## Architecture
 
-* Refactor the Application class into dedicated services
-* BackupService
-* RestoreService
-* SetupService
-* HealthService
-* RepositoryMaintenanceService
+* [x] Refactor the Application class into dedicated services
+* [x] BackupService
+* [x] RestoreService
+* [x] SetupService
+* [x] HealthService
+* [x] RepositoryMaintenanceService
 * Central exception handling
 
 ---
@@ -73,7 +73,7 @@ Status:
 
 ## Configuration
 
-* Interactive folder selection during setup
+* [x] Interactive folder selection during setup
 * Interactive backup destination selection
 * Detection of duplicate YAML keys
 

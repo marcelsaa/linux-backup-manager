@@ -1,0 +1,108 @@
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+from lbm.backup.restic import BackupResult, ResticRepositoryInfo
+from lbm.core.application import Application
+from lbm.core.config import AppConfig
+from lbm.services.backup import BackupService
+from lbm.services.repository import RepositoryProvider
+from lbm.services.repository_maintenance import RepositoryMaintenanceService
+from lbm.targets.usb import USBTargetInfo
+
+
+def make_config() -> AppConfig:
+    return AppConfig.model_validate(
+        {
+            "system": {"host_name": "test-host"},
+            "paths": {
+                "log_dir": "logs",
+                "state_dir": "state",
+                "password_file": "/tmp/restic.pass",
+            },
+            "backup": {
+                "paths": ["/home/test/Documents"],
+                "excludes": ["/home/test/.cache"],
+            },
+            "targets": {
+                "usb": {
+                    "enabled": True,
+                    "label": "LinuxBackup",
+                    "repository_path": "restic/test-host",
+                }
+            },
+            "retention": {
+                "keep_daily": 14,
+                "keep_weekly": 8,
+                "keep_monthly": 12,
+                "keep_yearly": 3,
+            },
+        }
+    )
+
+
+def test_repository_provider_resolves_usb_repository() -> None:
+    usb_info = USBTargetInfo(
+        found=True,
+        label="LinuxBackup",
+        mountpoint=Path("/media/LinuxBackup"),
+        fsavail="100G",
+        fsuse_percent="10%",
+        writable=True,
+    )
+
+    with patch("lbm.services.repository.USBTarget.probe", return_value=usb_info):
+        repository = RepositoryProvider(make_config()).get()
+
+    assert repository is not None
+    assert repository.repository == Path("/media/LinuxBackup/restic/test-host")
+    assert repository.password_file == Path("/tmp/restic.pass")
+
+
+def test_backup_service_passes_configured_paths_to_repository() -> None:
+    restic = Mock()
+    restic.check.return_value = ResticRepositoryInfo(True, "Repository vorhanden")
+    restic.backup.return_value = BackupResult(
+        ok=True,
+        snapshot_id="abc123",
+        files_new=1,
+        files_changed=0,
+        files_unmodified=2,
+        processed_files=3,
+        processed_size="1 MiB",
+        duration="0:01",
+        message="ok",
+    )
+    provider = Mock()
+    provider.get.return_value = restic
+
+    BackupService(make_config(), provider).run()
+
+    restic.backup.assert_called_once_with(
+        [Path("/home/test/Documents")],
+        ["/home/test/.cache"],
+    )
+
+
+def test_forget_stops_after_dry_run_when_user_declines() -> None:
+    restic = Mock()
+    restic.forget_dry_run.return_value = "snapshot abc123"
+    provider = Mock()
+    provider.get.return_value = restic
+
+    with patch("builtins.input", return_value="n"):
+        RepositoryMaintenanceService(make_config(), provider).forget()
+
+    restic.forget_dry_run.assert_called_once()
+    restic.forget.assert_not_called()
+
+
+def test_setup_does_not_require_an_existing_config(monkeypatch) -> None:
+    monkeypatch.setenv("LBM_CONFIG_FILE", "/tmp/lbm-test-config.yaml")
+    application = Application()
+
+    with patch("lbm.core.application.SetupService") as setup_service:
+        application.setup(interactive=False)
+
+    setup_service.assert_called_once_with(Path("/tmp/lbm-test-config.yaml"))
+    setup_service.return_value.run.assert_called_once_with(interactive=False)
+    assert application.config is None

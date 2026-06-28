@@ -27,23 +27,21 @@ class USBTarget:
                 text=True,
                 check=True,
             )
-        except FileNotFoundError:
-            return USBTargetInfo(
-                found=False,
-                label=self.label,
-                mountpoint=None,
-                fsavail=None,
-                fsuse_percent=None,
-                writable=False,
-            )
+            devices = json.loads(result.stdout)
+        except (FileNotFoundError, subprocess.CalledProcessError, json.JSONDecodeError):
+            return self._not_found()
 
-        devices = json.loads(result.stdout)
+        if not isinstance(devices, dict):
+            return self._not_found()
 
-        for device in devices["blockdevices"]:
+        for device in devices.get("blockdevices", []):
             info = self._search(device)
             if info is not None:
                 return info
 
+        return self._not_found()
+
+    def _not_found(self) -> USBTargetInfo:
         return USBTargetInfo(
             found=False,
             label=self.label,
@@ -55,7 +53,7 @@ class USBTarget:
 
     def _search(self, node: dict) -> USBTargetInfo | None:
         if node.get("label") == self.label:
-            mountpoints = node.get("mountpoints") or []
+            mountpoints = [value for value in node.get("mountpoints") or [] if value]
             mountpoint = Path(mountpoints[0]) if mountpoints else None
 
             writable = False

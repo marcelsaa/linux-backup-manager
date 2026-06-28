@@ -1,380 +1,66 @@
 import os
-import platform
-import shutil
 from pathlib import Path
 
-from lbm import __version__
-from lbm.backup.restic import ResticRepository
-from lbm.core.config import ConfigLoader
-from lbm.health.checks import HealthChecker
-from lbm.setup.wizard import SetupWizard
-from lbm.targets.usb import USBTarget
-from lbm.ui.console import Console
+from lbm.core.config import AppConfig, ConfigLoader
+from lbm.services.backup import BackupService
+from lbm.services.health import HealthService
+from lbm.services.repository_maintenance import RepositoryMaintenanceService
+from lbm.services.restore import RestoreService
+from lbm.services.setup import SetupService
+from lbm.services.status import StatusService
 
 
 class Application:
-    """Zentrale Anwendungsklasse des Linux Backup Managers."""
+    """Coordinate CLI commands and their application services."""
 
     def __init__(self) -> None:
         self.project_dir = Path(__file__).resolve().parents[3]
-
-        config_file = os.environ.get("LBM_CONFIG_FILE")
+        configured_file = os.environ.get("LBM_CONFIG_FILE")
         self.config_file = (
-            Path(config_file).expanduser()
-            if config_file
+            Path(configured_file).expanduser()
+            if configured_file
             else Path("~/.config/linux-backup-manager/config.yaml").expanduser()
         )
+        self.config: AppConfig | None = None
 
-        self.config = None
-
-    def _load_config(self):
+    def _load_config(self) -> AppConfig:
         if self.config is None:
             self.config = ConfigLoader(self.config_file).load()
-
         return self.config
 
-    def status(self) -> None:
-        config = self._load_config()
-        password_file = Path(config.paths.password_file).expanduser()
+    def _maintenance(self) -> RepositoryMaintenanceService:
+        return RepositoryMaintenanceService(self._load_config())
 
-        print("Linux Backup Manager")
-        print(f"Version {__version__}")
-        print("====================")
-        print()
-        print("System")
-        print("------")
-        print(f"Python............... {platform.python_version()}")
-        print(f"Restic............... {'OK' if shutil.which('restic') else 'FEHLT'}")
-        print(f"Timeshift............ {'OK' if shutil.which('timeshift') else 'FEHLT'}")
-        print()
-        print("Konfiguration")
-        print("-------------")
-        print(f"Datei................ {self.config_file}")
-        print(f"Konfiguration........ {'OK' if self.config_file.exists() else 'FEHLT'}")
-        print(f"Host................. {config.system.host_name}")
-        print()
-        print("Sicherheit")
-        print("----------")
-        print(f"Passwortdatei........ {'OK' if password_file.exists() else 'FEHLT'}")
-        print(f"Pfad................. {password_file}")
+    def status(self) -> None:
+        StatusService(self._load_config(), self.config_file).run()
 
     def health(self) -> None:
-        config = self._load_config()
-
-        checker = HealthChecker(
-            Path(config.paths.password_file),
-            config.targets.usb.label,
-            config.targets.usb.repository_path,
-        )
-        results = checker.run()
-
-        print("Linux Backup Manager")
-        print("====================")
-        print()
-        print("Health Check")
-        print("------------")
-
-        overall = True
-
-        for result in results:
-            symbol = "✓" if result.ok else "✗"
-            print(f"{symbol} {result.name:<16} {result.message}")
-
-            if not result.ok:
-                overall = False
-
-        print()
-        print(f"Gesamtstatus........ {'OK' if overall else 'FEHLER'}")
+        HealthService(self._load_config()).run()
 
     def init_repository(self) -> None:
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        if restic.check().initialized:
-            print("Repository ist bereits vorhanden.")
-            return
-
-        print(f"Repository wird angelegt unter:\n{restic.repository}")
-        answer = input("Fortfahren? [j/N]: ").strip().lower()
-
-        if answer != "j":
-            print("Abgebrochen.")
-            return
-
-        result = restic.init_repository()
-
-        if result.initialized:
-            print(result.message)
-        else:
-            print("Fehler beim Erstellen des Repositorys:")
-            print(result.message)
+        self._maintenance().init_repository()
 
     def backup(self) -> None:
-        config = self._load_config()
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        repository_check = restic.check()
-
-        if not repository_check.initialized:
-            Console.error("Repository ist nicht verfügbar:")
-            Console.error(repository_check.message)
-            return
-
-        backup_paths = [
-            Path(path).expanduser()
-            for path in config.backup.paths
-        ]
-
-        print("Starte Backup folgender Pfade:")
-
-        for path in backup_paths:
-            print(f"- {path}")
-
-        excludes = [
-            str(Path(exclude).expanduser())
-            for exclude in config.backup.excludes
-        ]
-
-        result = restic.backup(backup_paths, excludes)
-
-        if result.ok:
-            print()
-            print("Backup erfolgreich")
-            print("------------------")
-            print(f"Snapshot-ID........ {result.snapshot_id}")
-            print(f"Neue Dateien...... {result.files_new}")
-            print(f"Geändert.......... {result.files_changed}")
-            print(f"Unverändert....... {result.files_unmodified}")
-            print(f"Verarbeitet....... {result.processed_files}")
-            print(f"Datenmenge........ {result.processed_size}")
-            print(f"Dauer............. {result.duration}")
-        else:
-            print("Backup fehlgeschlagen:")
-            print(result.message)
-
-    def _get_restic_repository(self) -> ResticRepository | None:
-        config = self._load_config()
-
-        usb = USBTarget(config.targets.usb.label)
-        usb_info = usb.probe()
-
-        if not usb_info.found:
-            print("Fehler: Backup-Laufwerk wurde nicht gefunden.")
-            return None
-
-        if usb_info.mountpoint is None:
-            print("Fehler: Backup-Laufwerk ist nicht eingehängt.")
-            return None
-
-        repository = (
-            Path(usb_info.mountpoint)
-            / config.targets.usb.repository_path
-        )
-
-        return ResticRepository(
-            repository,
-            Path(config.paths.password_file),
-        )
+        BackupService(self._load_config()).run()
 
     def snapshots(self) -> None:
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        snapshots = restic.snapshots()
-
-        if not snapshots:
-            print("Keine Snapshots gefunden.")
-            return
-
-        print("Linux Backup Manager")
-        print("====================")
-        print()
-        print("Snapshots")
-        print("---------")
-        print(f"{'':<2}{'ID':<8} {'Datum':<20} {'Host'}")
-        print("-" * 45)
-
-        for index, snapshot in enumerate(reversed(snapshots)):
-            marker = "*" if index == 0 else " "
-
-            print(
-                f"{marker} {snapshot.snapshot_id:<8} "
-                f"{snapshot.time:<20} "
-                f"{snapshot.host}"
-            )
-
-        print()
-        print(f"Anzahl Snapshots: {len(snapshots)}")
+        self._maintenance().snapshots()
 
     def restore(self) -> None:
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        snapshots = restic.snapshots()
-
-        if not snapshots:
-            print("Keine Snapshots gefunden.")
-            return
-
-        print("Verfügbare Snapshots")
-        print("--------------------")
-
-        for index, snapshot in enumerate(reversed(snapshots), start=1):
-            print(
-                f"{index}) "
-                f"{snapshot.snapshot_id} "
-                f"{snapshot.time}"
-            )
-
-        selection = input(
-            "\nWelchen Snapshot möchten Sie wiederherstellen? "
-        ).strip()
-
-        try:
-            index = int(selection)
-        except ValueError:
-            print("Ungültige Eingabe.")
-            return
-
-        if index < 1 or index > len(snapshots):
-            print("Snapshot existiert nicht.")
-            return
-
-        snapshot = list(reversed(snapshots))[index - 1]
-
-        print()
-        print("Ausgewählter Snapshot:")
-        print(f"ID..... {snapshot.snapshot_id}")
-        print(f"Datum.. {snapshot.time}")
-        print(f"Host... {snapshot.host}")
-
         target = self.project_dir / "tests" / "restore-test"
-
-        print()
-        print(f"Zielverzeichnis: {target}")
-
-        answer = input("Restore starten? [j/N]: ").strip().lower()
-
-        if answer != "j":
-            print("Abgebrochen.")
-            return
-
-        result = restic.restore(
-            snapshot.snapshot_id,
-            target,
-        )
-
-        print()
-
-        if result.ok:
-            print(result.message)
-        else:
-            print("Restore fehlgeschlagen:")
-            print(result.message)
+        RestoreService(self._load_config(), target).run()
 
     def stats(self) -> None:
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        stats = restic.stats()
-
-        print("Linux Backup Manager")
-        print("====================")
-        print()
-        print("Repository-Statistik")
-        print("--------------------")
-        print(f"Snapshots........... {stats.snapshot_count}")
-        print(f"Erster Snapshot..... {stats.first_snapshot}")
-        print(f"Letzter Snapshot.... {stats.last_snapshot}")
-        print(f"Host................ {stats.host}")
+        self._maintenance().stats()
 
     def check(self) -> None:
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        Console.info("Repository wird geprüft...")
-        print()
-
-        result = restic.check_repository()
-
-        if result.initialized:
-            Console.success(result.message)
-        else:
-            Console.error("Repository-Prüfung fehlgeschlagen:")
-            Console.error(result.message)
+        self._maintenance().check()
 
     def forget(self) -> None:
-        config = self._load_config()
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        print("Forget Dry-Run")
-        print("--------------")
-
-        dry_run = restic.forget_dry_run(
-            keep_daily=config.retention.keep_daily,
-            keep_weekly=config.retention.keep_weekly,
-            keep_monthly=config.retention.keep_monthly,
-            keep_yearly=config.retention.keep_yearly,
-        )
-
-        print(dry_run if dry_run else "Keine Snapshots würden gelöscht.")
-        print()
-
-        answer = input("Snapshots wirklich löschen? [j/N]: ").strip().lower()
-
-        if answer != "j":
-            print("Abgebrochen.")
-            return
-
-        result = restic.forget(
-            keep_daily=config.retention.keep_daily,
-            keep_weekly=config.retention.keep_weekly,
-            keep_monthly=config.retention.keep_monthly,
-            keep_yearly=config.retention.keep_yearly,
-        )
-
-        print()
-        print(result if result else "Forget abgeschlossen.")
+        self._maintenance().forget()
 
     def prune(self) -> None:
-        restic = self._get_restic_repository()
-
-        if restic is None:
-            return
-
-        print("Repository wird optimiert.")
-        print()
-
-        answer = input("Prune starten? [j/N]: ").strip().lower()
-
-        if answer != "j":
-            print("Abgebrochen.")
-            return
-
-        result = restic.prune()
-
-        print()
-        print(result if result else "Prune abgeschlossen.")
+        self._maintenance().prune()
 
     def setup(self, interactive: bool = True) -> None:
-        wizard = SetupWizard(
-            self.config_file,
-            interactive=interactive,
-        )
-        wizard.run()
+        SetupService(self.config_file).run(interactive=interactive)

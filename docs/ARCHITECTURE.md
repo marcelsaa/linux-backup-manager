@@ -12,7 +12,7 @@ The Linux Backup Manager (LBM) is a command-line application written in Python.
 
 The project follows a modular architecture where each component is responsible for a single task. The `Application` class acts as the central command dispatcher and coordinates the interaction between the individual modules.
 
-Future versions will gradually refactor the `Application` class into dedicated services.
+The `Application` class delegates user-facing workflows to dedicated services.
 
 ---
 
@@ -24,19 +24,19 @@ CLI
  ▼
 Application
  │
- ├── Configuration
+ ▼
+Services
  │
- ├── Setup Wizard
- │
- ├── Backup
- │
- ├── Restore
- │
- ├── Health Checks
- │
- ├── Repository Management
- │
- └── User Interface
+ ├── StatusService
+ ├── HealthService
+ ├── SetupService
+ ├── BackupService
+ ├── RestoreService
+ └── RepositoryMaintenanceService
+     │
+     └── RepositoryProvider
+          ├── USB Target
+          └── Restic Repository
 ```
 
 ---
@@ -57,14 +57,31 @@ Responsibilities:
 
 ## Application
 
-The `Application` class coordinates all operations.
+The `Application` class is a thin command coordinator. It loads configuration lazily and
+delegates each command to a dedicated application service.
 
 Responsibilities:
 
-* Command dispatching
 * Configuration loading
-* Calling feature modules
-* Error handling
+* Service construction
+* Command delegation
+
+---
+
+## Services
+
+Application services contain the user-facing workflows and keep infrastructure details out of
+the central application class.
+
+Responsibilities:
+
+* `StatusService`: system and configuration status
+* `HealthService`: health-check workflow
+* `SetupService`: first-run setup
+* `BackupService`: backup workflow
+* `RestoreService`: guided restore workflow
+* `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
+* `RepositoryProvider`: resolve the configured target and create the Restic repository client
 
 ---
 
@@ -157,19 +174,16 @@ During setup, the configuration is created first and then loaded before the rema
 
 ---
 
-# Future Architecture
+# Architecture Evolution
 
-Version 1.1 plans to split the current `Application` class into dedicated services.
+The current development work toward Version 1.1 introduces dedicated services and reduces the
+`Application` class to orchestration.
 
-Planned services include:
+Further improvements may include:
 
-* BackupService
-* RestoreService
-* SetupService
-* HealthService
-* RepositoryMaintenanceService
-
-This will reduce coupling and improve maintainability.
+* Multiple repository providers for USB and NAS targets
+* Dependency injection at the application boundary
+* A unified domain-level exception model
 
 ---
 

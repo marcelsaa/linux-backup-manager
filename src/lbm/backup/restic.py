@@ -47,12 +47,9 @@ class ResticRepository:
         self.repository = repository
         self.password_file = password_file.expanduser()
 
-    def check(self) -> ResticRepositoryInfo:
-        result = subprocess.run(
-            [
-                "restic",
-                "snapshots",
-            ],
+    def _run(self, command: list[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            command,
             env={
                 **os.environ,
                 "RESTIC_REPOSITORY": str(self.repository),
@@ -60,7 +57,11 @@ class ResticRepository:
             },
             capture_output=True,
             text=True,
+            check=False,
         )
+
+    def check(self) -> ResticRepositoryInfo:
+        result = self._run(["restic", "snapshots"])
 
         if result.returncode == 0:
             return ResticRepositoryInfo(
@@ -97,19 +98,7 @@ class ResticRepository:
         )
 
     def init_repository(self) -> ResticRepositoryInfo:
-        result = subprocess.run(
-            [
-                "restic",
-                "init",
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
-        )
+        result = self._run(["restic", "init"])
 
         if result.returncode == 0:
             return ResticRepositoryInfo(True, "Repository erfolgreich erstellt")
@@ -124,16 +113,7 @@ class ResticRepository:
 
         command.extend(str(path) for path in paths)
 
-        result = subprocess.run(
-            command,
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
-        )
+        result = self._run(command)
 
         if result.returncode == 0:
             return self._parse_backup_output(result.stdout)
@@ -151,20 +131,7 @@ class ResticRepository:
         )
     
     def snapshots(self) -> list[SnapshotInfo]:
-        result = subprocess.run(
-            [
-                "restic",
-                "snapshots",
-                "--json",
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
-        )
+        result = self._run(["restic", "snapshots", "--json"])
 
         if result.returncode != 0:
             return []
@@ -200,21 +167,14 @@ class ResticRepository:
         target: Path,
     ) -> BackupResult:
 
-        result = subprocess.run(
+        result = self._run(
             [
                 "restic",
                 "restore",
                 snapshot_id,
                 "--target",
                 str(target),
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
+            ]
         )
 
         if result.returncode == 0:
@@ -261,19 +221,7 @@ class ResticRepository:
         )
     
     def check_repository(self) -> ResticRepositoryInfo:
-        result = subprocess.run(
-            [
-                "restic",
-                "check",
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
-        )
+        result = self._run(["restic", "check"])
 
         if result.returncode == 0:
             return ResticRepositoryInfo(
@@ -293,7 +241,7 @@ class ResticRepository:
         keep_monthly: int,
         keep_yearly: int,
     ) -> str:
-        result = subprocess.run(
+        result = self._run(
             [
                 "restic",
                 "forget",
@@ -306,14 +254,7 @@ class ResticRepository:
                 "--keep-yearly",
                 str(keep_yearly),
                 "--dry-run",
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
+            ]
         )
 
         if result.returncode != 0:
@@ -328,7 +269,7 @@ class ResticRepository:
         keep_monthly: int,
         keep_yearly: int,
     ) -> str:
-        result = subprocess.run(
+        result = self._run(
             [
                 "restic",
                 "forget",
@@ -340,14 +281,7 @@ class ResticRepository:
                 str(keep_monthly),
                 "--keep-yearly",
                 str(keep_yearly),
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
+            ]
         )
 
         if result.returncode != 0:
@@ -356,21 +290,9 @@ class ResticRepository:
         return result.stdout.strip()
     
     def prune(self) -> str:
-        result = subprocess.run(
-            [
-                "restic",
-                "prune",
-            ],
-            env={
-                **os.environ,
-                "RESTIC_REPOSITORY": str(self.repository),
-                "RESTIC_PASSWORD_FILE": str(self.password_file),
-            },
-            capture_output=True,
-            text=True,
-        )
+        result = self._run(["restic", "prune"])
 
         if result.returncode != 0:
             return result.stderr.strip()
 
-        return result.stdout.strip()    
+        return result.stdout.strip()

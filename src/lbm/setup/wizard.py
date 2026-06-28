@@ -162,7 +162,6 @@ class SetupWizard:
             return self._ask_backup_paths()
 
         return selected_paths
-        return selected_paths
 
     def _check_password(self) -> bool:
         if self.password_file.exists():

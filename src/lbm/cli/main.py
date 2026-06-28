@@ -59,30 +59,27 @@ class CommandLineInterface:
         if self.application is None:
             self.application = Application()
 
-        if args.command == "status":
-            self.application.status() 
-        elif args.command == "health":
-            self.application.health()
-        elif args.command == "init":
-            self.application.init_repository()
-        elif args.command == "backup":
-            self.application.backup()
-        elif args.command == "snapshots":
-            self.application.snapshots()
-        elif args.command == "restore":
-            self.application.restore()
-        elif args.command == "stats":
-            self.application.stats()
-        elif args.command == "check":
-            self.application.check()
-        elif args.command == "forget":
-            self.application.forget()
-        elif args.command == "prune":
-            self.application.prune()
-        elif args.command == "setup":
+        if args.command == "setup":
             self.application.setup(
                 interactive=not args.yes,
             )
+            return
+
+        command_methods = {
+            "status": self.application.status,
+            "health": self.application.health,
+            "init": self.application.init_repository,
+            "backup": self.application.backup,
+            "snapshots": self.application.snapshots,
+            "restore": self.application.restore,
+            "stats": self.application.stats,
+            "check": self.application.check,
+            "forget": self.application.forget,
+            "prune": self.application.prune,
+        }
+        command_methods[args.command]()
+
+
 def main() -> None:
     setup_logging()
     logging.info("Linux Backup Manager gestartet.")
@@ -121,4 +118,3 @@ def main() -> None:
         Console.info(
             "Bitte prüfen Sie die Dateirechte von config/config.yaml."
         )
-    
