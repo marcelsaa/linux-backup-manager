@@ -8,6 +8,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 32 – 1.0.1rc1 TestPyPI Revalidation
+
+### Validated
+
+* Version advanced to `1.0.1rc1` after the immutable TestPyPI 1.0.0 publication
+* Wheel and source distribution rebuilt from committed release source
+* Both artifacts passed `twine check` and were published to TestPyPI
+* Clean installation pinned exclusively to TestPyPI succeeded
+* Interactive setup accepted a custom 18:30 time and three-day backup interval
+* systemd units were generated, enabled through the setup path and accepted by systemd tooling
+* Real Restic backup, state persistence, due checks, snapshots, repository check and restore data
+  integrity passed
+
+---
+
 ## Sprint 31 – Automatic systemd Backups
 
 ### Added
