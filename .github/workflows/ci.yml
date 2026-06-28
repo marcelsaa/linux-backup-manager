@@ -45,6 +45,9 @@ jobs:
       - name: Verify dependencies
         run: python -m pip check
 
+      - name: Compile Python sources
+        run: python -m compileall -q src tests
+
       - name: Lint
         run: ruff check .
 

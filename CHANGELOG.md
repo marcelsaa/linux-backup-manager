@@ -20,7 +20,8 @@ The project follows Semantic Versioning and keeps a chronological history of all
 ### Added
 
 * GitHub Actions quality gate for pushes to `main` and `develop`, pull requests and manual runs
-* Automated Python 3.12 dependency checks, Ruff linting and the complete pytest suite
+* Automated Python 3.12 dependency and byte-compilation checks for source and test files
+* Automated Ruff linting and the complete pytest suite
 * Automated wheel and source-distribution builds with Twine metadata validation
 * Read-only workflow permissions, disabled credential persistence, concurrency cancellation and a
   15-minute job timeout
