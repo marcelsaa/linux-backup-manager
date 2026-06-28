@@ -15,6 +15,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * Development continues on the `develop` branch while Version 1.0.1 remains stable on `main`
 * Package version advanced to the PEP 440 development version `1.1.0.dev0`
 
+## Sprint 34 – Continuous Integration
+
+### Added
+
+* GitHub Actions quality gate for pushes to `main` and `develop`, pull requests and manual runs
+* Automated Python 3.12 dependency checks, Ruff linting and the complete pytest suite
+* Automated wheel and source-distribution builds with Twine metadata validation
+* Read-only workflow permissions, disabled credential persistence, concurrency cancellation and a
+  15-minute job timeout
+
+### Changed
+
+* Added Twine to the optional development dependencies
+
 ---
 
 # v1.0.1 – 2026-06-28

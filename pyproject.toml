@@ -18,6 +18,7 @@ dev = [
     "build>=1",
     "pytest>=8",
     "ruff>=0.9",
+    "twine>=6",
 ]
 
 [project.scripts]

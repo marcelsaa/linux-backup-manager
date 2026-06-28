@@ -118,8 +118,8 @@ backup and byte-identical restore. Regular restore validation remains an operati
 ## Development
 
 * [x] Optional development dependencies
-* Improved testing
-* Continuous integration
+* [x] Automated test, lint and package-build quality gate
+* [x] Continuous integration for `main`, `develop` and pull requests
 
 ## Automation
 
