@@ -201,12 +201,13 @@ See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 **Stable Version:** 1.0.1
 
-**Release Candidate:** 1.1.0rc1 (`1.1.0-rc1`)
+**Release Candidate:** 1.1.0rc2 (`1.1.0-rc2`) – approved for migration
 
-Linux Backup Manager 1.0.1 remains the installed private-use stable release. Version 1.1.0rc1 has
-passed Sprint 42 Restore Finalization and the complete local First-User Validation and is approved
-for migration from Version 1.0.1. The project is maintained and its artifacts are built locally;
-they are not published to production PyPI.
+Linux Backup Manager 1.0.1 remains the installed private-use stable release. Version 1.1.0rc1
+failed the external User Acceptance Test. Version 1.1.0rc2 contains the Sprint 43 fixes and passed
+fresh German and English external UAT runs without workaround or unresolved finding. It is approved
+for migration from Version 1.0.1. Artifacts are built locally and are not published to production
+PyPI.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 

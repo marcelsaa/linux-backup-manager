@@ -8,6 +8,39 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Version 1.1.0 Release Candidate 2
+
+### Changed
+
+* Package version advanced from `1.1.0rc1` to `1.1.0rc2` for Sprint 43 validation
+
+## Sprint 43 – Setup and UAT Hardening
+
+### Fixed
+
+* Fresh first-user configurations now use the real system host name instead of retaining the
+  packaged example value `blackpanther`
+* Interactive setup validates selected USB and NAS targets before writing configuration and offers
+  a correction loop for unavailable targets
+* Setup displays a final host, path, target and schedule summary before configuration is persisted
+* systemd user timers are no longer installed when password, Restic or repository setup is
+  incomplete
+* Interactive EOF now returns a localized controlled Exit `1` instead of a Python traceback
+* The startup due timer now waits from timer activation, preventing an immediate catch-up race when
+  setup occurs long after boot
+
+### Validation
+
+* Added German and English regression coverage for target correction, summary output, real host
+  identity, scheduler gating, EOF handling and timer activation semantics
+* Passed the complete automated gate with 105 tests, Ruff and Python byte-compilation
+* Passed the pristine-VM German external UAT for the exact `1.1.0rc2` wheel, including target
+  correction, host identity, timer delay, restore metadata, EOF handling and cleanup
+* Passed the independent pristine-VM English external UAT with the same exact wheel and fully
+  English application output
+* Approved Version 1.1.0rc2 for migration from Version 1.0.1 after both external passes completed
+  without workaround or unresolved finding
+
 ## Version 1.1.0 Release Candidate 1
 
 ### Changed

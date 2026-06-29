@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.1.0-rc1
+**Last updated:** Version 1.1.0-rc2
 
 ---
 
@@ -167,35 +167,38 @@ Sprint 42 First-User Revalidation.**
 
 ## Sprint 43 – Setup Target Validation Hardening
 
-* [ ] Validate selected USB and NAS targets during interactive configuration, before creating the
+* [x] Validate selected USB and NAS targets during interactive configuration, before creating the
   password file or proceeding with repository setup
-* [ ] Keep the interactive wizard open after an unavailable target or invalid target path and let
+* [x] Keep the interactive wizard open after an unavailable target or invalid target path and let
   the user correct the selection
-* [ ] Show backup paths, selected targets and schedule in a final setup summary and require
+* [x] Show backup paths, selected targets and schedule in a final setup summary and require
   confirmation before writing the configuration
-* [ ] Populate or explicitly ask for the real host name during first-user setup instead of
+* [x] Populate or explicitly ask for the real host name during first-user setup instead of
   retaining the example value `blackpanther`; verify status and recovery-sheet host identity
-* [ ] Do not install or start systemd user timers until at least one configured repository is
+* [x] Do not install or start systemd user timers until at least one configured repository is
   available and initialized
-* [ ] Define and test first-install catch-up semantics so enabling the due timer cannot create an
+* [x] Define and test first-install catch-up semantics so enabling the due timer cannot create an
   unexpected extra snapshot during setup and acceptance testing
-* [ ] Add German and English regression coverage for unavailable USB targets, invalid NAS paths,
+* [x] Add German and English regression coverage for unavailable USB targets, invalid NAS paths,
   corrected target input and scheduler suppression after incomplete setup
-* [ ] Treat EOF on interactive setup and restore prompts as a localized, controlled cancellation
+* [x] Treat EOF on interactive setup and restore prompts as a localized, controlled cancellation
   instead of exposing a Python traceback
 * [ ] Repeat the complete fresh-wheel User Acceptance Test after the fix
 
-Status: **Planned. Findings from the external `1.1.0rc1` User Acceptance Test.**
+Status: **Passed. Version 1.1.0rc2 passed implementation, local artifact validation and independent
+German and English external UAT.**
 
-Current release status: **Version 1.1.0rc1 failed the external User Acceptance Test and is not
-approved for migration. Sprint 43 fixes require a new release candidate and complete fresh German
-and English UAT passes.**
+Validation update: **Both `1.1.0rc2` external UAT language passes completed without workaround or
+unresolved finding. Version 1.1.0rc2 is approved for migration from Version 1.0.1.**
+
+Current release status: **Version 1.1.0rc1 failed external acceptance and remains rejected. Its
+replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from Version 1.0.1.**
 
 ## Release Candidate Policy
 
 * [x] Feature freeze begins with `1.1.0rc1`
 * [ ] Apply only bug fixes, documentation and translation corrections
-* [ ] Build `1.1.0rc2` only if candidate changes require another validation cycle
+* [x] Build `1.1.0rc2` because Sprint 43 fixes require another validation cycle
 * [ ] Release Version 1.1.0
 * [ ] Begin Version 1.2 development after the Version 1.1.0 release
 
@@ -245,4 +248,4 @@ Every release should improve usability without compromising reliability.
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc1 · Stable Version 1.0.1
+Release Candidate 1.1.0-rc2 · Stable Version 1.0.1
