@@ -2,7 +2,7 @@
 
 # Installation Guide
 
-**Version:** 1.1.0-rc1
+**Version:** 1.1.0-rc3
 
 ---
 
@@ -56,7 +56,32 @@ If one of these commands is not available, install the missing software using yo
 
 ---
 
-## 4. Installing Linux Backup Manager
+## 4. Managed Installation or Upgrade
+
+Place `installer.py` next to the release wheel. Use the exact SHA-256 published with that wheel.
+First run the write-free detection and preflight:
+
+```bash
+python3 installer.py linux_backup_manager-1.1.0rc3-py3-none-any.whl \
+  --sha256 <PUBLISHED_SHA256> --dry-run
+```
+
+The preflight checks Python, Restic, free space, installation permissions and, for a Version 1.0.1
+upgrade, every configured target and repository. If it passes, run the same command without
+`--dry-run`. The installer asks for confirmation; automation may explicitly add `--yes`.
+
+The managed path either creates a fresh versioned installation or upgrades the supported Version
+1.0.1 user installation. It preserves the old venv, configuration, password file and repository.
+An ambiguous, partial or unsupported installation is refused without changes.
+
+After a failed cutover, the installer automatically restores and verifies the old launcher, units,
+exact timer states, configuration, password metadata and logical repository state. A critical
+rollback warning means the retained recovery directory must be inspected before continuing.
+
+For a fresh installation, run `backup-manager setup` after the installer completes. Never run setup
+over a supported existing Version 1.0.1 configuration merely to perform an upgrade.
+
+### Development Installation
 
 Obtain the source archive or clone the project repository, then change into the project directory.
 
@@ -88,14 +113,14 @@ Verify that the installation completed successfully.
 backup-manager --version
 ```
 
-Expected output:
+Expected output for this candidate:
 
 ```text
-backup-manager 1.1.0rc1
+backup-manager 1.1.0rc3
 ```
 
-This is the version reported by the current release-candidate checkout. The private stable wheel
-remains Version 1.0.1 until the Version 1.1 release process is complete.
+The private stable installation remains Version 1.0.1 until the Version 1.1 release process is
+complete.
 
 For private use, install the locally built wheel directly instead of uploading it to a package
 index:
@@ -193,4 +218,4 @@ After the installation has completed successfully, continue with the **User Guid
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc1
+Release Candidate 1.1.0-rc3

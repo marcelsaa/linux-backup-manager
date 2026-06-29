@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.1.0-rc2
+**Last updated:** Version 1.1.0-rc3 development
 
 ---
 
@@ -199,8 +199,22 @@ replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from
 * [x] Feature freeze begins with `1.1.0rc1`
 * [ ] Apply only bug fixes, documentation and translation corrections
 * [x] Build `1.1.0rc2` because Sprint 43 fixes require another validation cycle
+* [ ] Accept `1.1.0rc3` after managed fresh-install and Version 1.0.1 upgrade UAT
 * [ ] Release Version 1.1.0
 * [ ] Begin Version 1.2 development after the Version 1.1.0 release
+
+## Sprint 44 – Managed Installation and Upgrade
+
+* [x] Detect fresh, Version 1.0.1, current and partial installations
+* [x] Verify wheel identity and SHA-256 before installation
+* [x] Run write-free storage, Python, Restic, permission and repository preflight checks
+* [x] Install into versioned virtual environments with atomic launcher cutover
+* [x] Preserve configuration, password permissions, systemd units and old venv rollback
+* [x] Restore and verify the exact operational state after an injected cutover failure
+* [ ] Validate fresh install, real 1.0.1 upgrade, idempotency and post-upgrade restore
+
+Status: **Implementation and isolated validation passed. External rc3 VM UAT is pending. Version
+1.1.0rc2 remains the last externally accepted candidate; productive Version 1.0.1 is unchanged.**
 
 ## Automation
 
@@ -248,4 +262,4 @@ Every release should improve usability without compromising reliability.
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc2 · Stable Version 1.0.1
+Release Candidate 1.1.0-rc3 development · Stable Version 1.0.1
