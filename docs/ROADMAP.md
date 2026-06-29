@@ -165,6 +165,32 @@ did not by itself approve migration; the separate migration gate subsequently pa
 Status: **Passed. Version 1.1.0rc1 is approved for migration from Version 1.0.1 after the complete
 Sprint 42 First-User Revalidation.**
 
+## Sprint 43 – Setup Target Validation Hardening
+
+* [ ] Validate selected USB and NAS targets during interactive configuration, before creating the
+  password file or proceeding with repository setup
+* [ ] Keep the interactive wizard open after an unavailable target or invalid target path and let
+  the user correct the selection
+* [ ] Show backup paths, selected targets and schedule in a final setup summary and require
+  confirmation before writing the configuration
+* [ ] Populate or explicitly ask for the real host name during first-user setup instead of
+  retaining the example value `blackpanther`; verify status and recovery-sheet host identity
+* [ ] Do not install or start systemd user timers until at least one configured repository is
+  available and initialized
+* [ ] Define and test first-install catch-up semantics so enabling the due timer cannot create an
+  unexpected extra snapshot during setup and acceptance testing
+* [ ] Add German and English regression coverage for unavailable USB targets, invalid NAS paths,
+  corrected target input and scheduler suppression after incomplete setup
+* [ ] Treat EOF on interactive setup and restore prompts as a localized, controlled cancellation
+  instead of exposing a Python traceback
+* [ ] Repeat the complete fresh-wheel User Acceptance Test after the fix
+
+Status: **Planned. Findings from the external `1.1.0rc1` User Acceptance Test.**
+
+Current release status: **Version 1.1.0rc1 failed the external User Acceptance Test and is not
+approved for migration. Sprint 43 fixes require a new release candidate and complete fresh German
+and English UAT passes.**
+
 ## Release Candidate Policy
 
 * [x] Feature freeze begins with `1.1.0rc1`
