@@ -33,7 +33,8 @@ def test_scheduler_writes_daily_and_boot_timer(tmp_path: Path) -> None:
     assert "backup-if-due" in due_service
     assert "LBM_CONFIG_FILE=/home/test/.config/linux-backup-manager/config.yaml" in due_service
     assert "OnCalendar=*-*-* 20:00:00" in daily_timer
-    assert "OnBootSec=2min" in due_timer
+    assert "OnActiveSec=2min" in due_timer
+    assert "OnBootSec=" not in due_timer
     assert run.call_count == 2
 
 

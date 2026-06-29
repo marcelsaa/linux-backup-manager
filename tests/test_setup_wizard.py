@@ -63,7 +63,10 @@ def test_configure_targets_supports_usb_and_nas() -> None:
     data = target_config()
     answers = iter(["", "j", "TestUSB", "restic/usb", "/mnt/test-nas", "restic/nas"])
 
-    with patch("builtins.input", side_effect=lambda _: next(answers)):
+    with (
+        patch("builtins.input", side_effect=lambda _: next(answers)),
+        patch.object(SetupWizard, "_selected_targets_available", return_value=True),
+    ):
         SetupWizard(Path("/tmp/config.yaml"))._configure_targets(data)
 
     assert data["targets"]["usb"] == {
@@ -82,11 +85,44 @@ def test_configure_targets_requires_at_least_one_target() -> None:
     data = target_config()
     answers = iter(["n", "n", "", "n", "", ""])
 
-    with patch("builtins.input", side_effect=lambda _: next(answers)):
+    with (
+        patch("builtins.input", side_effect=lambda _: next(answers)),
+        patch.object(SetupWizard, "_selected_targets_available", return_value=True),
+    ):
         SetupWizard(Path("/tmp/config.yaml"))._configure_targets(data)
 
     assert data["targets"]["usb"]["enabled"] is True
     assert data["targets"]["nas"]["enabled"] is False
+
+
+def test_unavailable_nas_can_be_corrected_during_configuration(tmp_path: Path) -> None:
+    data = target_config()
+    valid_nas = tmp_path / "nas"
+    valid_nas.mkdir()
+    answers = [
+        "n", "j", str(tmp_path / "missing"), "repository", "",
+        "n", "j", str(valid_nas), "repository",
+    ]
+
+    with patch("builtins.input", side_effect=answers):
+        configured = SetupWizard(tmp_path / "config.yaml")._configure_targets(data)
+
+    assert configured is True
+    assert data["targets"]["usb"]["enabled"] is False
+    assert data["targets"]["nas"]["mount_path"] == str(valid_nas)
+
+
+def test_unavailable_usb_can_cancel_target_configuration(tmp_path: Path) -> None:
+    data = target_config()
+    missing = Mock(found=False, mountpoint=None, writable=False)
+
+    with (
+        patch("builtins.input", side_effect=["", "n", "MissingUSB", "repository", "n"]),
+        patch("lbm.setup.wizard.USBTarget.probe", return_value=missing),
+    ):
+        configured = SetupWizard(tmp_path / "config.yaml")._configure_targets(data)
+
+    assert configured is False
 
 
 def test_check_repositories_initializes_all_destinations() -> None:
@@ -141,15 +177,21 @@ def test_first_run_writes_a_valid_usb_configuration(tmp_path: Path) -> None:
         "",  # enable automatic backups
         "",  # default 20:00
         "",  # default daily interval
+        "",  # confirm summary
     ]
 
-    with patch("builtins.input", side_effect=answers):
+    with (
+        patch("builtins.input", side_effect=answers),
+        patch.object(SetupWizard, "_selected_targets_available", return_value=True),
+        patch("lbm.setup.wizard.gethostname", return_value="fresh-host"),
+    ):
         created = wizard._check_config()
 
     assert created is True
     config = ConfigLoader(config_file).load()
     assert config.backup.paths == ["~/Dokumente"]
     assert config.system.language == "de"
+    assert config.system.host_name == "fresh-host"
     assert config.targets.usb.enabled is True
     assert config.targets.usb.label == "TestUSB"
     assert config.targets.usb.repository_path == "restic/test"
@@ -183,9 +225,13 @@ def test_existing_configuration_can_be_edited_with_backup(tmp_path: Path) -> Non
         "TestUSB",
         "usb-production",
         "",  # keep schedule disabled
+        "",  # confirm summary
     ]
 
-    with patch("builtins.input", side_effect=answers):
+    with (
+        patch("builtins.input", side_effect=answers),
+        patch.object(SetupWizard, "_selected_targets_available", return_value=True),
+    ):
         edited = SetupWizard(config_file)._check_config()
 
     assert edited is True
@@ -239,6 +285,46 @@ def test_confirmed_password_creation_uses_secure_file_permissions(tmp_path: Path
 
     assert created is True
     assert wizard.password_file.stat().st_mode & 0o777 == 0o600
+
+
+def test_incomplete_repository_setup_does_not_install_scheduler(tmp_path: Path) -> None:
+    wizard = SetupWizard(tmp_path / "config.yaml")
+
+    with (
+        patch.object(wizard, "_detect_language"),
+        patch.object(wizard, "_select_initial_language"),
+        patch.object(wizard, "_print_header"),
+        patch.object(wizard, "_check_config", return_value=True),
+        patch.object(wizard, "_load_setup_config", return_value=True),
+        patch.object(wizard, "_check_password", return_value=True),
+        patch.object(wizard, "_check_programs", return_value=True),
+        patch.object(wizard, "_check_repositories", return_value=False),
+        patch.object(wizard, "_check_scheduler") as scheduler,
+    ):
+        result = wizard.run()
+
+    assert result is False
+    scheduler.assert_not_called()
+
+
+def test_english_configuration_summary_lists_all_decisions(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    wizard = SetupWizard(tmp_path / "config.yaml")
+    wizard.language = wizard.language.__class__("en")
+    data = app_config().model_dump()
+    data["system"]["host_name"] = "fresh-host"
+    data["targets"]["usb"]["enabled"] = False
+
+    wizard._print_configuration_summary(data)
+
+    output = capsys.readouterr().out
+    assert "Configuration summary" in output
+    assert "Host: fresh-host" in output
+    assert "Backup paths:" in output
+    assert "NAS target: /mnt/test-nas" in output
+    assert "Schedule: disabled" in output
 
 
 def test_config_model_rejects_disabled_usb_and_nas() -> None:

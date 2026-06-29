@@ -111,7 +111,7 @@ WantedBy=timers.target
 Description=Linux Backup Manager – {self.language.translate("scheduler.boot_check")}
 
 [Timer]
-OnBootSec={self.schedule.boot_delay_minutes}min
+OnActiveSec={self.schedule.boot_delay_minutes}min
 Unit={self.DUE_SERVICE}
 
 [Install]

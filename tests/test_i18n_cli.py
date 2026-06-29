@@ -150,7 +150,8 @@ def test_setup_interactions_are_english(tmp_path: Path, capsys) -> None:
 
     with patch("builtins.input", side_effect=answer):
         wizard._print_header()
-        wizard._configure_targets(data)
+        with patch.object(wizard, "_selected_targets_available", return_value=True):
+            wizard._configure_targets(data)
         wizard._configure_schedule(data)
         wizard._create_password_file()
 

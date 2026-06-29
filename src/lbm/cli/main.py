@@ -117,6 +117,11 @@ def main() -> int:
         Console.warning(_configured_language().translate("cli.interrupted"))
         return 130
 
+    except EOFError:
+        print()
+        Console.warning(_configured_language().translate("cli.input_ended"))
+        return 1
+
 
 def _configured_language() -> LanguageService:
     configured_file = os.environ.get("LBM_CONFIG_FILE")

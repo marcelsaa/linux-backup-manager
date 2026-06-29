@@ -1,8 +1,10 @@
+import os
 from datetime import datetime
 from getpass import getpass
 from importlib.resources import files
 from pathlib import Path
 from shutil import copy2, which
+from socket import gethostname
 
 import yaml
 
@@ -12,6 +14,7 @@ from lbm.core.errors import ApplicationError
 from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.scheduler import SystemdScheduler
+from lbm.targets.usb import USBTarget
 from lbm.ui.console import Console
 
 
@@ -96,9 +99,9 @@ class SetupWizard:
             data["system"]["language"] = self.language.language
         else:
             self._configure_language(data)
-        data["backup"]["paths"] = self._ask_backup_paths()
-        self._configure_targets(data)
-        self._configure_schedule(data)
+        data["system"]["host_name"] = gethostname()
+        if not self._configure_and_confirm(data):
+            return False
 
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
         self._write_config(data)
@@ -126,9 +129,8 @@ class SetupWizard:
         print()
         Console.info(self._text("setup.reconfigure_info"))
         self._configure_language(data)
-        data["backup"]["paths"] = self._ask_backup_paths(data["backup"]["paths"])
-        self._configure_targets(data)
-        self._configure_schedule(data)
+        if not self._configure_and_confirm(data, data["backup"]["paths"]):
+            return False
 
         try:
             AppConfig.model_validate(data)
@@ -223,7 +225,23 @@ class SetupWizard:
             return self._ask_backup_paths()
         return selected_paths
 
-    def _configure_targets(self, data: dict) -> None:
+    def _configure_and_confirm(
+        self,
+        data: dict,
+        current_paths: list[str] | None = None,
+    ) -> bool:
+        while True:
+            data["backup"]["paths"] = self._ask_backup_paths(current_paths)
+            if not self._configure_targets(data):
+                return False
+            self._configure_schedule(data)
+            self._print_configuration_summary(data)
+            if self._ask_yes_no(self._text("setup.confirm_configuration"), True):
+                return True
+            Console.info(self._text("setup.reconfigure_requested"))
+            current_paths = data["backup"]["paths"]
+
+    def _configure_targets(self, data: dict) -> bool:
         print()
         print(self._text("setup.select_targets"))
         print()
@@ -234,8 +252,7 @@ class SetupWizard:
         use_nas = self._ask_yes_no(self._text("setup.use_nas"), nas["enabled"])
         if not use_usb and not use_nas:
             Console.error(self._text("setup.target_required"))
-            self._configure_targets(data)
-            return
+            return self._configure_targets(data)
 
         usb["enabled"] = use_usb
         if use_usb:
@@ -256,6 +273,65 @@ class SetupWizard:
                 self._text("setup.nas_repository_path"),
                 nas["repository_path"],
             )
+
+        if self._selected_targets_available(data):
+            return True
+        if self._ask_yes_no(self._text("setup.correct_targets"), True):
+            return self._configure_targets(data)
+        return False
+
+    def _selected_targets_available(self, data: dict) -> bool:
+        available = True
+        usb = data["targets"]["usb"]
+        if usb["enabled"]:
+            info = USBTarget(usb["label"]).probe()
+            if not info.found:
+                Console.error(self._text("setup.usb_unavailable", label=usb["label"]))
+                available = False
+            elif info.mountpoint is None:
+                Console.error(self._text("setup.usb_not_mounted", label=usb["label"]))
+                available = False
+            elif not info.writable:
+                Console.error(self._text("setup.usb_not_writable", path=info.mountpoint))
+                available = False
+
+        nas = data["targets"]["nas"]
+        if nas["enabled"]:
+            path = Path(nas["mount_path"]).expanduser()
+            if not path.is_dir():
+                Console.error(self._text("setup.nas_unavailable", path=path))
+                available = False
+            elif not os.access(path, os.W_OK):
+                Console.error(self._text("setup.nas_not_writable", path=path))
+                available = False
+        return available
+
+    def _print_configuration_summary(self, data: dict) -> None:
+        title = self._text("setup.summary_title")
+        print()
+        print(title)
+        print("-" * len(title))
+        print(self._text("setup.summary_host", value=data["system"]["host_name"]))
+        print(self._text("setup.summary_paths"))
+        for path in data["backup"]["paths"]:
+            print(f"- {path}")
+        usb = data["targets"]["usb"]
+        nas = data["targets"]["nas"]
+        if usb["enabled"]:
+            print(self._text("setup.summary_usb", value=usb["label"]))
+        if nas["enabled"]:
+            print(self._text("setup.summary_nas", value=nas["mount_path"]))
+        schedule = data["schedule"]
+        value = (
+            self._text(
+                "setup.summary_schedule_enabled",
+                time=schedule["daily_time"],
+                days=schedule["interval_days"],
+            )
+            if schedule["enabled"]
+            else self._text("setup.summary_schedule_disabled")
+        )
+        print(self._text("setup.summary_schedule", value=value))
 
     def _ask_value(self, label: str, default: str) -> str:
         return input(f"{label} [{default}]: ").strip() or default
@@ -449,10 +525,11 @@ class SetupWizard:
             self._print_summary(False)
             return False
 
-        status = self._check_password()
-        status &= self._check_programs()
-        status &= self._check_repositories()
-        status &= self._check_scheduler()
+        password_ok = self._check_password()
+        programs_ok = self._check_programs()
+        repositories_ok = password_ok and programs_ok and self._check_repositories()
+        scheduler_ok = repositories_ok and self._check_scheduler()
+        status = password_ok and programs_ok and repositories_ok and scheduler_ok
         self._print_summary(status)
         return status
 
