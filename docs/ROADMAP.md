@@ -146,8 +146,24 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Complete local CI quality gate on the final stabilization state
 * [x] Build and freshly install the local `1.1.0rc1` artifacts
 
-Status: **The Version 1.1 local release gate is passed. `1.1.0rc1` has been built and passed its
-fresh-installation gate.**
+Status: **The Version 1.1 local build and fresh-installation gate passed for `1.1.0rc1`. This did
+not approve migration from Version 1.0.1; the final migration gate remains open in Sprint 42.**
+
+## Sprint 42 – Restore Finalization
+
+* [ ] Reproduce and fully analyze the `lchown` restore failure with absolute backup paths
+* [ ] Determine whether Restic correctly reports a failed restore or whether Linux Backup Manager
+  must interpret the result differently
+* [ ] Define and implement the smallest correct fix only after the ownership and exit-code semantics
+  are proven
+* [ ] Add regression coverage for restored file content, metadata handling and CLI exit status
+* [ ] Rebuild the release candidate wheel and record its SHA-256 checksum
+* [ ] Repeat the complete isolated German and English First-User Validation from the wheel
+* [ ] Approve migration from Version 1.0.1 only when the final validation report passes without
+  exceptions
+
+Status: **Planned. Version 1.1.0rc1 is not approved for migration from Version 1.0.1 while the
+restore result and the final First-User Validation remain unresolved.**
 
 ## Release Candidate Policy
 
@@ -175,6 +191,14 @@ fresh-installation gate.**
 * [ ] Configuration import/export
 * [ ] Repository migration
 * [ ] Improved diagnostic presentation
+
+---
+
+## Security
+
+* [ ] Change the repository password
+* [ ] Automatically update the password file after a password change
+* [ ] Regenerate the recovery sheet after a password change
 
 ---
 
