@@ -16,6 +16,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 * Version 1.1 entered feature freeze after the successful Sprint 41 release gate
 * Until Version 1.1.0, changes are limited to bug fixes, documentation and translations
 
+## Sprint 42 – Restore Finalization
+
+### Validation
+
+* Fully analyzed the sandbox-specific `lchown` restore failure against normal unprivileged Linux
+  behavior and official Restic exit semantics
+* Confirmed that Linux Backup Manager must continue propagating every nonzero Restic restore status
+* Added regression coverage preventing `lchown` errors from being reclassified as success
+* Passed the complete quality gate with 100 tests
+* Rebuilt and freshly installed the `1.1.0rc1` wheel and recorded its SHA-256 checksum
+* Passed independent German and English First-User workflows with real isolated systemd user timers
+* Passed full restores with matching SHA-256 hashes, modes and modification timestamps
+* Approved Version 1.1.0rc1 for migration from Version 1.0.1
+
 ## Version 1.1.0 Development
 
 ### Changed
