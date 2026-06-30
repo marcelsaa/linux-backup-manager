@@ -8,6 +8,47 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Version 1.1.0 Release Candidate 3
+
+### Changed
+
+* Package version advanced from `1.1.0rc2` to `1.1.0rc3` for Sprint 44 validation
+
+## Sprint 44 – Managed Installation and Upgrade
+
+### Added
+
+* Standalone `installer.py` for managed fresh installation and Version 1.0.1 upgrade
+* SHA-256 and package-metadata verification before any installation action
+* Write-free `--dry-run` mode showing the detected mode and planned actions without side effects
+* Detection of fresh, supported 1.0.1, already-current and partial/unsupported installation states
+* Preflight checks for Python 3.12+, Restic, free disk space, write permissions and NAS/USB
+  repository reachability before any venv or file is created
+* Versioned virtual environment layout under
+  `~/.local/share/linux-backup-manager/versions/<version>/`
+* Atomic launcher cutover: symlink is switched via a temporary file and `os.replace`
+* Automatic rollback with invariant verification on cutover failure: config, password, units,
+  launcher and repository state must be byte-identical to the captured pre-upgrade baseline
+* Upgrade backup directory at `~/.local/share/linux-backup-manager/upgrade-backups/` for recovery
+* 16 dedicated installer tests covering wrong hash, partial state, old Python, unavailable Restic,
+  insufficient space, injected cutover failure and idempotent rerun
+
+### Validation
+
+* Passed the complete automated gate with 121 tests (including 16 installer tests), Ruff and Python
+  byte-compilation
+* Passed isolated integration validation: real 1.0.1 install, managed upgrade, post-upgrade backup
+  and byte-identical restore
+* Passed the pristine-VM German fresh-install UAT for the exact `1.1.0rc3` wheel and `installer.py`
+  (SPRINT\_44\_FRESH\_DE\_PASSED)
+* Passed the pristine-VM German 1.0.1 upgrade UAT: negative preflight, dry-run, upgrade, preserved
+  config/password/timers, post-upgrade backup and SHA-256-verified restore
+  (SPRINT\_44\_UPGRADE\_DE\_PASSED)
+* Passed the independent pristine-VM English fresh-install UAT with fully English application output
+  (SPRINT\_44\_FRESH\_EN\_PASSED)
+* Approved Version 1.1.0rc3 for migration from Version 1.0.1 after all applicable acceptance gates
+  passed without workaround or unresolved finding
+
 ## Version 1.1.0 Release Candidate 2
 
 ### Changed

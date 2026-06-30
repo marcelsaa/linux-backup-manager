@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.1.0-rc3 development
+**Last updated:** Version 1.1.0-rc3 development / Design decisions added June 2026
 
 ---
 
@@ -17,6 +17,120 @@ The focus of the project is:
 * Predictable behaviour
 * Minimal administration
 * Long-term maintainability
+
+---
+
+# Design Philosophy
+
+These principles are binding for all future versions. They take precedence over individual feature
+requests and must be considered in every design review before new functionality is planned or
+accepted into a sprint.
+
+## Scope
+
+Linux Backup Manager is **not a comprehensive Restic frontend**. It is a simple, guided backup tool
+for private home users who do not need detailed knowledge of Restic. Complex or rarely needed
+operations are deliberately separated from everyday use.
+
+## Guiding Principle
+
+Before introducing any new function, answer the following question:
+
+> Does a normal user need this function on a regular basis?
+
+If the answer is **No**, the function belongs in the **Administration** area or does not belong in
+the standard interface at all.
+
+## Planned Main Menu Structure
+
+The main menu shall remain as small as possible and contain only regularly used functions:
+
+1. Start backup
+2. Restore files
+3. Status
+4. Settings
+5. Administration
+6. Quit
+
+New functions shall only appear in the main menu if a normal user genuinely needs them on a regular
+basis.
+
+## Administration Area
+
+Rarely needed diagnostic and maintenance functions belong in a dedicated Administration submenu.
+Planned entries include:
+
+- Repository integrity check
+- Doctor (system diagnostics)
+- View log files
+- Backup history
+- Repository information
+- Future expert functions
+
+## Doctor
+
+Doctor remains part of the project as an **administration tool**, not an everyday function. It shall
+live in the Administration area, not in the main menu. Doctor shall check at minimum:
+
+- Repository reachable
+- Password file present and permissions correct
+- USB drive reachable
+- Configuration valid
+- Restic installed
+- Required systemd services and timers present
+- Write permissions for all backup destinations
+- Further consistency checks as the project evolves
+
+## Snapshot Restoration via Mount
+
+Future versions shall support browsing and selectively restoring individual files from a snapshot
+without requiring knowledge of Restic commands. Planned flow:
+
+1. User selects "Restore files".
+2. All available snapshots are listed.
+3. User selects a snapshot.
+4. The snapshot is mounted read-only (FUSE).
+5. The file manager opens automatically.
+6. The user browses files and directories and copies or drags out the desired files.
+7. Modifications inside the mounted snapshot are not possible.
+8. The user cleanly unmounts the snapshot when done.
+
+The user shall not need to know any Restic command or option.
+
+## Retention Design
+
+Linux Backup Manager uses Restic's retention system exclusively. There are **no different snapshot
+types**. Every snapshot is technically identical; retention rules decide only which snapshots are
+kept long-term. A single snapshot can simultaneously satisfy daily, weekly, monthly and yearly
+retention categories. No conversion or re-creation of snapshots takes place.
+
+Planned default values:
+
+| Policy | Value |
+|---|---|
+| keep_daily | 14 |
+| keep_weekly | 8 |
+| keep_monthly | 12 |
+| keep_yearly | 3 |
+
+## Automatic Repository Cleanup
+
+Restic operates internally with `forget` and `prune`. Linux Backup Manager shall hide this
+complexity from the user. The standard post-backup flow is:
+
+1. Create backup
+2. Apply retention policy (`forget`)
+3. Clean repository (`prune`)
+
+The user receives only a clear status message. A configuration option (e.g. run `prune` weekly
+only) may be added later as an expert setting in the Administration area.
+
+## No "Full Backup" Menu Item
+
+A "Create full backup" option is **not planned** because Restic fundamentally creates complete
+snapshots on every run. If a complete repository reset is ever useful (archiving, target
+migration), it shall appear only as an expert function in the Administration area — never in the
+main menu.
 
 ---
 
@@ -199,7 +313,7 @@ replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from
 * [x] Feature freeze begins with `1.1.0rc1`
 * [ ] Apply only bug fixes, documentation and translation corrections
 * [x] Build `1.1.0rc2` because Sprint 43 fixes require another validation cycle
-* [ ] Accept `1.1.0rc3` after managed fresh-install and Version 1.0.1 upgrade UAT
+* [x] Accept `1.1.0rc3` after managed fresh-install and Version 1.0.1 upgrade UAT
 * [ ] Release Version 1.1.0
 * [ ] Begin Version 1.2 development after the Version 1.1.0 release
 
@@ -211,10 +325,10 @@ replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from
 * [x] Install into versioned virtual environments with atomic launcher cutover
 * [x] Preserve configuration, password permissions, systemd units and old venv rollback
 * [x] Restore and verify the exact operational state after an injected cutover failure
-* [ ] Validate fresh install, real 1.0.1 upgrade, idempotency and post-upgrade restore
+* [x] Validate fresh install, real 1.0.1 upgrade, idempotency and post-upgrade restore
 
-Status: **Implementation and isolated validation passed. External rc3 VM UAT is pending. Version
-1.1.0rc2 remains the last externally accepted candidate; productive Version 1.0.1 is unchanged.**
+Status: **Passed. External VM UAT passed for German fresh install, German 1.0.1 upgrade and English
+fresh install. Version 1.1.0rc3 is approved for migration from Version 1.0.1.**
 
 ## Automation
 
@@ -234,6 +348,39 @@ Status: **Implementation and isolated validation passed. External rc3 VM UAT is 
 * [ ] Configuration import/export
 * [ ] Repository migration
 * [ ] Improved diagnostic presentation
+* [ ] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup
+* [ ] Automatic forget and prune after every successful backup (hidden from the user)
+
+## Desktop Integration
+
+At the end of installation, the installer shall optionally create a desktop shortcut so that users
+can launch Linux Backup Manager like any other desktop application without knowing terminal commands.
+
+**Installer prompt (end of fresh install and upgrade):**
+
+> Create desktop shortcut?
+> You can start Linux Backup Manager conveniently by double-clicking the shortcut.
+> [Yes] [No]
+
+**Shortcut behaviour:**
+
+- Opens the system default terminal emulator
+- Launches the installed `lbm` command (not the Python interpreter directly)
+- Keeps the terminal window open until the user exits the program
+- All status and error messages remain visible
+
+**Implementation:** A standard XDG `.desktop` file at
+`~/.local/share/applications/linux-backup-manager.desktop` with `Terminal=true` and
+`Exec=lbm`. The launcher command is used, not a hard-coded interpreter path, so the shortcut
+remains valid after upgrades.
+
+**Future extension (optional):**
+
+* [ ] Desktop entry creation (`~/.local/share/applications/`)
+* [ ] Application menu entry
+* [ ] Desktop icon (`~/Desktop/`)
+
+All entries shall be optional and individually selectable.
 
 ---
 
@@ -252,11 +399,32 @@ Status: **Implementation and isolated validation passed. External rc3 VM UAT is 
 
 ---
 
+# Version 1.3
+
+## Restore Experience
+
+* [ ] Snapshot restoration via read-only FUSE mount
+* [ ] Automatic file manager launch after mounting a snapshot
+* [ ] Clean unmount workflow after file selection
+* [ ] No Restic commands visible to the user
+
+## Interaction Model
+
+* [ ] Guided terminal user interface with main menu (6 items, see Design Philosophy)
+* [ ] Administration submenu for Doctor, repository check, log viewer, backup history
+* [ ] Doctor integrated into Administration area
+
+---
+
 # Long-Term Goals
 
-The long-term objective is to provide a dependable backup solution that can be installed and operated by Linux users without requiring detailed knowledge of Restic.
+The long-term objective is to provide a dependable backup solution that can be installed and
+operated by Linux users without requiring detailed knowledge of Restic. Every release shall improve
+usability without compromising reliability.
 
-Every release should improve usability without compromising reliability.
+The planned interaction model for future major versions is a guided terminal user interface with a
+small, stable main menu and a dedicated Administration area for expert functions. The binding design
+decisions that govern this evolution are documented in the **Design Philosophy** section above.
 
 ---
 
