@@ -386,9 +386,9 @@ All entries shall be optional and individually selectable.
 
 ## Security
 
-* [ ] Change the repository password
-* [ ] Automatically update the password file after a password change
-* [ ] Regenerate the recovery sheet after a password change
+* [x] Change the repository password *(Sprint 49)*
+* [x] Automatically update the password file after a password change *(Sprint 49)*
+* [x] Regenerate the recovery sheet after a password change *(Sprint 49)*
 
 ---
 

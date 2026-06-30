@@ -342,6 +342,12 @@ class ResticRepository:
 
         return result.stdout.strip()
 
+    def change_password(self, new_password_file: Path) -> bool:
+        result = self._run(
+            ["restic", "key", "passwd", "--new-password-file", str(new_password_file)]
+        )
+        return result.returncode == 0
+
     def cleanup(
         self,
         keep_daily: int,

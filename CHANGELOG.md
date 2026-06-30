@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 49 – Passwort ändern
+
+### Added
+
+* Neuer Befehl `backup-manager change-password`: ändert das Repository-Passwort in allen
+  konfigurierten Repos sequenziell, ersetzt die Passwortdatei atomar und bietet danach die
+  Neuerstellung des Recovery Sheets an.
+* `ResticRepository.change_password(new_password_file)`: ruft `restic key passwd
+  --new-password-file` auf, kein interaktiver Input, kein `shell=True`.
+* Neuer `PasswordChangeService` in `services/password.py`.
+* Schlägt das zweite Repo fehl, werden die bereits geänderten Repos namentlich gemeldet und
+  die Passwortdatei bleibt unverändert.
+* 15 neue i18n-Schlüssel unter `password_change:` in Deutsch und Englisch.
+
 ## Sprint 48 – Desktop-Integration
 
 ### Added

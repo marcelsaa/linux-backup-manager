@@ -7,6 +7,7 @@ from lbm.services.backup import BackupService
 from lbm.services.doctor import DoctorService
 from lbm.services.health import HealthService
 from lbm.services.language import LanguageService
+from lbm.services.password import PasswordChangeService
 from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
 from lbm.services.restore import RestoreService
@@ -121,6 +122,9 @@ class Application:
 
     def prune(self) -> None:
         self._maintenance().prune()
+
+    def change_password(self) -> bool:
+        return PasswordChangeService(self._load_config(), self.config_file).run()
 
     def setup(self, interactive: bool = True) -> bool:
         return SetupService(self.config_file).run(interactive=interactive)
