@@ -8,6 +8,24 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 48 – Desktop-Integration
+
+### Added
+
+* Der Installer bietet am Ende jeder erfolgreichen Installation und jedes Upgrades optional an,
+  einen Desktop-Shortcut anzulegen:
+  * **Anwendungsmenüeintrag** (`~/.local/share/applications/linux-backup-manager.desktop`) –
+    erscheint im Systemmenü aller großen Desktop-Umgebungen (GNOME, KDE, XFCE u.a.).
+  * **Desktop-Symbol** (`~/Desktop/linux-backup-manager.desktop`) – nur wenn das Verzeichnis
+    existiert und der Nutzer zustimmt.
+* Die `.desktop`-Datei verwendet `Terminal=true` und `Exec=<Pfad-zum-Launcher>`, sodass der
+  Eintrag nach Upgrades ohne Anpassung weiterhin funktioniert.
+* Mit `--yes` wird der Anwendungsmenüeintrag automatisch erstellt; das Desktop-Symbol wird
+  in nicht-interaktiven Läufen nicht angelegt.
+* Falls `update-desktop-database` verfügbar ist, wird es nach dem Schreiben aufgerufen.
+* `Layout` erhält vier neue Properties: `applications_dir`, `desktop_entry`, `desktop`,
+  `desktop_icon`.
+
 ## Sprint 47 – systemd-Timer-Diagnose und Backup-Alter
 
 ### Added

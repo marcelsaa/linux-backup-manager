@@ -376,9 +376,9 @@ remains valid after upgrades.
 
 **Future extension (optional):**
 
-* [ ] Desktop entry creation (`~/.local/share/applications/`)
-* [ ] Application menu entry
-* [ ] Desktop icon (`~/Desktop/`)
+* [x] Desktop entry creation (`~/.local/share/applications/`) *(Sprint 48)*
+* [x] Application menu entry *(Sprint 48)*
+* [x] Desktop icon (`~/Desktop/`) *(Sprint 48)*
 
 All entries shall be optional and individually selectable.
 
