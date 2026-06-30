@@ -20,6 +20,9 @@ common:
   no_default_suffix: "[y/N]"
   yes_short: "y"
   cancelled: "Cancelled."
+  age_days: "{days} day(s) ago"
+  age_hours: "{hours} hour(s) ago"
+  age_minutes: "{minutes} minute(s) ago"
 language:
   initial_selection_prompt: "Language / Sprache (de/en)"
   selection_prompt: "Select language (de/en)"
@@ -75,6 +78,13 @@ doctor:
   restic_unavailable: "Restic unavailable"
   repository_ready: "Repository available"
   no_success_time: "no successful timestamp recorded"
+  last_backup_overdue: "{timestamp} ({age}) – overdue"
+  timer: "Backup timer"
+  timer_not_configured: "not configured"
+  timer_active: "active and scheduled"
+  timer_enabled_not_active: "enabled but not active"
+  timer_not_installed: "timer not installed"
+  timer_systemd_missing: "systemd not available"
   config_not_loadable: "configuration cannot be loaded"
   no_changes: "No repairs or configuration changes were performed."
   status:

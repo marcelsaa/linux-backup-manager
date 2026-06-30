@@ -1,5 +1,6 @@
 import platform
 import shutil
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from lbm import __version__
@@ -73,8 +74,22 @@ class StatusService:
         last_backup = BackupStateStore.from_config(
             self.config.paths.state_dir
         ).last_successful_backup()
-        last_text = last_backup.astimezone().strftime("%d.%m.%Y %H:%M:%S") if last_backup else "-"
+        if last_backup:
+            delta = datetime.now(UTC) - last_backup
+            age = self._format_age(delta)
+            last_text = f"{last_backup.astimezone().strftime('%d.%m.%Y %H:%M:%S')} ({age})"
+        else:
+            last_text = "-"
         self._line("status.last_backup", last_text)
+
+    def _format_age(self, delta: timedelta) -> str:
+        total_seconds = int(delta.total_seconds())
+        if total_seconds < 3600:
+            minutes = max(1, total_seconds // 60)
+            return self.language.translate("common.age_minutes", minutes=minutes)
+        if total_seconds < 86400:
+            return self.language.translate("common.age_hours", hours=total_seconds // 3600)
+        return self.language.translate("common.age_days", days=delta.days)
 
     def _heading(self, key: str) -> None:
         heading = self.language.translate(key)

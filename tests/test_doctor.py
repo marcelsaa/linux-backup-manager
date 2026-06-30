@@ -1,5 +1,5 @@
 import subprocess
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -8,6 +8,7 @@ from lbm.core.config import ConfigLoader
 from lbm.core.state import BackupStateStore
 from lbm.health.checks import HealthResult
 from lbm.services.doctor import DoctorService
+from lbm.services.language import LanguageService
 from lbm.targets.usb import USBTargetInfo
 
 
@@ -222,6 +223,190 @@ def test_doctor_supports_a_nas_only_configuration(
     assert successful is True
     assert f"NAS: {tmp_path / 'nas'}" in output
     assert "Repository NAS:" in output
+
+
+def write_config_with_schedule(tmp_path: Path, password_file: Path) -> Path:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text(
+        f"""
+system:
+  host_name: test-host
+paths:
+  log_dir: logs
+  state_dir: {tmp_path / 'state'}
+  password_file: {password_file}
+targets:
+  usb:
+    enabled: true
+    label: LinuxBackup
+    repository_path: restic/test-host
+backup:
+  paths:
+    - /home/test/Documents
+  excludes: []
+retention:
+  keep_daily: 14
+  keep_weekly: 8
+  keep_monthly: 12
+  keep_yearly: 3
+schedule:
+  enabled: true
+  daily_time: "20:00"
+  interval_days: 1
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    return config_file
+
+
+def test_doctor_last_backup_shows_age(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+    BackupStateStore(tmp_path / "state").record_success(datetime(2026, 6, 30, 8, 0, tzinfo=UTC))
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "30.06.2026" in output
+    assert "vor" in output
+
+
+def test_doctor_last_backup_overdue_shows_warning(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config_with_schedule(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+    BackupStateStore(tmp_path / "state").record_success(datetime(2026, 6, 27, 10, 0, tzinfo=UTC))
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+        patch.object(DoctorService, "_systemctl_check", return_value=True),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "überfällig" in output
+    assert "WARNUNG" in output
+
+
+def test_doctor_timer_ok_when_enabled_and_active(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config_with_schedule(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+        patch.object(DoctorService, "_systemctl_check", return_value=True),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "aktiv und geplant" in output
+    assert "Backup-Timer" in output
+
+
+def test_doctor_timer_warning_when_not_installed(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config_with_schedule(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+        patch.object(DoctorService, "_systemctl_check", return_value=False),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "Timer nicht installiert" in output
+    assert "WARNUNG" in output
+
+
+def test_doctor_timer_skipped_when_schedule_disabled(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config(tmp_path, password_file)  # schedule.enabled=False by default
+    (tmp_path / "usb").mkdir()
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "Backup-Timer" in output
+    assert "nicht konfiguriert" in output
+    assert "ÜBERSPRUNGEN" in output
+
+
+def _make_doctor_with_language(lang: str = "de") -> DoctorService:
+    service = DoctorService.__new__(DoctorService)
+    service.language = LanguageService(lang)
+    return service
+
+
+def test_doctor_format_age_returns_minutes_for_short_delta() -> None:
+    assert "Minute" in _make_doctor_with_language()._format_age(timedelta(seconds=90))
+
+
+def test_doctor_format_age_returns_hours_for_medium_delta() -> None:
+    assert "Stunde" in _make_doctor_with_language()._format_age(timedelta(hours=3))
+
+
+def test_doctor_format_age_returns_days_for_large_delta() -> None:
+    assert "Tag" in _make_doctor_with_language()._format_age(timedelta(days=5))
 
 
 def test_doctor_reports_a_repository_timeout(tmp_path: Path, capsys) -> None:

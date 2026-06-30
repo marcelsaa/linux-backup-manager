@@ -1,6 +1,8 @@
 import os
+import shutil
 import subprocess
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from stat import S_IMODE
@@ -54,6 +56,7 @@ class DoctorService:
             destinations = self._check_targets(config, results)
             self._check_repositories(destinations, restic_available, results)
             self._check_last_backup(config, results)
+            self._check_timer(config, results)
 
         self._print(results)
         return not any(result.status is DoctorStatus.ERROR for result in results)
@@ -348,10 +351,78 @@ class DoctorService:
             )
             return
 
+        now = datetime.now(UTC)
+        delta = now - completed_at
         timestamp = completed_at.astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")
-        results.append(
-            DoctorResult(self._text("doctor.last_backup"), DoctorStatus.OK, timestamp)
+        age = self._format_age(delta)
+        overdue = (
+            config.schedule.enabled
+            and delta.total_seconds() > config.schedule.interval_days * 86400
         )
+        if overdue:
+            results.append(DoctorResult(
+                self._text("doctor.last_backup"),
+                DoctorStatus.WARNING,
+                self._text("doctor.last_backup_overdue", timestamp=timestamp, age=age),
+            ))
+        else:
+            results.append(DoctorResult(
+                self._text("doctor.last_backup"), DoctorStatus.OK, f"{timestamp} ({age})"
+            ))
+
+    def _check_timer(self, config: AppConfig, results: list[DoctorResult]) -> None:
+        if not config.schedule.enabled:
+            results.append(DoctorResult(
+                self._text("doctor.timer"),
+                DoctorStatus.SKIPPED,
+                self._text("doctor.timer_not_configured"),
+            ))
+            return
+        if shutil.which("systemctl") is None:
+            results.append(DoctorResult(
+                self._text("doctor.timer"),
+                DoctorStatus.WARNING,
+                self._text("doctor.timer_systemd_missing"),
+            ))
+            return
+        enabled = self._systemctl_check("is-enabled", "linux-backup-manager-daily.timer")
+        active = self._systemctl_check("is-active", "linux-backup-manager-daily.timer")
+        if enabled and active:
+            results.append(DoctorResult(
+                self._text("doctor.timer"), DoctorStatus.OK, self._text("doctor.timer_active")
+            ))
+        elif enabled:
+            results.append(DoctorResult(
+                self._text("doctor.timer"),
+                DoctorStatus.WARNING,
+                self._text("doctor.timer_enabled_not_active"),
+            ))
+        else:
+            results.append(DoctorResult(
+                self._text("doctor.timer"),
+                DoctorStatus.WARNING,
+                self._text("doctor.timer_not_installed"),
+            ))
+
+    def _systemctl_check(self, *args: str) -> bool:
+        try:
+            result = subprocess.run(
+                ["systemctl", "--user", *args],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result.returncode == 0
+        except (OSError, subprocess.SubprocessError):
+            return False
+
+    def _format_age(self, delta: timedelta) -> str:
+        total_seconds = int(delta.total_seconds())
+        if total_seconds < 3600:
+            return self._text("common.age_minutes", minutes=max(1, total_seconds // 60))
+        if total_seconds < 86400:
+            return self._text("common.age_hours", hours=total_seconds // 3600)
+        return self._text("common.age_days", days=delta.days)
 
     def _append_config_dependent_skips(self, results: list[DoctorResult]) -> None:
         for key in (
@@ -359,6 +430,7 @@ class DoctorService:
             "doctor.backup_targets",
             "doctor.repositories",
             "doctor.last_backup",
+            "doctor.timer",
         ):
             results.append(
                 DoctorResult(

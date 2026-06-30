@@ -238,8 +238,8 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Initial read-only `backup-manager doctor` self-test command
 * [x] Combined configuration, password-permission, Restic, target and repository diagnostics
 * [x] Last successful backup timestamp
-* [ ] systemd timer diagnostics *(deferred to Version 1.2)*
-* [ ] Last-backup age and optional last-restore-test status *(deferred to Version 1.2)*
+* [x] systemd timer diagnostics *(Sprint 47)*
+* [x] Last-backup age in doctor and status *(Sprint 47)*
 
 ---
 

@@ -8,6 +8,19 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 47 – systemd-Timer-Diagnose und Backup-Alter
+
+### Added
+
+* `DoctorService` prüft nun den systemd-Timer-Status (`linux-backup-manager-daily.timer`):
+  aktiv/geplant (OK), installiert aber nicht aktiv (WARNUNG), nicht installiert (WARNUNG),
+  systemd fehlt (WARNUNG), Schedule nicht konfiguriert (ÜBERSPRUNGEN).
+* Letztes Backup wird in `doctor` und `status` mit Altersangabe angezeigt
+  (z.B. `28.06.2026 20:30:00 CEST (vor 2 Tagen)`).
+* `doctor` warnt, wenn das Backup gemessen am konfigurierten Intervall überfällig ist.
+* Neue i18n-Schlüssel: `common.age_days`, `common.age_hours`, `common.age_minutes`;
+  `doctor.timer*`, `doctor.last_backup_overdue` – in Deutsch und Englisch.
+
 ## Sprint 46 – Automatisches Repository-Cleanup und Retention-Defaults
 
 ### Added
