@@ -348,8 +348,8 @@ fresh install. Version 1.1.0rc3 is approved for migration from Version 1.0.1.**
 * [ ] Configuration import/export
 * [ ] Repository migration
 * [ ] Improved diagnostic presentation
-* [ ] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup
-* [ ] Automatic forget and prune after every successful backup (hidden from the user)
+* [x] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup *(Sprint 46)*
+* [x] Automatic forget and prune after every successful backup (hidden from the user) *(Sprint 46)*
 
 ## Desktop Integration
 

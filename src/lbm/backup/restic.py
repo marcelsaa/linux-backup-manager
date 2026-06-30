@@ -341,3 +341,25 @@ class ResticRepository:
             return result.stderr.strip()
 
         return result.stdout.strip()
+
+    def cleanup(
+        self,
+        keep_daily: int,
+        keep_weekly: int,
+        keep_monthly: int,
+        keep_yearly: int,
+    ) -> bool:
+        forget = self._run(
+            [
+                "restic",
+                "forget",
+                "--keep-daily", str(keep_daily),
+                "--keep-weekly", str(keep_weekly),
+                "--keep-monthly", str(keep_monthly),
+                "--keep-yearly", str(keep_yearly),
+            ]
+        )
+        if forget.returncode != 0:
+            return False
+        prune = self._run(["restic", "prune"])
+        return prune.returncode == 0

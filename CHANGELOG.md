@@ -6,6 +6,24 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
+# Unreleased – v1.2.0
+
+## Sprint 46 – Automatisches Repository-Cleanup und Retention-Defaults
+
+### Added
+
+* `RetentionConfig` erhält Standardwerte: `keep_daily=14`, `keep_weekly=8`, `keep_monthly=12`,
+  `keep_yearly=3`. Neu erstellte Konfigurationen ohne expliziten `retention:`-Block verwenden
+  diese Werte automatisch.
+* `ResticRepository.cleanup()`: kombiniert `forget` + `prune` in einem Schritt, gibt `bool`
+  zurück.
+* `BackupService` ruft nach jedem erfolgreichen Backup automatisch Cleanup auf. Ein
+  Cleanup-Fehler gibt eine Warnung aus, beeinflusst aber nicht den Backup-Exit-Code.
+* Neue i18n-Schlüssel `backup.cleanup_start`, `backup.cleanup_done`, `backup.cleanup_failed`
+  in Deutsch und Englisch.
+
+---
+
 # v1.1.0 – 2026-06-30
 
 ## Version 1.1.0 Release Candidate 3

@@ -85,6 +85,79 @@ def test_backup_service_passes_configured_paths_to_repository() -> None:
     )
 
 
+def test_cleanup_runs_after_successful_backup() -> None:
+    restic = Mock()
+    restic.check.return_value = ResticRepositoryInfo(True, "ok")
+    restic.backup.return_value = BackupResult(True, "abc123", 1, 0, 0, 1, "1 B", "0:01", "ok")
+    restic.cleanup.return_value = True
+    provider = Mock()
+    provider.get_all.return_value = [RepositoryDestination("USB", restic)]
+
+    BackupService(make_config(), provider).run()
+
+    restic.cleanup.assert_called_once_with(14, 8, 12, 3)
+
+
+def test_cleanup_uses_configured_retention_values() -> None:
+    restic = Mock()
+    restic.check.return_value = ResticRepositoryInfo(True, "ok")
+    restic.backup.return_value = BackupResult(True, "abc123", 1, 0, 0, 1, "1 B", "0:01", "ok")
+    restic.cleanup.return_value = True
+    provider = Mock()
+    provider.get_all.return_value = [RepositoryDestination("USB", restic)]
+    config = make_config()
+    config.retention.keep_daily = 7
+    config.retention.keep_weekly = 4
+    config.retention.keep_monthly = 6
+    config.retention.keep_yearly = 1
+
+    BackupService(config, provider).run()
+
+    restic.cleanup.assert_called_once_with(7, 4, 6, 1)
+
+
+def test_cleanup_skipped_after_failed_backup() -> None:
+    restic = Mock()
+    restic.check.return_value = ResticRepositoryInfo(True, "ok")
+    restic.backup.return_value = BackupResult(False, None, 0, 0, 0, 0, "0 B", "0:00", "error")
+    provider = Mock()
+    provider.get_all.return_value = [RepositoryDestination("USB", restic)]
+
+    BackupService(make_config(), provider).run()
+
+    restic.cleanup.assert_not_called()
+
+
+def test_cleanup_runs_per_destination_independently() -> None:
+    ok_repo = Mock()
+    ok_repo.check.return_value = ResticRepositoryInfo(True, "ok")
+    ok_repo.backup.return_value = BackupResult(True, "snap1", 1, 0, 0, 1, "1 B", "0:01", "ok")
+    ok_repo.cleanup.return_value = True
+    fail_repo = Mock()
+    fail_repo.check.return_value = ResticRepositoryInfo(True, "ok")
+    fail_repo.backup.return_value = BackupResult(False, None, 0, 0, 0, 0, "0 B", "0:00", "err")
+    provider = Mock()
+    provider.get_all.return_value = [
+        RepositoryDestination("USB", ok_repo),
+        RepositoryDestination("NAS", fail_repo),
+    ]
+
+    BackupService(make_config(), provider).run()
+
+    ok_repo.cleanup.assert_called_once()
+    fail_repo.cleanup.assert_not_called()
+
+
+def test_retention_config_defaults() -> None:
+    from lbm.core.config import RetentionConfig
+
+    r = RetentionConfig()
+    assert r.keep_daily == 14
+    assert r.keep_weekly == 8
+    assert r.keep_monthly == 12
+    assert r.keep_yearly == 3
+
+
 def test_repository_provider_supports_a_mounted_nas(tmp_path: Path) -> None:
     config = make_config()
     config.targets.usb.enabled = False

@@ -49,6 +49,8 @@ class BackupService:
 
         for destination, result in zip(destinations, results, strict=True):
             self._print_result(destination.name, result)
+            if result.ok:
+                self._cleanup(destination)
         return all_destinations_available and all(result.ok for result in results)
 
     def _backup(
@@ -90,6 +92,17 @@ class BackupService:
         self._line("backup.processed", result.processed_files)
         self._line("backup.data_size", result.processed_size)
         self._line("backup.duration", result.duration)
+
+    def _cleanup(self, destination: RepositoryDestination) -> None:
+        r = self.config.retention
+        Console.info(self._text("backup.cleanup_start"))
+        ok = destination.repository.cleanup(
+            r.keep_daily, r.keep_weekly, r.keep_monthly, r.keep_yearly
+        )
+        if ok:
+            Console.success(self._text("backup.cleanup_done"))
+        else:
+            Console.warning(self._text("backup.cleanup_failed"))
 
     def _line(self, key: str, value: object) -> None:
         print(f"{self._text(key):.<20} {value}")
