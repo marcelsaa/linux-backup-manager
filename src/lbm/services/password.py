@@ -9,6 +9,7 @@ from lbm.services.language import LanguageService
 from lbm.services.recovery import RecoverySheetService
 from lbm.services.repository import RepositoryProvider
 from lbm.ui.console import Console
+from lbm.utils.prompts import is_yes
 
 
 class PasswordChangeService:
@@ -74,7 +75,7 @@ class PasswordChangeService:
         Console.success(self._text("password_change.success"))
         print()
         answer = input(self._text("password_change.regenerate_sheet_prompt"))
-        if self._is_yes(answer):
+        if is_yes(answer, self._text("common.yes_short")):
             RecoverySheetService(self.config, self.config_file).run()
         else:
             Console.info(self._text("password_change.sheet_reminder"))
@@ -97,9 +98,6 @@ class PasswordChangeService:
                 self._text("password_change.file_update_failed"),
                 hint=str(error),
             ) from error
-
-    def _is_yes(self, answer: str) -> bool:
-        return answer.strip().lower() in {"j", "y", self._text("common.yes_short")}
 
     def _text(self, key: str, **values: object) -> str:
         return self.language.translate(key, **values)

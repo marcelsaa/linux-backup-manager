@@ -16,6 +16,7 @@ from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.scheduler import SystemdScheduler
 from lbm.targets.usb import USBTarget
 from lbm.ui.console import Console
+from lbm.utils.prompts import is_yes
 
 
 class SetupWizard:
@@ -69,7 +70,7 @@ class SetupWizard:
                     suffix=self._text("common.no_default_suffix"),
                 )
             )
-            if not self._is_yes(answer):
+            if not is_yes(answer, self._text("common.yes_short")):
                 return True
             return self._edit_config()
 
@@ -84,7 +85,7 @@ class SetupWizard:
                 suffix=self._text("common.yes_default_suffix"),
             )
         )
-        if answer.strip() and not self._is_yes(answer):
+        if answer.strip() and not is_yes(answer, self._text("common.yes_short")):
             print(self._text("setup.config_not_created"))
             return False
 
@@ -160,7 +161,7 @@ class SetupWizard:
         answer = input(f"{prompt} {suffix}: ").strip().lower()
         if not answer:
             return default
-        return self._is_yes(answer)
+        return is_yes(answer, self._text("common.yes_short"))
 
     def _configure_language(
         self,
@@ -392,7 +393,8 @@ class SetupWizard:
                 suffix=self._text("common.yes_default_suffix"),
             )
         )
-        if (not answer.strip() or self._is_yes(answer)) and self._create_password_file():
+        confirmed = not answer.strip() or is_yes(answer, self._text("common.yes_short"))
+        if confirmed and self._create_password_file():
             Console.success(self._text("setup.password_present"))
             return True
         print(self._text("setup.password_not_created"))
@@ -409,7 +411,7 @@ class SetupWizard:
                 suffix=self._text("common.no_default_suffix"),
             )
         )
-        if not self._is_yes(confirmation):
+        if not is_yes(confirmation, self._text("common.yes_short")):
             Console.warning(self._text("setup.password_not_confirmed"))
             return False
 
@@ -491,7 +493,7 @@ class SetupWizard:
                 suffix=self._text("common.yes_default_suffix"),
             )
         )
-        if answer.strip() and not self._is_yes(answer):
+        if answer.strip() and not is_yes(answer, self._text("common.yes_short")):
             print(self._text("setup.repository_not_created"))
             return False
 
@@ -546,10 +548,6 @@ class SetupWizard:
         data = {"system": {"language": LanguageService.default_language}}
         self._configure_language(data, prompt_key="language.initial_selection_prompt")
         self.language_preselected = True
-
-    def _is_yes(self, answer: str) -> bool:
-        accepted = {self._text("common.yes_short"), "j", "y"}
-        return answer.strip().lower() in accepted
 
     def _text(self, key: str, **values: object) -> str:
         return self.language.translate(key, **values)

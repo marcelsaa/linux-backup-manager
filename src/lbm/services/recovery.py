@@ -7,6 +7,7 @@ from lbm.core.config import AppConfig
 from lbm.core.errors import RecoverySheetError
 from lbm.services.language import LanguageService
 from lbm.ui.console import Console
+from lbm.utils.prompts import is_yes
 
 
 class RecoveryInfoService:
@@ -107,7 +108,7 @@ class RecoverySheetService:
         target = self._ask_target()
         if target.exists():
             answer = input(self._text("recovery_sheet.overwrite", path=target))
-            if not self._is_yes(answer):
+            if not is_yes(answer, self._text("common.yes_short")):
                 Console.warning(self._text("recovery_sheet.not_overwritten"))
                 return False
 
@@ -208,9 +209,6 @@ class RecoverySheetService:
                 self._text("recovery_sheet.document.nas_repository", value=repository)
             )
         return lines
-
-    def _is_yes(self, answer: str) -> bool:
-        return answer.strip().lower() in {"j", "y", self._text("common.yes_short")}
 
     def _text(self, key: str, **values: object) -> str:
         return self.language.translate(key, **values)

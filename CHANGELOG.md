@@ -8,6 +8,14 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 50 – Refactoring: `_is_yes()` Utility
+
+### Changed
+
+* `_is_yes()`-Methode aus fünf Klassen (`RepositoryMaintenanceService`, `RestoreService`,
+  `RecoverySheetService`, `PasswordChangeService`, `SetupWizard`) in eine gemeinsame
+  Utility-Funktion `lbm.utils.prompts.is_yes()` extrahiert. Kein Verhaltensunterschied.
+
 ## Sprint 49 – Passwort ändern
 
 ### Added
