@@ -416,6 +416,47 @@ All entries shall be optional and individually selectable.
 
 ---
 
+# GitHub-Veröffentlichung
+
+Mit dem nächsten stabilen Release (Version 1.2.0) soll das Repository öffentlich auf GitHub
+veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu klären:
+
+**Lizenz und Rechtliches**
+
+* [ ] Lizenzwahl bestätigen (aktuell GPL-3.0-only in `pyproject.toml` – passt das?)
+* [ ] Restic-Lizenzkompatibilität dokumentieren (Restic: BSD-2-Clause, kompatibel mit GPL-3.0 –
+  in README als Hinweis aufnehmen)
+
+**Distribution**
+
+* [ ] Distributionskanal entscheiden: GitHub Releases (Wheel + `installer.py` + SHA-256) und/oder
+  PyPI (`pip install linux-backup-manager`)
+* [ ] Paketname `linux-backup-manager` auf PyPI auf Verfügbarkeit prüfen
+* [ ] Versionierung und Release-Tags auf GitHub (`v1.2.0` als erster öffentlicher Tag?)
+
+**Repository-Inhalt**
+
+* [ ] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
+  enthalten sind
+* [ ] Entscheiden, ob `CLAUDE.md` und interne Sprint-Berichte (`docs/reports/`) mitveröffentlicht
+  werden
+* [ ] Git-Verlauf enthält `Co-Authored-By: Claude Sonnet 4.6` – bewusste Entscheidung vor
+  Veröffentlichung treffen
+
+**Sicherheit**
+
+* [ ] `SECURITY.md` erstellen: Meldeweg für Sicherheitslücken (private E-Mail statt öffentlichem
+  Issue), da LBM Passwortdateien und Repository-Zugänge verwaltet
+
+**Community**
+
+* [ ] `README.md` für eine externe Zielgruppe überarbeiten (Badges, Screenshots, Installationslink)
+* [ ] GitHub Actions / CI für öffentliches Repo prüfen (aktuell `.github/workflows/ci.yml` vorhanden)
+* [ ] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?)
+* [ ] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional)
+
+---
+
 # Long-Term Goals
 
 The long-term objective is to provide a dependable backup solution that can be installed and
