@@ -2,7 +2,7 @@
 
 # Installation Guide
 
-**Version:** 1.1.0-rc3
+**Version:** 1.1.0
 
 ---
 
@@ -62,7 +62,7 @@ Place `installer.py` next to the release wheel. Use the exact SHA-256 published 
 First run the write-free detection and preflight:
 
 ```bash
-python3 installer.py linux_backup_manager-1.1.0rc3-py3-none-any.whl \
+python3 installer.py linux_backup_manager-1.1.0-py3-none-any.whl \
   --sha256 <PUBLISHED_SHA256> --dry-run
 ```
 
@@ -113,24 +113,11 @@ Verify that the installation completed successfully.
 backup-manager --version
 ```
 
-Expected output for this candidate:
+Expected output:
 
 ```text
-backup-manager 1.1.0rc3
+backup-manager 1.1.0
 ```
-
-The private stable installation remains Version 1.0.1 until the Version 1.1 release process is
-complete.
-
-For private use, install the locally built wheel directly instead of uploading it to a package
-index:
-
-```bash
-python -m pip install dist/linux_backup_manager-1.0.1-py3-none-any.whl
-```
-
-Keep the wheel in private storage or distribute it through a private channel. A private GitHub
-repository does not make a package uploaded to TestPyPI or PyPI private.
 
 ---
 
@@ -218,4 +205,4 @@ After the installation has completed successfully, continue with the **User Guid
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc3
+Version 1.1.0

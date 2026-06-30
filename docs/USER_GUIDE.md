@@ -2,7 +2,7 @@
 
 # User Guide
 
-**Version:** 1.1.0-rc1
+**Version:** 1.1.0
 
 ---
 
@@ -63,7 +63,11 @@ During execution the wizard performs the following tasks:
 * Offers to edit an existing configuration and saves the previous file as `config.yaml.bak`
 * Creates the password file
 * Lets the user select USB, NAS or both backup destinations
+* Validates the availability of each configured target and offers a correction loop for
+  unavailable paths, keeping the wizard open until a reachable target is confirmed
 * Configures target-specific labels, mount paths and repository paths
+* Presents a complete summary of host, backup paths, targets and schedule for confirmation
+  before writing any configuration
 * Verifies the required software
 * Detects every configured backup destination
 * Checks every configured Restic repository
@@ -142,9 +146,10 @@ Runs a single read-only diagnosis for support and self-checks. The command repor
 backup-manager doctor
 ```
 
-Results are classified as `OK`, `WARNUNG`, `FEHLER` or `ÜBERSPRUNGEN`. A missing previously
-recorded backup is a warning. Configuration, password, Restic, target or repository failures make
-the command exit with status 1. Successful checks and warnings exit with status 0.
+Results are classified with localized labels (`OK`, `Warning`, `Error`, `Skipped` in English;
+`OK`, `WARNUNG`, `FEHLER`, `ÜBERSPRUNGEN` in German). A missing previously recorded backup is a
+warning. Configuration, password, Restic, target or repository failures make the command exit with
+status 1. Successful checks and warnings exit with status 0.
 
 `doctor` performs no repairs. It does not initialize repositories, create backups, change the
 configuration or alter automatic-backup timers.
@@ -335,8 +340,10 @@ backup-manager schedule-install
 ```
 
 During setup, the user chooses the time and interval in days. The default is daily at 20:00.
-After a restart or login, a second timer checks whether the chosen interval since the last
-successful backup has elapsed and immediately catches up when required.
+After a restart or login, a second timer waits a short fixed delay before checking whether the
+chosen interval since the last successful backup has elapsed and immediately catches up when
+required. The delay prevents an unexpected extra snapshot when setup and reboot happen on the
+same day.
 
 Inspect or remove the timers with:
 
@@ -352,4 +359,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc1
+Version 1.1.0

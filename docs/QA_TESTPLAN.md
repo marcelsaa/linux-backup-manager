@@ -2,7 +2,7 @@
 
 # Quality Assurance Test Plan
 
-**Version:** 1.1.0-rc1
+**Version:** 1.1.0
 
 ---
 
@@ -31,27 +31,32 @@ The following environment has been used during development.
 
 ## Fresh Installation
 
-Verify that a completely new user can install the application.
+Verify that a completely new user can install the application using the managed installer.
 
 ### Steps
 
 * Build the wheel and source distribution using `python -m build`.
 * Validate both artifacts using `python -m twine check dist/*`.
-* Create a new virtual environment outside the project directory.
-* Install the generated wheel, not the source checkout.
-* Verify the installation and its dependencies.
+* Record the wheel SHA-256.
+* Run a write-free preflight using `installer.py`:
 
 ```bash
-python -m pip install dist/linux_backup_manager-<version>-py3-none-any.whl
+python3 installer.py linux_backup_manager-<version>-py3-none-any.whl \
+  --sha256 <SHA256> --dry-run
+```
+
+* Install using `installer.py --yes` and verify the managed entry point:
+
+```bash
 backup-manager --version
-python -m pip check
 ```
 
 ### Expected Result
 
-* Installation succeeds.
-* The correct application version is displayed.
-* No dependency conflicts are reported.
+* Dry-run detects `fresh` mode and passes all preflight checks without side effects.
+* Installation succeeds and the correct application version is displayed.
+* The launcher symlink points to the versioned venv under
+  `~/.local/share/linux-backup-manager/versions/<version>/`.
 
 ---
 
@@ -230,28 +235,27 @@ status.
 
 # First-User Tests (Layer 8)
 
-Verify that a first-time user with no prior knowledge of the project can successfully install and configure Linux Backup Manager.
+Verify that a first-time user with no prior knowledge of the project can successfully install and
+configure Linux Backup Manager using the managed installer.
 
 ### Test Procedure
 
-* Create a completely fresh Python virtual environment outside the source checkout.
-* Install the application from the generated wheel.
-* Run:
-
-```bash
-backup-manager setup
-```
-
-* Follow the setup wizard without manually creating or editing configuration files.
-* Create the first backup.
-* Verify that the repository is created successfully.
-* Run the setup wizard again.
+* Copy `installer.py` and the release wheel to `~/Downloads` in a clean disposable VM.
+* Run the managed installer dry-run, then install with `--yes`.
+* Run `backup-manager setup` and follow the wizard without manually creating or editing files.
+* Verify that an unavailable NAS path is rejected before configuration is written, and that the
+  wizard stays open for correction.
+* Verify that the final configuration summary shows the correct host and all selected paths.
+* Create the first backup and verify the repository.
+* Run `backup-manager doctor` and confirm all checks pass.
+* Run the installer again and confirm it detects `current` mode without changes.
 
 ### Expected Result
 
-A first-time user can complete the entire installation and setup process without external assistance.
+A first-time user can complete the entire installation and setup process without external
+assistance, using only the managed installer and the setup wizard.
 
-The repeated execution of the setup wizard must not create duplicate resources or corrupt the existing installation.
+The idempotent reinstall must detect `current` mode and make no changes.
 
 ---
 
@@ -313,17 +317,19 @@ git status
 
 A release candidate is considered ready when:
 
-* all automated tests pass.
-* a fresh installation succeeds.
-* the setup wizard completes successfully.
-* backups can be created.
-* restores can be completed successfully.
-* repository checks pass.
-* documentation and release claims are consistent and up to date.
-* the First-User Test (Layer 8) passes without requiring manual intervention.
+* all automated tests pass;
+* the managed installer dry-run and fresh installation succeed in a clean VM;
+* the managed installer detects and completes a supported Version 1.0.1 upgrade in a second VM;
+* the setup wizard completes successfully with real host identity and target validation;
+* backups can be created and restores return Exit `0` with byte-identical file content;
+* repository checks pass;
+* the idempotent reinstall detects `current` mode without changes;
+* documentation and release claims are consistent and up to date;
+* the First-User Test (Layer 8) passes without requiring manual intervention in both German and
+  English on separate VMs.
 
 ---
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc1 · Stable Version 1.0.1
+Version 1.1.0

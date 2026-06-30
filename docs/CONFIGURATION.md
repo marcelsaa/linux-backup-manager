@@ -2,7 +2,7 @@
 
 # Configuration Reference
 
-**Version:** 1.1.0-rc1
+**Version:** 1.1.0
 
 ---
 
@@ -28,7 +28,7 @@ Manual editing is possible but normally not required.
 
 ```yaml
 system:
-  host_name: blackpanther
+  host_name: my-linux-pc
   language: de
 
 paths:
@@ -67,12 +67,6 @@ schedule:
   interval_days: 1
   boot_delay_minutes: 2
 
-checks:
-  restic_check_interval_days: 30
-
-notifications:
-  notify_on_success: false
-  notify_on_error: true
 ```
 
 ---
@@ -157,16 +151,6 @@ Retention policy for repository snapshots.
 
 ---
 
-## checks
-
-Repository maintenance settings.
-
-| Option                       | Description                                   |
-| ---------------------------- | --------------------------------------------- |
-| `restic_check_interval_days` | Interval between repository integrity checks. |
-
----
-
 ## schedule
 
 Controls automatic backups through systemd user timers.
@@ -185,17 +169,6 @@ exceeded. Failed or incomplete multi-destination backups do not update the succe
 
 ---
 
-## notifications
-
-Controls optional notifications.
-
-| Option              | Description                      |
-| ------------------- | -------------------------------- |
-| `notify_on_success` | Notify after successful backups. |
-| `notify_on_error`   | Notify when errors occur.        |
-
----
-
 # Notes
 
 The setup wizard creates this file automatically and can update its main operational settings.
@@ -210,4 +183,4 @@ backup paths or destinations.
 
 Linux Backup Manager Documentation
 
-Version 1.1.0-rc1
+Version 1.1.0

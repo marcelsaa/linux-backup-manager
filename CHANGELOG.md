@@ -6,7 +6,7 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased
+# v1.1.0 – 2026-06-30
 
 ## Version 1.1.0 Release Candidate 3
 

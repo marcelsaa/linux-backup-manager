@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.1.0-rc1
+**Version:** 1.1.0
 
 ---
 
@@ -19,6 +19,10 @@ The `Application` class delegates user-facing workflows to dedicated services.
 # High-Level Architecture
 
 ```text
+Deployment
+ │
+ └── installer.py   – Standalone managed installer: fresh install, 1.0.1 upgrade, rollback
+
 CLI
  │
  ├── ErrorHandler
@@ -204,10 +208,12 @@ During setup, the configuration is created first and then loaded before the rema
 
 ---
 
-# Architecture Evolution
+# Architecture Notes
 
-The current development work toward Version 1.1 introduces dedicated services and reduces the
-`Application` class to orchestration.
+The `installer.py` module is deliberately standalone: it has no import dependency on the
+application package. It verifies the wheel by SHA-256, detects the installation state and performs
+all file operations through standard library modules only. This allows it to run on a plain Python
+3.12 interpreter before the application venv exists.
 
 Further improvements may include:
 
@@ -230,4 +236,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc1
+Version 1.1.0

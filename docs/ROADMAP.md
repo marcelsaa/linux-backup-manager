@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.1.0-rc3 development / Design decisions added June 2026
+**Last updated:** Version 1.1.0 released June 2026
 
 ---
 
@@ -238,8 +238,8 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Initial read-only `backup-manager doctor` self-test command
 * [x] Combined configuration, password-permission, Restic, target and repository diagnostics
 * [x] Last successful backup timestamp
-* [ ] systemd timer diagnostics
-* [ ] Last-backup age and optional last-restore-test status
+* [ ] systemd timer diagnostics *(deferred to Version 1.2)*
+* [ ] Last-backup age and optional last-restore-test status *(deferred to Version 1.2)*
 
 ---
 
@@ -297,7 +297,7 @@ Sprint 42 First-User Revalidation.**
   corrected target input and scheduler suppression after incomplete setup
 * [x] Treat EOF on interactive setup and restore prompts as a localized, controlled cancellation
   instead of exposing a Python traceback
-* [ ] Repeat the complete fresh-wheel User Acceptance Test after the fix
+* [x] Repeat the complete fresh-wheel User Acceptance Test after the fix
 
 Status: **Passed. Version 1.1.0rc2 passed implementation, local artifact validation and independent
 German and English external UAT.**
@@ -311,10 +311,10 @@ replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from
 ## Release Candidate Policy
 
 * [x] Feature freeze begins with `1.1.0rc1`
-* [ ] Apply only bug fixes, documentation and translation corrections
+* [x] Apply only bug fixes, documentation and translation corrections
 * [x] Build `1.1.0rc2` because Sprint 43 fixes require another validation cycle
 * [x] Accept `1.1.0rc3` after managed fresh-install and Version 1.0.1 upgrade UAT
-* [ ] Release Version 1.1.0
+* [x] Release Version 1.1.0
 * [ ] Begin Version 1.2 development after the Version 1.1.0 release
 
 ## Sprint 44 – Managed Installation and Upgrade
