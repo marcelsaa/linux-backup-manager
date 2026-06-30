@@ -58,7 +58,11 @@ class ResticRepository:
         self.repository = repository
         self.password_file = password_file.expanduser()
 
-    def _run(self, command: list[str]) -> subprocess.CompletedProcess[str]:
+    def _run(
+        self,
+        command: list[str],
+        timeout_seconds: float | None = None,
+    ) -> subprocess.CompletedProcess[str]:
         try:
             return subprocess.run(
                 command,
@@ -70,6 +74,7 @@ class ResticRepository:
                 capture_output=True,
                 text=True,
                 check=False,
+                timeout=timeout_seconds,
             )
         except FileNotFoundError as error:
             raise ExternalCommandError(
@@ -77,8 +82,8 @@ class ResticRepository:
                 hint="Bitte installieren Sie Restic und prüfen Sie den PATH.",
             ) from error
 
-    def check(self) -> ResticRepositoryInfo:
-        result = self._run(["restic", "snapshots"])
+    def check(self, timeout_seconds: float | None = None) -> ResticRepositoryInfo:
+        result = self._run(["restic", "snapshots"], timeout_seconds)
 
         if result.returncode == 0:
             return ResticRepositoryInfo(

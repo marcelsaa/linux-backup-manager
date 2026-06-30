@@ -16,6 +16,43 @@ def test_non_interactive_setup_is_forwarded_to_application() -> None:
     application.setup.assert_called_once_with(interactive=False)
 
 
+def test_recovery_info_is_forwarded_to_application() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "recovery-info"]):
+        cli.run()
+
+    application.recovery_info.assert_called_once_with()
+
+
+def test_doctor_is_forwarded_to_application() -> None:
+    application = Mock()
+    application.doctor.return_value = True
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "doctor"]):
+        result = cli.run()
+
+    assert result is True
+    application.doctor.assert_called_once_with()
+
+
+def test_recovery_sheet_is_forwarded_to_application() -> None:
+    application = Mock()
+    application.recovery_sheet.return_value = True
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "recovery-sheet"]):
+        result = cli.run()
+
+    assert result is True
+    application.recovery_sheet.assert_called_once_with()
+
+
 def test_main_returns_nonzero_for_an_application_error() -> None:
     with (
         patch("lbm.cli.main.setup_logging"),
@@ -37,3 +74,14 @@ def test_main_returns_nonzero_when_noninteractive_setup_is_incomplete() -> None:
         exit_code = main()
 
     assert exit_code == 1
+
+
+def test_main_handles_ended_interactive_input_without_traceback(capsys) -> None:
+    with (
+        patch("lbm.cli.main.setup_logging"),
+        patch("lbm.cli.main.CommandLineInterface.run", side_effect=EOFError),
+    ):
+        exit_code = main()
+
+    assert exit_code == 1
+    assert "Eingabe wurde beendet" in capsys.readouterr().out

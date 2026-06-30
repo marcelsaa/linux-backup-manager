@@ -35,6 +35,9 @@ The project is intended for Linux users who want a dependable backup solution wi
 * Automatic configuration generation
 * Safe interactive editing of existing configurations with automatic backup
 * Automatic password file creation
+* Explicit non-recoverable-password warning during setup
+* Recovery metadata and emergency instructions without exposing the password
+* Optional password-free recovery sheet with secure file permissions
 * Automatic repository initialization
 * Clear distinction between missing repositories and invalid repository passwords
 * XDG-compliant configuration directory
@@ -70,6 +73,8 @@ The project is intended for Linux users who want a dependable backup solution wi
 * Clear error messages
 * Consistent command structure
 * Robust first-run experience
+* Read-only `doctor` diagnostics for configuration, credentials, targets and repositories
+* Complete German/English command-line output with catalog fallback
 
 ---
 
@@ -85,7 +90,19 @@ Linux Backup Manager requires:
 
 # Installation
 
-Obtain the source archive or clone the repository, then change into the project directory:
+Release users should run the standalone managed installer supplied beside the wheel. It verifies
+the published SHA-256, performs write-free preflight checks and chooses either fresh installation
+or the supported Version 1.0.1 upgrade path:
+
+```bash
+python3 installer.py linux_backup_manager-1.1.0-py3-none-any.whl \
+  --sha256 <PUBLISHED_SHA256> --dry-run
+```
+
+Repeat without `--dry-run` only after all checks pass. See `docs/INSTALL.md` for rollback guarantees
+and the complete command.
+
+For source development, obtain or clone the repository, then change into it:
 
 ```bash
 cd linux-backup-manager
@@ -137,6 +154,12 @@ Verify the repository:
 backup-manager check
 ```
 
+Diagnose the complete backup environment without changing it:
+
+```bash
+backup-manager doctor
+```
+
 ---
 
 # Available Commands
@@ -146,6 +169,9 @@ backup-manager check
 | `backup-manager setup`     | Interactive setup wizard              |
 | `backup-manager status`    | Display system information            |
 | `backup-manager health`    | Run health checks                     |
+| `backup-manager doctor`    | Run read-only support diagnostics     |
+| `backup-manager recovery-info` | Display password-safe recovery information |
+| `backup-manager recovery-sheet` | Create a password-free recovery document |
 | `backup-manager backup`    | Create a backup                       |
 | `backup-manager schedule-install` | Install and activate automatic backups |
 | `backup-manager schedule-status` | Display the systemd timer status |
@@ -167,11 +193,13 @@ Detailed documentation is available in the `docs/` directory.
 * User Guide
 * Configuration Reference
 * Restore Guide
+* Recovery and Password Safety Guide
 * FAQ
 * Architecture Overview
 * Quality Assurance Test Plan
 * Project Roadmap
 * Automatic Backup Guide
+* Internationalization Guide
 
 ---
 
@@ -183,14 +211,16 @@ See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 # Project Status
 
-**Current Version:** 1.0.1
+**Current Version:** 1.1.0
 
-Linux Backup Manager 1.0.1 is the private-use stable release. Distribution artifacts are built
-locally and are not published to production PyPI.
+Linux Backup Manager 1.1.0 is the current stable release. It adds a standalone managed installer,
+complete German and English internationalization and a hardened first-user setup wizard. Artifacts
+are built locally and are not published to production PyPI.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 
-The current focus is on documentation, quality assurance and final release preparation.
+Version 1.1 is feature-frozen. Until the final release, changes are limited to bug fixes,
+documentation and translations; new features are deferred to Version 1.2.
 
 ---
 

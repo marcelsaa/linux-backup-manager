@@ -6,7 +6,239 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased
+# v1.1.0 – 2026-06-30
+
+## Version 1.1.0 Release Candidate 3
+
+### Changed
+
+* Package version advanced from `1.1.0rc2` to `1.1.0rc3` for Sprint 44 validation
+
+## Sprint 44 – Managed Installation and Upgrade
+
+### Added
+
+* Standalone `installer.py` for managed fresh installation and Version 1.0.1 upgrade
+* SHA-256 and package-metadata verification before any installation action
+* Write-free `--dry-run` mode showing the detected mode and planned actions without side effects
+* Detection of fresh, supported 1.0.1, already-current and partial/unsupported installation states
+* Preflight checks for Python 3.12+, Restic, free disk space, write permissions and NAS/USB
+  repository reachability before any venv or file is created
+* Versioned virtual environment layout under
+  `~/.local/share/linux-backup-manager/versions/<version>/`
+* Atomic launcher cutover: symlink is switched via a temporary file and `os.replace`
+* Automatic rollback with invariant verification on cutover failure: config, password, units,
+  launcher and repository state must be byte-identical to the captured pre-upgrade baseline
+* Upgrade backup directory at `~/.local/share/linux-backup-manager/upgrade-backups/` for recovery
+* 16 dedicated installer tests covering wrong hash, partial state, old Python, unavailable Restic,
+  insufficient space, injected cutover failure and idempotent rerun
+
+### Validation
+
+* Passed the complete automated gate with 121 tests (including 16 installer tests), Ruff and Python
+  byte-compilation
+* Passed isolated integration validation: real 1.0.1 install, managed upgrade, post-upgrade backup
+  and byte-identical restore
+* Passed the pristine-VM German fresh-install UAT for the exact `1.1.0rc3` wheel and `installer.py`
+  (SPRINT\_44\_FRESH\_DE\_PASSED)
+* Passed the pristine-VM German 1.0.1 upgrade UAT: negative preflight, dry-run, upgrade, preserved
+  config/password/timers, post-upgrade backup and SHA-256-verified restore
+  (SPRINT\_44\_UPGRADE\_DE\_PASSED)
+* Passed the independent pristine-VM English fresh-install UAT with fully English application output
+  (SPRINT\_44\_FRESH\_EN\_PASSED)
+* Approved Version 1.1.0rc3 for migration from Version 1.0.1 after all applicable acceptance gates
+  passed without workaround or unresolved finding
+
+## Version 1.1.0 Release Candidate 2
+
+### Changed
+
+* Package version advanced from `1.1.0rc1` to `1.1.0rc2` for Sprint 43 validation
+
+## Sprint 43 – Setup and UAT Hardening
+
+### Fixed
+
+* Fresh first-user configurations now use the real system host name instead of retaining the
+  packaged example value `blackpanther`
+* Interactive setup validates selected USB and NAS targets before writing configuration and offers
+  a correction loop for unavailable targets
+* Setup displays a final host, path, target and schedule summary before configuration is persisted
+* systemd user timers are no longer installed when password, Restic or repository setup is
+  incomplete
+* Interactive EOF now returns a localized controlled Exit `1` instead of a Python traceback
+* The startup due timer now waits from timer activation, preventing an immediate catch-up race when
+  setup occurs long after boot
+
+### Validation
+
+* Added German and English regression coverage for target correction, summary output, real host
+  identity, scheduler gating, EOF handling and timer activation semantics
+* Passed the complete automated gate with 105 tests, Ruff and Python byte-compilation
+* Passed the pristine-VM German external UAT for the exact `1.1.0rc2` wheel, including target
+  correction, host identity, timer delay, restore metadata, EOF handling and cleanup
+* Passed the independent pristine-VM English external UAT with the same exact wheel and fully
+  English application output
+* Approved Version 1.1.0rc2 for migration from Version 1.0.1 after both external passes completed
+  without workaround or unresolved finding
+
+## Version 1.1.0 Release Candidate 1
+
+### Changed
+
+* Package version advanced from `1.1.0.dev0` to `1.1.0rc1`
+* Version 1.1 entered feature freeze after the successful Sprint 41 release gate
+* Until Version 1.1.0, changes are limited to bug fixes, documentation and translations
+
+## Sprint 42 – Restore Finalization
+
+### Validation
+
+* Fully analyzed the sandbox-specific `lchown` restore failure against normal unprivileged Linux
+  behavior and official Restic exit semantics
+* Confirmed that Linux Backup Manager must continue propagating every nonzero Restic restore status
+* Added regression coverage preventing `lchown` errors from being reclassified as success
+* Passed the complete quality gate with 100 tests
+* Rebuilt and freshly installed the `1.1.0rc1` wheel and recorded its SHA-256 checksum
+* Passed independent German and English First-User workflows with real isolated systemd user timers
+* Passed full restores with matching SHA-256 hashes, modes and modification timestamps
+* Approved Version 1.1.0rc1 for migration from Version 1.0.1
+
+## Version 1.1.0 Development
+
+### Changed
+
+* Development continues on the `develop` branch while Version 1.0.1 remains stable on `main`
+* Package version advanced to the PEP 440 development version `1.1.0.dev0`
+
+## Sprint 34 – Continuous Integration
+
+### Added
+
+* GitHub Actions quality gate for pushes to `main` and `develop`, pull requests and manual runs
+* Automated Python 3.12 dependency and byte-compilation checks for source and test files
+* Automated Ruff linting and the complete pytest suite
+* Automated wheel and source-distribution builds with Twine metadata validation
+* Read-only workflow permissions, disabled credential persistence, concurrency cancellation and a
+  15-minute job timeout
+
+### Changed
+
+* Added Twine to the optional development dependencies
+
+## Sprint 35 – Recovery Foundation
+
+### Added
+
+* `recovery-info` command showing recovery-critical paths, targets and emergency steps
+* Recovery information service that checks password-file metadata without reading its content
+* Recovery and password-safety guide for preparation, system replacement and password loss
+* Regression tests ensuring recovery output never contains the repository password
+
+### Changed
+
+* Password creation now requires explicit acknowledgement that repository passwords cannot be reset
+* Setup explains that the password or a protected password-file copy must be stored separately
+* Roadmap reorganized around Version 1.1 safety and maintainability and Version 1.2 user experience
+
+## Sprint 36 – Password-Free Recovery Sheet
+
+### Added
+
+* `recovery-sheet` command with a selectable output path and safe default location
+* Password-free recovery document containing targets, paths, emergency commands and manual fields
+* Explicit overwrite confirmation for existing recovery documents
+* Atomic file replacement and restrictive `0600` permissions
+* Typed write-error handling through the central application error path
+
+### Security
+
+* Recovery sheet generation never opens or copies the repository password file
+* The generated document states prominently that it does not replace a protected password copy
+* Users are instructed to store or print the sheet separately from computer and repository
+
+## Sprint 37 – Read-Only Doctor Diagnostics
+
+### Added
+
+* `doctor` command for a single support and self-check report
+* Aggregated configuration, password-file permission, Restic, USB, NAS and repository diagnostics
+* Last successfully recorded backup timestamp with a warning when no timestamp is available
+* Explicit `OK`, `WARNUNG`, `FEHLER` and `ÜBERSPRUNGEN` result states
+* Nonzero command exit status when at least one diagnosis fails
+
+### Safety
+
+* Doctor checks are read-only and contain no repair action
+* The command never initializes repositories, creates backups, changes configuration or alters
+  systemd timers
+
+## Sprint 38 – Internationalization Foundation
+
+### Added
+
+* Central `LanguageService` with nested YAML message-catalog support and value formatting
+* Packaged German and English language catalogs
+* Interactive `de`/`en` selection during initial setup and configuration editing
+* Persisted `system.language` setting with strict configuration validation
+* English, German and stable-key fallback behavior for missing messages or catalogs
+
+### Compatibility
+
+* Existing configurations without a language setting continue to load and default to German
+* Existing CLI output remains largely unchanged until later translation sprints
+
+## Sprint 39 – Core CLI Internationalization
+
+### Added
+
+* Complete German and English catalogs for `status`, `doctor`, `health` and `setup`
+* Localized setup prompts, validation messages, password warnings and repository diagnostics
+* Localized target-resolution and scheduler-installation messages used by core workflows
+* German and English regression tests for all four migrated commands
+
+### Changed
+
+* Status, doctor and health labels and result states now resolve through `LanguageService`
+* Setup loads the configured language before printing its header and switches immediately after a
+  new language selection
+* Shared health checks, repository target resolution and systemd scheduler accept the selected
+  language while preserving German defaults for existing callers
+
+## Sprint 40 – Complete CLI Internationalization
+
+### Added
+
+* German and English messages for backup, restore, snapshot and repository-maintenance commands
+* German and English recovery information and generated recovery-sheet content
+* Localized backup-due decisions, CLI help and keyboard-interruption messages
+* Installed command-group regression tests for all remaining English workflows
+
+### Changed
+
+* Backup, restore, maintenance and recovery services now resolve user-facing text through
+  `LanguageService`
+* Successful Restic operations use consistent application translations while raw external errors
+  and diagnostic output remain unchanged
+* The roadmap now marks the complete switchable German/English CLI as implemented
+
+## Sprint 41 – 1.1 Release Candidate Stabilization
+
+### Fixed
+
+* Failed Restic restores now propagate a nonzero command-line exit status
+
+### Changed
+
+* Release installation checks now require the generated wheel instead of a source checkout
+* The QA plan now requires isolated German and English backup-and-restore end-to-end tests
+* Development and stable version claims in the installation and QA documentation were aligned
+
+### Validated
+
+* German and English catalogs retain matching keys and format placeholders
+* The complete Python 3.12 quality gate, distributions and fresh wheel installation pass locally
+* Real local Restic repositories complete backup, snapshot, integrity and byte-identity checks
 
 ---
 

@@ -20,3 +20,7 @@ class ConfigurationError(ApplicationError):
 
 class ExternalCommandError(ApplicationError):
     """An external program could not be started."""
+
+
+class RecoverySheetError(ApplicationError):
+    """Recovery sheet could not be written safely."""

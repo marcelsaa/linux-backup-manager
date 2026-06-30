@@ -4,7 +4,10 @@ from pathlib import Path
 from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
+from lbm.services.doctor import DoctorService
 from lbm.services.health import HealthService
+from lbm.services.language import LanguageService
+from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
 from lbm.services.restore import RestoreService
 from lbm.services.scheduler import SystemdScheduler
@@ -38,6 +41,15 @@ class Application:
     def health(self) -> None:
         HealthService(self._load_config()).run()
 
+    def doctor(self) -> bool:
+        return DoctorService(self.config_file).run()
+
+    def recovery_info(self) -> None:
+        RecoveryInfoService(self._load_config(), self.config_file).run()
+
+    def recovery_sheet(self) -> bool:
+        return RecoverySheetService(self._load_config(), self.config_file).run()
+
     def init_repository(self) -> None:
         self._maintenance().init_repository()
 
@@ -53,11 +65,12 @@ class Application:
         state = BackupStateStore.from_config(config.paths.state_dir)
         max_age_hours = config.schedule.interval_days * 24
         if not state.is_due(max_age_hours):
-            print("Backup ist noch nicht fällig.")
+            print(LanguageService(config.system.language).translate("backup.not_due"))
             return True
         print(
-            "Letztes erfolgreiches Backup ist älter als "
-            f"{max_age_hours} Stunden oder unbekannt."
+            LanguageService(config.system.language).translate(
+                "backup.overdue_or_unknown", hours=max_age_hours
+            )
         )
         return self.backup()
 
@@ -65,27 +78,37 @@ class Application:
         config = self._load_config()
         state = BackupStateStore.from_config(config.paths.state_dir)
         if not state.is_scheduled_due(config.schedule.interval_days):
-            print("Das konfigurierte Backup-Intervall ist noch nicht erreicht.")
+            print(
+                LanguageService(config.system.language).translate(
+                    "backup.interval_not_reached"
+                )
+            )
             return True
         return self.backup()
 
     def schedule_install(self) -> bool:
         config = self._load_config()
-        return SystemdScheduler(self.config_file, config.schedule).install()
+        return SystemdScheduler(
+            self.config_file, config.schedule, language=config.system.language
+        ).install()
 
     def schedule_status(self) -> bool:
         config = self._load_config()
-        return SystemdScheduler(self.config_file, config.schedule).status()
+        return SystemdScheduler(
+            self.config_file, config.schedule, language=config.system.language
+        ).status()
 
     def schedule_remove(self) -> bool:
         config = self._load_config()
-        return SystemdScheduler(self.config_file, config.schedule).remove()
+        return SystemdScheduler(
+            self.config_file, config.schedule, language=config.system.language
+        ).remove()
 
     def snapshots(self) -> None:
         self._maintenance().snapshots()
 
-    def restore(self) -> None:
-        RestoreService(self._load_config()).run()
+    def restore(self) -> bool:
+        return RestoreService(self._load_config()).run()
 
     def stats(self) -> None:
         self._maintenance().stats()

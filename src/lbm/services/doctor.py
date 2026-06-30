@@ -1,0 +1,405 @@
+import os
+import subprocess
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+from stat import S_IMODE
+
+from lbm.backup.restic import ResticRepository
+from lbm.core.config import AppConfig, ConfigLoader
+from lbm.core.errors import ApplicationError, ConfigurationError
+from lbm.core.state import BackupStateStore
+from lbm.health.checks import HealthChecker
+from lbm.services.language import LanguageService
+from lbm.targets.usb import USBTarget
+
+
+class DoctorStatus(Enum):
+    OK = "ok"
+    WARNING = "warning"
+    ERROR = "error"
+    SKIPPED = "skipped"
+
+
+@dataclass(frozen=True)
+class DoctorResult:
+    name: str
+    status: DoctorStatus
+    message: str
+
+
+@dataclass(frozen=True)
+class DoctorDestination:
+    name: str
+    repository: ResticRepository | None
+    reachable: bool
+
+
+class DoctorService:
+    """Run read-only diagnostics without attempting repairs."""
+
+    def __init__(self, config_file: Path) -> None:
+        self.config_file = config_file
+        self.language = LanguageService()
+
+    def run(self) -> bool:
+        results: list[DoctorResult] = []
+        config = self._check_config(results)
+        restic_available = self._check_restic(results)
+
+        if config is None:
+            self._append_config_dependent_skips(results)
+        else:
+            self._check_password_file(config, results)
+            destinations = self._check_targets(config, results)
+            self._check_repositories(destinations, restic_available, results)
+            self._check_last_backup(config, results)
+
+        self._print(results)
+        return not any(result.status is DoctorStatus.ERROR for result in results)
+
+    def _check_config(self, results: list[DoctorResult]) -> AppConfig | None:
+        try:
+            config = ConfigLoader(self.config_file).load()
+        except ConfigurationError as error:
+            results.append(
+                DoctorResult(
+                    self._text("doctor.configuration"),
+                    DoctorStatus.ERROR,
+                    error.message,
+                )
+            )
+            return None
+
+        self.language = LanguageService(config.system.language)
+        results.append(
+            DoctorResult(
+                self._text("doctor.configuration"),
+                DoctorStatus.OK,
+                str(self.config_file),
+            )
+        )
+        return config
+
+    def _check_restic(self, results: list[DoctorResult]) -> bool:
+        try:
+            result = HealthChecker(Path("unused"), self.language).check_restic()
+        except (OSError, subprocess.SubprocessError) as error:
+            results.append(
+                DoctorResult(
+                    self._text("doctor.restic"),
+                    DoctorStatus.ERROR,
+                    self._text(
+                        "doctor.not_checkable",
+                        error=self._first_line(str(error)),
+                    ),
+                )
+            )
+            return False
+        status = DoctorStatus.OK if result.ok else DoctorStatus.ERROR
+        results.append(
+            DoctorResult(self._text("doctor.restic"), status, result.message)
+        )
+        return result.ok
+
+    def _check_password_file(
+        self,
+        config: AppConfig,
+        results: list[DoctorResult],
+    ) -> None:
+        password_file = Path(config.paths.password_file).expanduser()
+        try:
+            if not password_file.is_file():
+                results.append(
+                    DoctorResult(
+                        self._text("doctor.password_file"),
+                        DoctorStatus.ERROR,
+                        self._text("common.missing"),
+                    )
+                )
+                return
+            mode = S_IMODE(password_file.stat().st_mode)
+        except OSError as error:
+            results.append(
+                DoctorResult(
+                    self._text("doctor.password_file"),
+                    DoctorStatus.ERROR,
+                    self._text(
+                        "doctor.not_checkable",
+                        error=self._first_line(str(error)),
+                    ),
+                )
+            )
+            return
+
+        if mode & 0o077 or not mode & 0o400:
+            results.append(
+                DoctorResult(
+                    self._text("doctor.password_file"),
+                    DoctorStatus.ERROR,
+                    self._text(
+                        "doctor.unsafe_permissions",
+                        mode=f"{mode:04o}",
+                        path=password_file,
+                    ),
+                )
+            )
+            return
+
+        results.append(
+            DoctorResult(
+                self._text("doctor.password_file"),
+                DoctorStatus.OK,
+                self._text(
+                    "doctor.password_present",
+                    mode=f"{mode:04o}",
+                    path=password_file,
+                ),
+            )
+        )
+
+    def _check_targets(
+        self,
+        config: AppConfig,
+        results: list[DoctorResult],
+    ) -> list[DoctorDestination]:
+        destinations: list[DoctorDestination] = []
+        password_file = Path(config.paths.password_file).expanduser()
+        usb = config.targets.usb
+
+        if usb.enabled:
+            name = f"USB: {usb.label}"
+            try:
+                info = USBTarget(usb.label).probe()
+            except OSError as error:
+                results.append(
+                    DoctorResult(
+                        name,
+                        DoctorStatus.ERROR,
+                        self._text(
+                            "doctor.not_checkable",
+                            error=self._first_line(str(error)),
+                        ),
+                    )
+                )
+                destinations.append(DoctorDestination(name, None, False))
+                info = None
+            if info is not None:
+                if not info.found:
+                    results.append(
+                        DoctorResult(
+                            name,
+                            DoctorStatus.ERROR,
+                            self._text("doctor.not_found"),
+                        )
+                    )
+                    destinations.append(DoctorDestination(name, None, False))
+                elif info.mountpoint is None:
+                    results.append(
+                        DoctorResult(
+                            name,
+                            DoctorStatus.ERROR,
+                            self._text("doctor.not_mounted"),
+                        )
+                    )
+                    destinations.append(DoctorDestination(name, None, False))
+                elif not info.writable:
+                    results.append(
+                        DoctorResult(
+                            name,
+                            DoctorStatus.ERROR,
+                            self._text(
+                                "doctor.mounted_not_writable",
+                                path=info.mountpoint,
+                            ),
+                        )
+                    )
+                    destinations.append(DoctorDestination(name, None, False))
+                else:
+                    results.append(
+                        DoctorResult(
+                            name,
+                            DoctorStatus.OK,
+                            self._text("doctor.reachable_path", path=info.mountpoint),
+                        )
+                    )
+                    destinations.append(
+                        DoctorDestination(
+                            name,
+                            ResticRepository(
+                                info.mountpoint / usb.repository_path,
+                                password_file,
+                            ),
+                            True,
+                        )
+                    )
+
+        nas = config.targets.nas
+        if nas.enabled:
+            mount_path = Path(nas.mount_path).expanduser()
+            name = f"NAS: {mount_path}"
+            if not mount_path.is_dir():
+                results.append(
+                    DoctorResult(
+                        name,
+                        DoctorStatus.ERROR,
+                        self._text("doctor.not_reachable"),
+                    )
+                )
+                destinations.append(DoctorDestination(name, None, False))
+            elif not os.access(mount_path, os.W_OK):
+                results.append(
+                    DoctorResult(
+                        name,
+                        DoctorStatus.ERROR,
+                        self._text("doctor.not_writable"),
+                    )
+                )
+                destinations.append(DoctorDestination(name, None, False))
+            else:
+                results.append(
+                    DoctorResult(name, DoctorStatus.OK, self._text("doctor.reachable"))
+                )
+                destinations.append(
+                    DoctorDestination(
+                        name,
+                        ResticRepository(
+                            mount_path / nas.repository_path,
+                            password_file,
+                        ),
+                        True,
+                    )
+                )
+
+        return destinations
+
+    def _check_repositories(
+        self,
+        destinations: list[DoctorDestination],
+        restic_available: bool,
+        results: list[DoctorResult],
+    ) -> None:
+        for destination in destinations:
+            name = self._text("doctor.repository", target=destination.name)
+            if not destination.reachable or destination.repository is None:
+                results.append(
+                    DoctorResult(
+                        name,
+                        DoctorStatus.SKIPPED,
+                        self._text("doctor.target_not_reachable"),
+                    )
+                )
+                continue
+            if not restic_available:
+                results.append(
+                    DoctorResult(
+                        name,
+                        DoctorStatus.SKIPPED,
+                        self._text("doctor.restic_unavailable"),
+                    )
+                )
+                continue
+
+            try:
+                info = destination.repository.check(timeout_seconds=30)
+            except (ApplicationError, OSError, subprocess.SubprocessError) as error:
+                message = getattr(error, "message", str(error))
+                results.append(
+                    DoctorResult(name, DoctorStatus.ERROR, self._first_line(message))
+                )
+                continue
+
+            status = DoctorStatus.OK if info.initialized else DoctorStatus.ERROR
+            message = (
+                self._text("doctor.repository_ready")
+                if info.initialized
+                else self._first_line(info.message) or self._text("common.unknown")
+            )
+            results.append(DoctorResult(name, status, message))
+
+    def _check_last_backup(
+        self,
+        config: AppConfig,
+        results: list[DoctorResult],
+    ) -> None:
+        try:
+            completed_at = BackupStateStore.from_config(
+                config.paths.state_dir
+            ).last_successful_backup()
+        except OSError as error:
+            results.append(
+                DoctorResult(
+                    self._text("doctor.last_backup"),
+                    DoctorStatus.ERROR,
+                    self._text(
+                        "doctor.not_checkable",
+                        error=self._first_line(str(error)),
+                    ),
+                )
+            )
+            return
+        if completed_at is None:
+            results.append(
+                DoctorResult(
+                    self._text("doctor.last_backup"),
+                    DoctorStatus.WARNING,
+                    self._text("doctor.no_success_time"),
+                )
+            )
+            return
+
+        timestamp = completed_at.astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")
+        results.append(
+            DoctorResult(self._text("doctor.last_backup"), DoctorStatus.OK, timestamp)
+        )
+
+    def _append_config_dependent_skips(self, results: list[DoctorResult]) -> None:
+        for key in (
+            "doctor.password_file",
+            "doctor.backup_targets",
+            "doctor.repositories",
+            "doctor.last_backup",
+        ):
+            results.append(
+                DoctorResult(
+                    self._text(key),
+                    DoctorStatus.SKIPPED,
+                    self._text("doctor.config_not_loadable"),
+                )
+            )
+
+    def _print(self, results: list[DoctorResult]) -> None:
+        symbols = {
+            DoctorStatus.OK: "✓",
+            DoctorStatus.WARNING: "!",
+            DoctorStatus.ERROR: "✗",
+            DoctorStatus.SKIPPED: "-",
+        }
+        title = self._text("doctor.title")
+        print(title)
+        print("=" * len(title))
+        print()
+        for result in results:
+            print(
+                f"{symbols[result.status]} {result.name:<28} "
+                f"{self._text(f'doctor.status.{result.status.value}')}: {result.message}"
+            )
+
+        statuses = {result.status for result in results}
+        if DoctorStatus.ERROR in statuses:
+            overall = self._text("doctor.status.error")
+        elif DoctorStatus.WARNING in statuses:
+            overall = self._text("doctor.status.warning")
+        else:
+            overall = self._text("doctor.status.ok")
+        print()
+        label = self._text("common.overall_status")
+        print(f"{label:.<27} {overall}")
+        print(self._text("doctor.no_changes"))
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)
+
+    @staticmethod
+    def _first_line(message: str) -> str:
+        return message.strip().splitlines()[0] if message.strip() else ""

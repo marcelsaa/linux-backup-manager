@@ -2,7 +2,7 @@
 
 # Frequently Asked Questions (FAQ)
 
-**Version:** 1.0.1
+**Version:** 1.1.0-rc1
 
 ---
 
@@ -56,10 +56,10 @@ Verify the following:
 Running
 
 ```bash
-backup-manager health
+backup-manager doctor
 ```
 
-usually identifies the problem.
+reports USB reachability and the repository state without changing either one.
 
 ---
 
@@ -85,9 +85,12 @@ NAS support is part of the Version 1.1 roadmap.
 
 Without the correct repository password, the backup repository cannot be accessed.
 
-Store your password in a safe location.
+The password cannot be reset by Linux Backup Manager, Restic or the project developers. Restore a
+protected copy of the password or password file. If no valid copy exists, the encrypted repository
+cannot be recovered.
 
-A recovery concept is planned for a future version.
+Use `backup-manager recovery-info` before an emergency and follow `docs/RECOVERY.md`. Keep the
+password copy separate from the repository.
 
 ---
 
@@ -140,11 +143,11 @@ The following features are already planned:
 * Multiple backup targets
 * NAS support
 * Interactive backup configuration
-* Recovery information
+* German and English application language
 * German documentation
 
 ---
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Release Candidate 1.1.0-rc1

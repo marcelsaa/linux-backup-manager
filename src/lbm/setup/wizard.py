@@ -1,16 +1,20 @@
+import os
 from datetime import datetime
 from getpass import getpass
 from importlib.resources import files
 from pathlib import Path
 from shutil import copy2, which
+from socket import gethostname
 
 import yaml
 
 from lbm.backup.restic import RepositoryStatus
 from lbm.core.config import AppConfig, ConfigLoader, UniqueKeyLoader
 from lbm.core.errors import ApplicationError
+from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.services.scheduler import SystemdScheduler
+from lbm.targets.usb import USBTarget
 from lbm.ui.console import Console
 
 
@@ -20,12 +24,14 @@ class SetupWizard:
         self.password_file = Path()
         self.config: AppConfig | None = None
         self.interactive = interactive
+        self.language = LanguageService()
+        self.language_preselected = False
 
     def _load_setup_config(self) -> bool:
         try:
             self.config = ConfigLoader(self.config_file).load()
         except ApplicationError as error:
-            Console.error("config.yaml konnte nicht geladen werden.")
+            Console.error(self._text("setup.config_load_failed"))
             Console.error(error.message)
             if error.hint:
                 Console.info(error.hint)
@@ -34,58 +40,72 @@ class SetupWizard:
             return False
 
         self.password_file = Path(self.config.paths.password_file).expanduser()
+        self.language = LanguageService(self.config.system.language)
         return True
 
     def _print_header(self) -> None:
-        print("Linux Backup Manager Setup")
-        print("==========================")
+        title = self._text("setup.title")
+        print(title)
+        print("=" * len(title))
         print()
-        print("Willkommen zum Einrichtungsassistenten.")
+        print(self._text("setup.welcome"))
         print()
 
     def _print_summary(self, all_ok: bool) -> None:
         print()
         if all_ok:
-            Console.success("System ist vollständig eingerichtet.")
+            Console.success(self._text("setup.complete"))
         else:
-            Console.warning("Setup abgeschlossen, es bestehen noch offene Punkte.")
+            Console.warning(self._text("setup.incomplete"))
 
     def _check_config(self) -> bool:
         if self.config_file.exists():
-            Console.success("config.yaml vorhanden")
+            Console.success(self._text("setup.config_present"))
             if not self.interactive:
                 return True
-            answer = input("Bestehende Konfiguration bearbeiten? [j/N]: ")
-            if answer.strip().lower() != "j":
+            answer = input(
+                self._text(
+                    "setup.edit_existing",
+                    suffix=self._text("common.no_default_suffix"),
+                )
+            )
+            if not self._is_yes(answer):
                 return True
             return self._edit_config()
 
-        Console.error("config.yaml fehlt")
+        Console.error(self._text("setup.config_missing"))
         if not self.interactive:
-            Console.warning("config.yaml fehlt. Automatische Erstellung übersprungen.")
+            Console.warning(self._text("setup.config_creation_skipped"))
             return False
 
-        if input("Standardkonfiguration jetzt erstellen? [J/n]: ").strip().lower() not in (
-            "",
-            "j",
-        ):
-            print("config.yaml wurde nicht erstellt.")
+        answer = input(
+            self._text(
+                "setup.create_default_config",
+                suffix=self._text("common.yes_default_suffix"),
+            )
+        )
+        if answer.strip() and not self._is_yes(answer):
+            print(self._text("setup.config_not_created"))
             return False
 
         try:
             template = files("lbm.resources").joinpath("config.example.yaml")
             data = yaml.safe_load(template.read_text(encoding="utf-8"))
         except (FileNotFoundError, yaml.YAMLError):
-            Console.error("Standardkonfiguration konnte nicht geladen werden.")
+            Console.error(self._text("setup.default_config_load_failed"))
             return False
 
-        data["backup"]["paths"] = self._ask_backup_paths()
-        self._configure_targets(data)
-        self._configure_schedule(data)
+        if self.language_preselected:
+            data["system"]["language"] = self.language.language
+        else:
+            self._configure_language(data)
+        data["system"]["host_name"] = gethostname()
+        if not self._configure_and_confirm(data):
+            return False
 
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
         self._write_config(data)
-        Console.success("config.yaml erstellt")
+        Console.success(self._text("setup.config_created"))
         return True
 
     def _edit_config(self) -> bool:
@@ -103,14 +123,14 @@ class SetupWizard:
                 Console.info(detail)
             return False
         except (OSError, yaml.YAMLError) as error:
-            Console.error(f"Konfiguration konnte nicht bearbeitet werden: {error}")
+            Console.error(self._text("setup.config_edit_failed", error=error))
             return False
 
         print()
-        Console.info("Backup-Ordner, Backup-Ziele und Zeitplan werden neu abgefragt.")
-        data["backup"]["paths"] = self._ask_backup_paths(data["backup"]["paths"])
-        self._configure_targets(data)
-        self._configure_schedule(data)
+        Console.info(self._text("setup.reconfigure_info"))
+        self._configure_language(data)
+        if not self._configure_and_confirm(data, data["backup"]["paths"]):
+            return False
 
         try:
             AppConfig.model_validate(data)
@@ -118,11 +138,11 @@ class SetupWizard:
             copy2(self.config_file, backup_file)
             self._write_config(data)
         except (OSError, ValueError, yaml.YAMLError) as error:
-            Console.error(f"Konfiguration konnte nicht gespeichert werden: {error}")
+            Console.error(self._text("setup.config_save_failed", error=error))
             return False
 
-        Console.success("config.yaml aktualisiert")
-        Console.info(f"Sicherung der vorherigen Konfiguration: {backup_file}")
+        Console.success(self._text("setup.config_updated"))
+        Console.info(self._text("setup.config_backup", path=backup_file))
         return True
 
     def _write_config(self, data: dict) -> None:
@@ -134,11 +154,36 @@ class SetupWizard:
         temporary_file.replace(self.config_file)
 
     def _ask_yes_no(self, prompt: str, default: bool) -> bool:
-        suffix = "[J/n]" if default else "[j/N]"
+        suffix = self._text(
+            "common.yes_default_suffix" if default else "common.no_default_suffix"
+        )
         answer = input(f"{prompt} {suffix}: ").strip().lower()
         if not answer:
             return default
-        return answer == "j"
+        return self._is_yes(answer)
+
+    def _configure_language(
+        self,
+        data: dict,
+        prompt_key: str = "language.selection_prompt",
+    ) -> None:
+        system = data.setdefault("system", {})
+        current = system.get("language", LanguageService.default_language)
+        language = LanguageService(current)
+
+        while True:
+            prompt = language.translate(prompt_key)
+            selected = input(f"{prompt} [{current}]: ").strip().lower() or current
+            if selected in LanguageService.supported_languages:
+                system["language"] = selected
+                self.language = LanguageService(selected)
+                confirmation = self.language.translate(
+                    "language.selected",
+                    language=selected,
+                )
+                Console.info(confirmation)
+                return
+            Console.error(language.translate("language.invalid"))
 
     def _ask_backup_paths(self, current_paths: list[str] | None = None) -> list[str]:
         default_paths = [
@@ -149,64 +194,144 @@ class SetupWizard:
             "~/Projekte",
         ]
         print()
-        print("Welche Standardordner sollen gesichert werden?")
+        print(self._text("setup.select_standard_folders"))
         print()
 
         selected_paths = []
         for path in default_paths:
             default = current_paths is None or path in current_paths
-            if self._ask_yes_no(f"{path} sichern?", default):
+            if self._ask_yes_no(self._text("setup.backup_path", path=path), default):
                 selected_paths.append(path)
 
         custom_paths = [path for path in current_paths or [] if path not in default_paths]
         if custom_paths:
             print()
-            print("Bereits konfigurierte eigene Ordner:")
+            print(self._text("setup.existing_custom_folders"))
             for path in custom_paths:
-                if self._ask_yes_no(f"{path} weiter sichern?", True):
+                if self._ask_yes_no(
+                    self._text("setup.keep_backup_path", path=path), True
+                ):
                     selected_paths.append(path)
 
         print()
-        print("Weitere eigene Ordner hinzufügen?")
-        print("Leere Eingabe beendet die Auswahl.")
+        print(self._text("setup.add_custom_folders"))
+        print(self._text("setup.empty_finishes"))
         print()
-        while value := input("Zusätzlicher Backup-Ordner: ").strip():
+        while value := input(self._text("setup.additional_folder")).strip():
             selected_paths.append(value)
 
         if not selected_paths:
-            Console.error("Es muss mindestens ein Backup-Ordner ausgewählt werden.")
+            Console.error(self._text("setup.folder_required"))
             return self._ask_backup_paths()
         return selected_paths
 
-    def _configure_targets(self, data: dict) -> None:
+    def _configure_and_confirm(
+        self,
+        data: dict,
+        current_paths: list[str] | None = None,
+    ) -> bool:
+        while True:
+            data["backup"]["paths"] = self._ask_backup_paths(current_paths)
+            if not self._configure_targets(data):
+                return False
+            self._configure_schedule(data)
+            self._print_configuration_summary(data)
+            if self._ask_yes_no(self._text("setup.confirm_configuration"), True):
+                return True
+            Console.info(self._text("setup.reconfigure_requested"))
+            current_paths = data["backup"]["paths"]
+
+    def _configure_targets(self, data: dict) -> bool:
         print()
-        print("Welche Backup-Ziele sollen verwendet werden?")
+        print(self._text("setup.select_targets"))
         print()
 
         usb = data["targets"]["usb"]
         nas = data["targets"]["nas"]
-        use_usb = self._ask_yes_no("USB-Laufwerk verwenden?", usb["enabled"])
-        use_nas = self._ask_yes_no("Eingehängtes NAS verwenden?", nas["enabled"])
+        use_usb = self._ask_yes_no(self._text("setup.use_usb"), usb["enabled"])
+        use_nas = self._ask_yes_no(self._text("setup.use_nas"), nas["enabled"])
         if not use_usb and not use_nas:
-            Console.error("Es muss mindestens ein Backup-Ziel ausgewählt werden.")
-            self._configure_targets(data)
-            return
+            Console.error(self._text("setup.target_required"))
+            return self._configure_targets(data)
 
         usb["enabled"] = use_usb
         if use_usb:
-            usb["label"] = self._ask_value("USB-Dateisystemlabel", usb["label"])
+            usb["label"] = self._ask_value(
+                self._text("setup.usb_label"), usb["label"]
+            )
             usb["repository_path"] = self._ask_value(
-                "Repository-Pfad auf USB",
+                self._text("setup.usb_repository_path"),
                 usb["repository_path"],
             )
 
         nas["enabled"] = use_nas
         if use_nas:
-            nas["mount_path"] = self._ask_value("NAS-Mountpfad", nas["mount_path"])
+            nas["mount_path"] = self._ask_value(
+                self._text("setup.nas_mount_path"), nas["mount_path"]
+            )
             nas["repository_path"] = self._ask_value(
-                "Repository-Pfad auf NAS",
+                self._text("setup.nas_repository_path"),
                 nas["repository_path"],
             )
+
+        if self._selected_targets_available(data):
+            return True
+        if self._ask_yes_no(self._text("setup.correct_targets"), True):
+            return self._configure_targets(data)
+        return False
+
+    def _selected_targets_available(self, data: dict) -> bool:
+        available = True
+        usb = data["targets"]["usb"]
+        if usb["enabled"]:
+            info = USBTarget(usb["label"]).probe()
+            if not info.found:
+                Console.error(self._text("setup.usb_unavailable", label=usb["label"]))
+                available = False
+            elif info.mountpoint is None:
+                Console.error(self._text("setup.usb_not_mounted", label=usb["label"]))
+                available = False
+            elif not info.writable:
+                Console.error(self._text("setup.usb_not_writable", path=info.mountpoint))
+                available = False
+
+        nas = data["targets"]["nas"]
+        if nas["enabled"]:
+            path = Path(nas["mount_path"]).expanduser()
+            if not path.is_dir():
+                Console.error(self._text("setup.nas_unavailable", path=path))
+                available = False
+            elif not os.access(path, os.W_OK):
+                Console.error(self._text("setup.nas_not_writable", path=path))
+                available = False
+        return available
+
+    def _print_configuration_summary(self, data: dict) -> None:
+        title = self._text("setup.summary_title")
+        print()
+        print(title)
+        print("-" * len(title))
+        print(self._text("setup.summary_host", value=data["system"]["host_name"]))
+        print(self._text("setup.summary_paths"))
+        for path in data["backup"]["paths"]:
+            print(f"- {path}")
+        usb = data["targets"]["usb"]
+        nas = data["targets"]["nas"]
+        if usb["enabled"]:
+            print(self._text("setup.summary_usb", value=usb["label"]))
+        if nas["enabled"]:
+            print(self._text("setup.summary_nas", value=nas["mount_path"]))
+        schedule = data["schedule"]
+        value = (
+            self._text(
+                "setup.summary_schedule_enabled",
+                time=schedule["daily_time"],
+                days=schedule["interval_days"],
+            )
+            if schedule["enabled"]
+            else self._text("setup.summary_schedule_disabled")
+        )
+        print(self._text("setup.summary_schedule", value=value))
 
     def _ask_value(self, label: str, default: str) -> str:
         return input(f"{label} [{default}]: ").strip() or default
@@ -214,7 +339,7 @@ class SetupWizard:
     def _configure_schedule(self, data: dict) -> None:
         print()
         enabled = self._ask_yes_no(
-            "Automatische Backups aktivieren?",
+            self._text("setup.enable_automatic_backups"),
             data["schedule"]["enabled"],
         )
         data["schedule"]["enabled"] = enabled
@@ -229,58 +354,76 @@ class SetupWizard:
 
     def _ask_schedule_time(self, default: str) -> str:
         while True:
-            value = input(f"Backup-Uhrzeit [{default}]: ").strip() or default
+            value = input(
+                self._text("setup.backup_time", default=default)
+            ).strip() or default
             try:
                 parsed = datetime.strptime(value, "%H:%M")
             except ValueError:
-                Console.error("Bitte eine Uhrzeit im Format HH:MM eingeben.")
+                Console.error(self._text("setup.invalid_time"))
                 continue
             return parsed.strftime("%H:%M")
 
     def _ask_interval_days(self, default: int) -> int:
         while True:
-            value = input(f"Backup alle wie viele Tage? [{default}]: ").strip()
+            value = input(
+                self._text("setup.backup_interval", default=default)
+            ).strip()
             try:
                 interval = int(value) if value else default
             except ValueError:
                 interval = 0
             if 1 <= interval <= 365:
                 return interval
-            Console.error("Das Intervall muss zwischen 1 und 365 Tagen liegen.")
+            Console.error(self._text("setup.invalid_interval"))
 
     def _check_password(self) -> bool:
         if self.password_file.exists():
-            Console.success("Passwortdatei vorhanden")
+            Console.success(self._text("setup.password_present"))
             return True
 
-        Console.error("Passwortdatei fehlt")
+        Console.error(self._text("setup.password_missing"))
         if not self.interactive:
-            Console.warning("Passwortdatei fehlt. Automatische Erstellung übersprungen.")
+            Console.warning(self._text("setup.password_creation_skipped"))
             return False
-        if input("Passwortdatei jetzt erstellen? [J/n]: ").strip().lower() in (
-            "",
-            "j",
-        ) and self._create_password_file():
-            Console.success("Passwortdatei vorhanden")
+        answer = input(
+            self._text(
+                "setup.create_password",
+                suffix=self._text("common.yes_default_suffix"),
+            )
+        )
+        if (not answer.strip() or self._is_yes(answer)) and self._create_password_file():
+            Console.success(self._text("setup.password_present"))
             return True
-        print("Passwortdatei wurde nicht erstellt.")
+        print(self._text("setup.password_not_created"))
         return False
 
     def _create_password_file(self) -> bool:
         print()
-        Console.info("Dieses Passwort schützt Ihr Backup-Repository.")
-        Console.info("Ohne dieses Passwort können Backups nicht wiederhergestellt werden.")
-        Console.info("Die Mindestlänge des Passworts beträgt 8 Zeichen.")
+        Console.warning(self._text("setup.password_warning"))
+        Console.info(self._text("setup.password_no_reset"))
+        Console.info(self._text("setup.password_store_separately"))
+        confirmation = input(
+            self._text(
+                "setup.confirm_data_loss",
+                suffix=self._text("common.no_default_suffix"),
+            )
+        )
+        if not self._is_yes(confirmation):
+            Console.warning(self._text("setup.password_not_confirmed"))
+            return False
+
+        Console.info(self._text("setup.password_min_length"))
         print()
         while True:
-            password = getpass("Neues Backup-Passwort: ")
-            confirmation = getpass("Backup-Passwort wiederholen: ")
+            password = getpass(self._text("setup.new_password"))
+            confirmation = getpass(self._text("setup.repeat_password"))
             if not password:
-                Console.error("Das Backup-Passwort darf nicht leer sein.")
+                Console.error(self._text("setup.password_empty"))
             elif len(password) < 8:
-                Console.error("Das Backup-Passwort muss mindestens 8 Zeichen lang sein.")
+                Console.error(self._text("setup.password_too_short"))
             elif password != confirmation:
-                Console.error("Die Passwörter stimmen nicht überein. Bitte erneut eingeben.")
+                Console.error(self._text("setup.password_mismatch"))
             else:
                 break
             print()
@@ -288,14 +431,14 @@ class SetupWizard:
         self.password_file.parent.mkdir(parents=True, exist_ok=True)
         self.password_file.write_text(password + "\n")
         self.password_file.chmod(0o600)
-        Console.success("Passwortdatei erstellt.")
+        Console.success(self._text("setup.password_created"))
         return True
 
     def _check_program(self, program: str, name: str) -> bool:
         if which(program):
-            Console.success(f"{name} installiert")
+            Console.success(self._text("setup.program_installed", name=name))
             return True
-        Console.error(f"{name} fehlt")
+        Console.error(self._text("setup.program_missing", name=name))
         return False
 
     def _check_programs(self) -> bool:
@@ -317,35 +460,46 @@ class SetupWizard:
     def _check_repository(self, destination: RepositoryDestination) -> bool:
         result = destination.repository.check()
         if result.initialized:
-            Console.success(f"Repository vorhanden: {destination.name}")
+            Console.success(
+                self._text("setup.repository_present", target=destination.name)
+            )
             return True
 
         if result.status is RepositoryStatus.WRONG_PASSWORD:
-            Console.error(f"Repository-Passwort ungültig: {destination.name}")
-            Console.info(result.message)
-            Console.info(
-                "Bitte die konfigurierte Passwortdatei prüfen. "
-                "Das Repository wird nicht neu initialisiert."
+            Console.error(
+                self._text("setup.repository_wrong_password", target=destination.name)
             )
+            Console.info(result.message)
+            Console.info(self._text("setup.repository_password_hint"))
             return False
 
         if result.status is RepositoryStatus.ERROR:
-            Console.error(f"Repository konnte nicht geprüft werden: {destination.name}")
+            Console.error(
+                self._text("setup.repository_check_failed", target=destination.name)
+            )
             Console.info(result.message)
             return False
 
-        Console.error(f"Repository fehlt: {destination.name}")
+        Console.error(self._text("setup.repository_missing", target=destination.name))
         if not self.interactive:
-            Console.warning("Repository fehlt. Automatische Erstellung übersprungen.")
+            Console.warning(self._text("setup.repository_creation_skipped"))
             return False
-        answer = input(f"Repository für '{destination.name}' jetzt erstellen? [J/n]: ")
-        if answer.strip().lower() not in ("", "j"):
-            print("Repository wurde nicht erstellt.")
+        answer = input(
+            self._text(
+                "setup.create_repository",
+                target=destination.name,
+                suffix=self._text("common.yes_default_suffix"),
+            )
+        )
+        if answer.strip() and not self._is_yes(answer):
+            print(self._text("setup.repository_not_created"))
             return False
 
         created = destination.repository.init_repository()
         if created.initialized:
-            Console.success(f"Repository erstellt: {destination.name}")
+            Console.success(
+                self._text("setup.repository_created", target=destination.name)
+            )
             return True
         Console.error(created.message)
         return False
@@ -353,9 +507,16 @@ class SetupWizard:
     def _check_scheduler(self) -> bool:
         if self.config is None or not self.config.schedule.enabled:
             return True
-        return SystemdScheduler(self.config_file, self.config.schedule).install()
+        return SystemdScheduler(
+            self.config_file,
+            self.config.schedule,
+            language=self.config.system.language,
+        ).install()
 
     def run(self) -> bool:
+        self._detect_language()
+        if self.interactive and not self.config_file.exists():
+            self._select_initial_language()
         self._print_header()
         if not self._check_config():
             self._print_summary(False)
@@ -364,9 +525,31 @@ class SetupWizard:
             self._print_summary(False)
             return False
 
-        status = self._check_password()
-        status &= self._check_programs()
-        status &= self._check_repositories()
-        status &= self._check_scheduler()
+        password_ok = self._check_password()
+        programs_ok = self._check_programs()
+        repositories_ok = password_ok and programs_ok and self._check_repositories()
+        scheduler_ok = repositories_ok and self._check_scheduler()
+        status = password_ok and programs_ok and repositories_ok and scheduler_ok
         self._print_summary(status)
         return status
+
+    def _detect_language(self) -> None:
+        if not self.config_file.is_file():
+            return
+        try:
+            config = ConfigLoader(self.config_file).load()
+        except ApplicationError:
+            return
+        self.language = LanguageService(config.system.language)
+
+    def _select_initial_language(self) -> None:
+        data = {"system": {"language": LanguageService.default_language}}
+        self._configure_language(data, prompt_key="language.initial_selection_prompt")
+        self.language_preselected = True
+
+    def _is_yes(self, answer: str) -> bool:
+        accepted = {self._text("common.yes_short"), "j", "y"}
+        return answer.strip().lower() in accepted
+
+    def _text(self, key: str, **values: object) -> str:
+        return self.language.translate(key, **values)

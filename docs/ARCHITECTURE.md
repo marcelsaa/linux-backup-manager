@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.0.1
+**Version:** 1.1.0
 
 ---
 
@@ -19,6 +19,10 @@ The `Application` class delegates user-facing workflows to dedicated services.
 # High-Level Architecture
 
 ```text
+Deployment
+ │
+ └── installer.py   – Standalone managed installer: fresh install, 1.0.1 upgrade, rollback
+
 CLI
  │
  ├── ErrorHandler
@@ -31,6 +35,8 @@ Services
  │
  ├── StatusService
  ├── HealthService
+ ├── RecoveryInfoService
+ ├── RecoverySheetService
  ├── SetupService
  ├── BackupService
  ├── RestoreService
@@ -82,6 +88,10 @@ Responsibilities:
 
 * `StatusService`: system and configuration status
 * `HealthService`: health-check workflow
+* `DoctorService`: aggregated read-only support diagnostics and exit status
+* `LanguageService`: YAML message-catalog loading, formatting and fallback resolution
+* `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
+* `RecoverySheetService`: atomic password-free recovery-document generation
 * `SetupService`: first-run setup
 * `BackupService`: backup workflow
 * `RestoreService`: guided restore workflow
@@ -98,6 +108,14 @@ operate on one repository ask the user to select a destination when more than on
 
 Expected failures cross service boundaries as typed `ApplicationError` subclasses. The CLI
 renders these errors consistently without exposing internal tracebacks.
+
+Language catalogs are packaged below `lbm.resources/i18n`. `system.language` selects `de` or `en`;
+older configurations default to German. Message lookup falls back through English and German
+before returning a stable untranslated key. `StatusService`, `DoctorService`, `HealthService`,
+`HealthChecker` and `SetupWizard` obtain all their user-facing messages from this layer. Setup also
+passes the language into target resolution and scheduler installation. Backup, restore,
+maintenance and recovery services use the same per-configuration language instance. The CLI reads
+the configured language for help and interruption messages before dispatching a command.
 
 ---
 
@@ -190,10 +208,12 @@ During setup, the configuration is created first and then loaded before the rema
 
 ---
 
-# Architecture Evolution
+# Architecture Notes
 
-The current development work toward Version 1.1 introduces dedicated services and reduces the
-`Application` class to orchestration.
+The `installer.py` module is deliberately standalone: it has no import dependency on the
+application package. It verifies the wheel by SHA-256, detects the installation state and performs
+all file operations through standard library modules only. This allows it to run on a plain Python
+3.12 interpreter before the application venv exists.
 
 Further improvements may include:
 
@@ -216,4 +236,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Version 1.1.0

@@ -1,6 +1,6 @@
 [project]
 name = "linux-backup-manager"
-version = "1.0.1"
+version = "1.1.0"
 description = "Backup-Manager für Linux-Systeme mit Restic und mehreren Backup-Zielen"
 readme = "README.md"
 license = "GPL-3.0-only"
@@ -18,6 +18,7 @@ dev = [
     "build>=1",
     "pytest>=8",
     "ruff>=0.9",
+    "twine>=6",
 ]
 
 [project.scripts]
@@ -28,7 +29,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = [".", "src"]
 testpaths = ["tests"]
 
 [tool.ruff]
@@ -39,4 +40,4 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.setuptools.package-data]
-"lbm.resources" = ["config.example.yaml"]
+"lbm.resources" = ["config.example.yaml", "i18n/*.yaml"]

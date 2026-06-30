@@ -2,7 +2,7 @@
 
 # User Guide
 
-**Version:** 1.0.1
+**Version:** 1.1.0
 
 ---
 
@@ -23,6 +23,9 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `setup`     | Configure Linux Backup Manager                         |
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
+| `doctor`    | Run comprehensive read-only diagnostics                |
+| `recovery-info` | Display password-safe recovery information         |
+| `recovery-sheet` | Create a password-free recovery document           |
 | `backup`    | Create a new backup                                    |
 | `schedule-install` | Install and activate automatic backups           |
 | `schedule-status` | Display automatic-backup timer status             |
@@ -56,10 +59,15 @@ During execution the wizard performs the following tasks:
 
 * Creates the configuration directory
 * Creates the configuration file
+* Selects and stores the application language (`de` or `en`)
 * Offers to edit an existing configuration and saves the previous file as `config.yaml.bak`
 * Creates the password file
 * Lets the user select USB, NAS or both backup destinations
+* Validates the availability of each configured target and offers a correction loop for
+  unavailable paths, keeping the wizard open until a reachable target is confirmed
 * Configures target-specific labels, mount paths and repository paths
+* Presents a complete summary of host, backup paths, targets and schedule for confirmation
+  before writing any configuration
 * Verifies the required software
 * Detects every configured backup destination
 * Checks every configured Restic repository
@@ -69,8 +77,13 @@ The setup wizard can safely be executed multiple times. When a configuration alr
 asks whether backup folders, destinations and the automatic schedule should be edited. Declining
 keeps the file unchanged. Accepting creates `config.yaml.bak` before the updated file is written.
 
+The selected language controls all application-generated command output and prompts. Raw output
+from external programs such as Restic and systemctl is displayed unchanged.
+
 An invalid repository password is reported separately from a missing repository. Setup never
 offers to initialize an existing repository that cannot be opened with the configured password.
+Before creating a password file, setup requires explicit confirmation that a forgotten repository
+password cannot be reset and that a protected copy must be stored separately.
 
 ---
 
@@ -111,6 +124,77 @@ Typical checks include:
 * Required software
 
 Running the health check regularly is recommended.
+
+---
+
+# doctor
+
+## Purpose
+
+Runs a single read-only diagnosis for support and self-checks. The command reports:
+
+* whether the configuration can be loaded;
+* whether the password file exists and has plausible restrictive permissions;
+* whether Restic is installed and executable;
+* whether every configured USB or NAS target is reachable and writable;
+* whether each reachable Restic repository can be opened;
+* the last successfully recorded backup time.
+
+## Command
+
+```bash
+backup-manager doctor
+```
+
+Results are classified with localized labels (`OK`, `Warning`, `Error`, `Skipped` in English;
+`OK`, `WARNUNG`, `FEHLER`, `ÜBERSPRUNGEN` in German). A missing previously recorded backup is a
+warning. Configuration, password, Restic, target or repository failures make the command exit with
+status 1. Successful checks and warnings exit with status 0.
+
+`doctor` performs no repairs. It does not initialize repositories, create backups, change the
+configuration or alter automatic-backup timers.
+
+---
+
+# recovery-info
+
+## Purpose
+
+Displays the paths, repository targets and emergency steps required for recovery without reading or
+printing the repository password.
+
+## Command
+
+```bash
+backup-manager recovery-info
+```
+
+Run this command after setup and whenever the password-file path or repository target changes. Keep
+a protected password or password-file copy separate from the repository. See `docs/RECOVERY.md` for
+the complete recovery concept.
+
+---
+
+# recovery-sheet
+
+## Purpose
+
+Creates an optional recovery document containing the configured repository targets, important file
+paths, emergency commands and blank fields for external recovery records. The document never
+contains the repository password.
+
+## Command
+
+```bash
+backup-manager recovery-sheet
+```
+
+Choose an output path or accept `~/linux-backup-manager-recovery.txt`. Existing files require
+explicit overwrite confirmation. The result is written atomically with permissions `0600`.
+
+Print the sheet or copy it to a protected location separate from both the computer and backup
+repository. Manually record where the protected password copy is stored; do not write the password
+itself into an unprotected sheet.
 
 ---
 
@@ -256,8 +340,10 @@ backup-manager schedule-install
 ```
 
 During setup, the user chooses the time and interval in days. The default is daily at 20:00.
-After a restart or login, a second timer checks whether the chosen interval since the last
-successful backup has elapsed and immediately catches up when required.
+After a restart or login, a second timer waits a short fixed delay before checking whether the
+chosen interval since the last successful backup has elapsed and immediately catches up when
+required. The delay prevents an unexpected extra snapshot when setup and reboot happen on the
+same day.
 
 Inspect or remove the timers with:
 
@@ -273,4 +359,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Version 1.1.0

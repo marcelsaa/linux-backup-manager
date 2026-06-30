@@ -2,7 +2,7 @@
 
 # Installation Guide
 
-**Version:** 1.0.1
+**Version:** 1.1.0
 
 ---
 
@@ -56,7 +56,32 @@ If one of these commands is not available, install the missing software using yo
 
 ---
 
-## 4. Installing Linux Backup Manager
+## 4. Managed Installation or Upgrade
+
+Place `installer.py` next to the release wheel. Use the exact SHA-256 published with that wheel.
+First run the write-free detection and preflight:
+
+```bash
+python3 installer.py linux_backup_manager-1.1.0-py3-none-any.whl \
+  --sha256 <PUBLISHED_SHA256> --dry-run
+```
+
+The preflight checks Python, Restic, free space, installation permissions and, for a Version 1.0.1
+upgrade, every configured target and repository. If it passes, run the same command without
+`--dry-run`. The installer asks for confirmation; automation may explicitly add `--yes`.
+
+The managed path either creates a fresh versioned installation or upgrades the supported Version
+1.0.1 user installation. It preserves the old venv, configuration, password file and repository.
+An ambiguous, partial or unsupported installation is refused without changes.
+
+After a failed cutover, the installer automatically restores and verifies the old launcher, units,
+exact timer states, configuration, password metadata and logical repository state. A critical
+rollback warning means the retained recovery directory must be inspected before continuing.
+
+For a fresh installation, run `backup-manager setup` after the installer completes. Never run setup
+over a supported existing Version 1.0.1 configuration merely to perform an upgrade.
+
+### Development Installation
 
 Obtain the source archive or clone the project repository, then change into the project directory.
 
@@ -91,18 +116,8 @@ backup-manager --version
 Expected output:
 
 ```text
-backup-manager 1.0.1
+backup-manager 1.1.0
 ```
-
-For private use, install the locally built wheel directly instead of uploading it to a package
-index:
-
-```bash
-python -m pip install dist/linux_backup_manager-1.0.1-py3-none-any.whl
-```
-
-Keep the wheel in private storage or distribute it through a private channel. A private GitHub
-repository does not make a package uploaded to TestPyPI or PyPI private.
 
 ---
 
@@ -118,8 +133,10 @@ During setup, LBM automatically:
 
 * creates the configuration directory
 * creates the configuration file
+* asks for the application language (`de` or `en`)
 * offers safe interactive reconfiguration when the file already exists
 * creates the password file
+* requires acknowledgement that the repository password cannot be recovered
 * checks required software
 * detects the configured USB backup drive
 * initializes the Restic repository if necessary
@@ -128,6 +145,27 @@ During setup, LBM automatically:
 The setup wizard can safely be executed multiple times. Before changing an existing configuration,
 it stores the previous file as `config.yaml.bak`. Existing repositories with an invalid password
 are reported and are never reinitialized.
+
+After setup, review the recovery-critical paths and store a protected password copy separately:
+
+```bash
+backup-manager recovery-info
+```
+
+Optionally create a password-free recovery sheet and store it separately:
+
+```bash
+backup-manager recovery-sheet
+```
+
+Run the read-only system diagnosis after setup:
+
+```bash
+backup-manager doctor
+```
+
+Resolve every reported error before relying on automatic backups. The command only checks the
+environment and never repairs or changes it.
 
 ---
 
@@ -167,4 +205,4 @@ After the installation has completed successfully, continue with the **User Guid
 
 Linux Backup Manager Documentation
 
-Version 1.0.1
+Version 1.1.0

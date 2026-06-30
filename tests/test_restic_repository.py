@@ -251,6 +251,30 @@ def test_restore_returns_failed_result_on_restic_error() -> None:
     assert result.snapshot_id == "abc123"
     assert result.message == "Fatal: unable to restore snapshot"
 
+
+def test_restore_does_not_reclassify_lchown_error_as_success() -> None:
+    repository = ResticRepository(
+        repository=Path("/tmp/repo"),
+        password_file=Path("/tmp/password"),
+    )
+
+    fake_result = Mock()
+    fake_result.returncode = 1
+    fake_result.stdout = ""
+    fake_result.stderr = (
+        "ignoring error for /tmp: lchown /tmp/restore/tmp: invalid argument\n"
+        "Fatal: There were 1 errors"
+    )
+
+    with patch("lbm.backup.restic.subprocess.run", return_value=fake_result):
+        result = repository.restore(
+            snapshot_id="abc123",
+            target=Path("/tmp/restore"),
+        )
+
+    assert result.ok is False
+    assert result.message == fake_result.stderr
+
 def test_check_repository_returns_success() -> None:
     repository = ResticRepository(
         repository=Path("/tmp/repo"),
