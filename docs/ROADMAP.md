@@ -2,7 +2,8 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 64 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 65 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
+Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
 
@@ -517,27 +518,30 @@ Konkret bedeutet das:
 * [x] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?) –
   Entschieden: Projekt wird als Geste veröffentlicht, keine aktive Pflege-Erwartung; siehe
   "Engagement-Modell" oben und `CONTRIBUTING.md` *(Sprint 60)*
-* [ ] Issues in den GitHub-Repository-Einstellungen deaktivieren (manueller Schritt nach
-  Erstellung des Repos auf GitHub, siehe "Engagement-Modell" oben)
+* [x] Issues in den GitHub-Repository-Einstellungen deaktivieren – erledigt, verifiziert
+  via `gh repo view` (`hasIssuesEnabled: false`) *(Sprint 65)*
 * [x] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional) –
   `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md` *(Sprint 59)*
 
-## Verbleibende manuelle Schritte zum Livegang
+## Veröffentlichung abgeschlossen (2026-07-01, Sprint 65)
 
-Alle inhaltlichen Vorbereitungen sind abgeschlossen. Es bleibt:
+Das Repository ist live: **https://github.com/marcelsaa/linux-backup-manager**
 
-1. Auf GitHub unter `github.com/marcelsaa` das leere Repository
-   `linux-backup-manager` (öffentlich) anlegen.
-2. Die gefilterte, veröffentlichungsbereite Kopie unter
-   `/home/marcel/Projekte/linux-backup-manager-public.git` als Remote hinzufügen und pushen
-   (`main`, `develop`, Tags `v1.0.1`/`v1.1.0`/`v1.1.0rc2`). Diese Kopie ist ein separates
-   bare Repo, unabhängig vom eigentlichen Arbeits-Repo – **vor dem Push empfiehlt es sich,
-   die Filterung nochmal frisch laufen zu lassen**, falls zwischenzeitlich weitere Sprints im
-   Arbeits-Repo hinzukamen (die aktuelle Kopie spiegelt den Stand nach Sprint 63).
-3. Nach dem ersten Push: Issues in den Repository-Einstellungen deaktivieren (Settings →
-   Features → Haken bei "Issues" raus).
-4. Optional: Release `v1.2.0` mit Wheel + `installer.py` + SHA-256 als Assets anlegen, sobald
-   Version 1.2.0 fertig ist (siehe Abschnitt "Distribution" oben).
+- [x] Öffentliches, leeres Repository unter `github.com/marcelsaa/linux-backup-manager`
+  angelegt.
+- [x] Gefilterte Kopie (frisch regeneriert, Stand nach Sprint 64) gepusht: `main` (Default-
+  Branch), `develop`, Tags `v1.0.1`/`v1.1.0`/`v1.1.0rc2`.
+- [x] Issues in den Repository-Einstellungen deaktiviert (`hasIssuesEnabled: false`,
+  verifiziert via `gh repo view`).
+- [x] CI-Workflow läuft automatisch auf GitHub Actions (erster Lauf ausgelöst durch den
+  Push nach `main`).
+- [ ] Optional: Release `v1.2.0` mit Wheel + `installer.py` + SHA-256 als Assets anlegen,
+  sobald Version 1.2.0 fertig ist (siehe Abschnitt "Distribution" oben).
+
+Die lokale gefilterte Kopie unter `/home/marcel/Projekte/linux-backup-manager-public.git`
+bleibt als Vorlage für künftige Aktualisierungen bestehen (z. B. für den v1.2.0-Release):
+bei Bedarf frisch aus dem Arbeits-Repo neu erzeugen (siehe `docs/reports/SPRINT_63.md`) und
+erneut pushen.
 
 ---
 
@@ -555,4 +559,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0.dev0 in aktiver Entwicklung (Sprint 64 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0.dev0 in aktiver Entwicklung (Sprint 65 abgeschlossen) ·
+Öffentlich auf GitHub: marcelsaa/linux-backup-manager

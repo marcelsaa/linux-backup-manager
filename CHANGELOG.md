@@ -8,6 +8,28 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 65 – Repository öffentlich auf GitHub veröffentlicht
+
+### Added
+
+* Öffentliches Repository unter https://github.com/marcelsaa/linux-backup-manager
+  angelegt (leer initialisiert, kein README/.gitignore/License von GitHub).
+* Gefilterte Kopie (frisch regeneriert auf Stand Sprint 64, inkl. Autor-E-Mail-Korrektur
+  und Ausschluss von `docs/reports/`/`CLAUDE.md`) gepusht: `main` (Default-Branch),
+  `develop`, Tags `v1.0.1`/`v1.1.0`/`v1.1.0rc2`.
+* Issues in den Repository-Einstellungen deaktiviert (`hasIssuesEnabled: false`).
+* Erster CI-Lauf auf GitHub Actions automatisch durch den Push ausgelöst.
+
+### Notes
+
+* Der GitHub-Push scheiterte zunächst, da das `gh`-Token nicht den `workflow`-Scope hatte
+  (nötig für `.github/workflows/ci.yml`); nach `gh auth refresh -h github.com -s workflow`
+  erfolgreich abgeschlossen.
+* Das eigentliche Arbeits-Repo (`/home/marcel/Projekte/linux-backup-manager`) war zu keinem
+  Zeitpunkt Ziel des Pushes und bleibt unverändert; die lokale gefilterte Kopie unter
+  `/home/marcel/Projekte/linux-backup-manager-public.git` bleibt als Vorlage für künftige
+  Aktualisierungen (z. B. den v1.2.0-Release) bestehen.
+
 ## Sprint 64 – Versions- und Roadmap-Konsistenz
 
 ### Changed
