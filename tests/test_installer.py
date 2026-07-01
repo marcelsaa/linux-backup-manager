@@ -136,7 +136,12 @@ def test_partial_installation_is_refused(tmp_path: Path) -> None:
 
 def test_dry_run_does_not_create_files(tmp_path: Path) -> None:
     layout = Layout(tmp_path)
-    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+    installer = Installer(
+        layout,
+        artifact(tmp_path),
+        Path("python3"),
+        runner=Mock(return_value=completed(stdout="3.12\n")),
+    )
 
     assert installer.execute(dry_run=True, assume_yes=True) is InstallMode.FRESH
     assert not layout.data_root.exists()

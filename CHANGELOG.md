@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 66 – Fix: installer-Test hing an echtem `restic`-Binary
+
+### Fixed
+
+* `tests/test_installer.py::test_dry_run_does_not_create_files` konstruierte den
+  `Installer` ohne gemockten `runner` – dadurch rief `_preflight()` echte
+  `subprocess`-Aufrufe an `restic version` auf. Lief lokal nur durch, weil `restic`
+  installiert war; schlug auf dem GitHub-Actions-Runner (kein `restic` vorhanden) fehl.
+  Fund: erster echter CI-Lauf auf GitHub nach der Veröffentlichung (Sprint 65) zeigte den
+  Fehler auf `main`. Behoben durch Ergänzen von `runner=Mock(return_value=completed(stdout="3.12\n"))`,
+  passend zum in allen anderen Installer-Tests verwendeten Dependency-Injection-Muster.
+* Der Bug besteht unverändert auch auf dem `main`-Branch (stammt aus Sprint 44 / v1.1.0);
+  Entscheidung zum Umgang damit siehe `docs/reports/SPRINT_66.md`.
+
 ## Sprint 65 – Repository öffentlich auf GitHub veröffentlicht
 
 ### Added
