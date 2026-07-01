@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 60 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 61 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -454,12 +454,21 @@ Konkret bedeutet das:
 
 **Distribution**
 
-* [ ] Distributionskanal entscheiden: GitHub Releases (Wheel + `installer.py` + SHA-256) und/oder
-  PyPI (`pip install linux-backup-manager`)
+* [x] Distributionskanal entscheiden – **GitHub Releases** (Wheel + `installer.py` +
+  veröffentlichter SHA-256 als Release-Assets), **kein PyPI**. Begründung: `installer.py`
+  baut eine eigene verwaltete venv mit Desktop-Integration, Upgrade-Erkennung ab 1.0.1 und
+  Rollback-Garantien auf – das passt nicht zu einem `pip install`-Fluss, der all das umgehen
+  würde. Der PyPI-Name bleibt als spätere Option offen, falls jemals Bedarf entsteht
+  *(Sprint 61)*
 * [x] Paketname `linux-backup-manager` auf PyPI auf Verfügbarkeit prüfen – verfügbar
   (`https://pypi.org/pypi/linux-backup-manager/json` liefert `404`, Name ist nicht
   registriert) *(Sprint 59)*
-* [ ] Versionierung und Release-Tags auf GitHub (`v1.2.0` als erster öffentlicher Tag?)
+* [x] Versionierung und Release-Tags auf GitHub entschieden – die bestehende Tag-Historie
+  (`v1.0.1`, `v1.1.0`) wird beim History-Rewrite **behalten, nicht verworfen**; `v1.2.0` ist
+  nicht der erste Tag überhaupt, sondern der erste Tag mit angehängten GitHub-Release-Assets
+  (Wheel, Installer, SHA-256). Der interne Tag `backup-v1.0.0-before-refactor` wird beim
+  History-Rewrite nicht mit veröffentlicht, da er ein reiner Vor-Refactor-Sicherungspunkt
+  ohne externen Nutzen ist *(Sprint 61)*
 
 **Repository-Inhalt**
 
@@ -514,4 +523,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 60 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 61 abgeschlossen)

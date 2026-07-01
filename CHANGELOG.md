@@ -8,6 +8,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 61 – Distributionskanal und Versionierung entschieden
+
+### Decided
+
+* Distributionskanal für die Veröffentlichung: **GitHub Releases** (Wheel + `installer.py` +
+  veröffentlichter SHA-256), **kein PyPI**. `installer.py` baut eine eigene verwaltete venv
+  mit Desktop-Integration, Upgrade-Erkennung und Rollback auf, was zu einem `pip
+  install`-Fluss nicht passt. Der freie PyPI-Name (Sprint 59) bleibt als spätere Option
+  offen.
+* Versionierung: Die bestehende Tag-Historie (`v1.0.1`, `v1.1.0`) wird beim späteren
+  History-Rewrite behalten, nicht verworfen. `v1.2.0` ist der erste Tag mit angehängten
+  GitHub-Release-Assets, nicht der erste Tag überhaupt. Der interne Tag
+  `backup-v1.0.0-before-refactor` wird nicht mit veröffentlicht.
+* `docs/ROADMAP.md` entsprechend aktualisiert (beide Checkboxen im Abschnitt
+  "Distribution" abgehakt).
+
 ## Sprint 60 – Engagement-Modell für die Veröffentlichung
 
 ### Added
