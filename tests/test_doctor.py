@@ -87,7 +87,7 @@ def test_doctor_reports_a_complete_healthy_environment(
     assert "USB: LinuxBackup" in output
     assert "Repository USB: LinuxBackup" in output
     assert "28.06.2026" in output
-    assert "Gesamtstatus............... OK" in output
+    assert "Gesamtstatus: OK" in output
     assert "keine Reparaturen" in output
 
 
@@ -108,7 +108,7 @@ def test_doctor_reports_invalid_config_and_skips_dependent_checks(
     assert successful is False
     assert "Konfiguration" in output and "FEHLER" in output
     assert "Passwortdatei" in output and "ÜBERSPRUNGEN" in output
-    assert "Gesamtstatus............... FEHLER" in output
+    assert "Gesamtstatus: FEHLER" in output
 
 
 def test_doctor_rejects_overly_permissive_password_file(
@@ -432,3 +432,86 @@ def test_doctor_reports_a_repository_timeout(tmp_path: Path, capsys) -> None:
     assert successful is False
     assert "Repository USB: LinuxBackup" in output
     assert "timed out after 30 seconds" in output
+
+
+def test_doctor_output_has_section_headers(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "── Konfiguration" in output
+    assert "── Programme" in output
+    assert "── Sicherheit" in output
+    assert "── Backup-Ziele" in output
+    assert "── Repositories" in output
+    assert "── Zeitplan" in output
+
+
+def test_doctor_summary_line_shows_counts(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+    ):
+        DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert "OK ·" in output
+    assert "Warnung(en)" in output
+    assert "Fehler" in output
+    assert "Übersprungen" in output
+
+
+def test_doctor_overall_status_warning_when_backup_overdue(tmp_path: Path, capsys) -> None:
+    password_file = tmp_path / "restic.pass"
+    password_file.write_text("secret\n", encoding="utf-8")
+    password_file.chmod(0o600)
+    config_file = write_config_with_schedule(tmp_path, password_file)
+    (tmp_path / "usb").mkdir()
+    BackupStateStore(tmp_path / "state").record_success(datetime(2026, 6, 1, 10, 0, tzinfo=UTC))
+
+    with (
+        patch(
+            "lbm.services.doctor.HealthChecker.check_restic",
+            return_value=HealthResult("Restic", True, "restic 0.17.3"),
+        ),
+        patch("lbm.services.doctor.USBTarget.probe", return_value=available_usb(tmp_path)),
+        patch(
+            "lbm.services.doctor.ResticRepository.check",
+            return_value=ResticRepositoryInfo(True, "ok"),
+        ),
+        patch.object(DoctorService, "_systemctl_check", return_value=True),
+    ):
+        result = DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert result is True  # only warnings, no errors
+    assert "Gesamtstatus: WARNUNG" in output

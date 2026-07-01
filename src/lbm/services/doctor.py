@@ -14,6 +14,7 @@ from lbm.core.state import BackupStateStore
 from lbm.health.checks import HealthChecker
 from lbm.services.language import LanguageService
 from lbm.targets.usb import USBTarget
+from lbm.ui.console import Console
 
 
 class DoctorStatus(Enum):
@@ -28,6 +29,9 @@ class DoctorResult:
     name: str
     status: DoctorStatus
     message: str
+
+
+_SECTION_ORDER = ("config", "programs", "security", "targets", "repositories", "schedule")
 
 
 @dataclass(frozen=True)
@@ -45,21 +49,25 @@ class DoctorService:
         self.language = LanguageService()
 
     def run(self) -> bool:
-        results: list[DoctorResult] = []
-        config = self._check_config(results)
-        restic_available = self._check_restic(results)
+        sections: dict[str, list[DoctorResult]] = {key: [] for key in _SECTION_ORDER}
+        config = self._check_config(sections["config"])
+        restic_available = self._check_restic(sections["programs"])
 
         if config is None:
-            self._append_config_dependent_skips(results)
+            self._append_config_dependent_skips(sections)
         else:
-            self._check_password_file(config, results)
-            destinations = self._check_targets(config, results)
-            self._check_repositories(destinations, restic_available, results)
-            self._check_last_backup(config, results)
-            self._check_timer(config, results)
+            self._check_password_file(config, sections["security"])
+            destinations = self._check_targets(config, sections["targets"])
+            self._check_repositories(destinations, restic_available, sections["repositories"])
+            self._check_last_backup(config, sections["schedule"])
+            self._check_timer(config, sections["schedule"])
 
-        self._print(results)
-        return not any(result.status is DoctorStatus.ERROR for result in results)
+        self._print(sections)
+        return not any(
+            result.status is DoctorStatus.ERROR
+            for lst in sections.values()
+            for result in lst
+        )
 
     def _check_config(self, results: list[DoctorResult]) -> AppConfig | None:
         try:
@@ -424,49 +432,82 @@ class DoctorService:
             return self._text("common.age_hours", hours=total_seconds // 3600)
         return self._text("common.age_days", days=delta.days)
 
-    def _append_config_dependent_skips(self, results: list[DoctorResult]) -> None:
-        for key in (
-            "doctor.password_file",
-            "doctor.backup_targets",
-            "doctor.repositories",
-            "doctor.last_backup",
-            "doctor.timer",
-        ):
-            results.append(
-                DoctorResult(
-                    self._text(key),
-                    DoctorStatus.SKIPPED,
-                    self._text("doctor.config_not_loadable"),
-                )
-            )
+    def _append_config_dependent_skips(
+        self, sections: dict[str, list[DoctorResult]]
+    ) -> None:
+        skip_msg = self._text("doctor.config_not_loadable")
+        sections["security"].append(
+            DoctorResult(self._text("doctor.password_file"), DoctorStatus.SKIPPED, skip_msg)
+        )
+        sections["targets"].append(
+            DoctorResult(self._text("doctor.backup_targets"), DoctorStatus.SKIPPED, skip_msg)
+        )
+        sections["repositories"].append(
+            DoctorResult(self._text("doctor.repositories"), DoctorStatus.SKIPPED, skip_msg)
+        )
+        sections["schedule"].append(
+            DoctorResult(self._text("doctor.last_backup"), DoctorStatus.SKIPPED, skip_msg)
+        )
+        sections["schedule"].append(
+            DoctorResult(self._text("doctor.timer"), DoctorStatus.SKIPPED, skip_msg)
+        )
 
-    def _print(self, results: list[DoctorResult]) -> None:
+    def _print(self, sections: dict[str, list[DoctorResult]]) -> None:
+        colors = {
+            DoctorStatus.OK: Console.GREEN,
+            DoctorStatus.WARNING: Console.YELLOW,
+            DoctorStatus.ERROR: Console.RED,
+            DoctorStatus.SKIPPED: "",
+        }
         symbols = {
             DoctorStatus.OK: "✓",
             DoctorStatus.WARNING: "!",
             DoctorStatus.ERROR: "✗",
             DoctorStatus.SKIPPED: "-",
         }
+        section_titles = {
+            "config": self._text("doctor.section_config"),
+            "programs": self._text("doctor.section_programs"),
+            "security": self._text("doctor.section_security"),
+            "targets": self._text("doctor.section_targets"),
+            "repositories": self._text("doctor.section_repositories"),
+            "schedule": self._text("doctor.section_schedule"),
+        }
+
         title = self._text("doctor.title")
         print(title)
         print("=" * len(title))
-        print()
-        for result in results:
-            print(
-                f"{symbols[result.status]} {result.name:<28} "
-                f"{self._text(f'doctor.status.{result.status.value}')}: {result.message}"
-            )
 
-        statuses = {result.status for result in results}
-        if DoctorStatus.ERROR in statuses:
-            overall = self._text("doctor.status.error")
-        elif DoctorStatus.WARNING in statuses:
-            overall = self._text("doctor.status.warning")
-        else:
-            overall = self._text("doctor.status.ok")
+        for key, section_results in sections.items():
+            if not section_results:
+                continue
+            label = section_titles[key]
+            print(f"\n── {label} {'─' * max(0, 48 - len(label) - 4)}")
+            for result in section_results:
+                color = colors[result.status]
+                reset = Console.RESET if color else ""
+                symbol = symbols[result.status]
+                status_text = self._text(f"doctor.status.{result.status.value}")
+                print(f"{color}{symbol}{reset} {result.name:<28} {status_text}: {result.message}")
+
+        all_results = [r for lst in sections.values() for r in lst]
+        counts = {s: sum(1 for r in all_results if r.status is s) for s in DoctorStatus}
+        print()
+        print(self._text(
+            "doctor.summary",
+            ok=counts[DoctorStatus.OK],
+            warnings=counts[DoctorStatus.WARNING],
+            errors=counts[DoctorStatus.ERROR],
+            skipped=counts[DoctorStatus.SKIPPED],
+        ))
         print()
         label = self._text("common.overall_status")
-        print(f"{label:.<27} {overall}")
+        if counts[DoctorStatus.ERROR]:
+            Console.error(f"{label}: {self._text('doctor.status.error')}")
+        elif counts[DoctorStatus.WARNING]:
+            Console.warning(f"{label}: {self._text('doctor.status.warning')}")
+        else:
+            Console.success(f"{label}: {self._text('doctor.status.ok')}")
         print(self._text("doctor.no_changes"))
 
     def _text(self, key: str, **values: object) -> str:

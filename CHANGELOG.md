@@ -8,6 +8,18 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 52 – Verbesserte Diagnose-Darstellung
+
+### Changed
+
+* `backup-manager doctor` gliedert die Ausgabe jetzt in sechs Abschnitte mit Überschriften:
+  Konfiguration, Programme, Sicherheit, Backup-Ziele, Repositories, Zeitplan.
+* Neue Zusammenfassungszeile am Ende zeigt die Anzahl von OK / Warnung(en) / Fehler /
+  Übersprungen auf einen Blick.
+* Gesamtstatus am Ende farbig hervorgehoben: grün (OK), gelb (Warnung), rot (Fehler).
+* Status-Symbole (✓ / ! / ✗ / -) farbig kodiert in der Ergebnisliste.
+* 7 neue i18n-Schlüssel unter `doctor:` in Deutsch und Englisch.
+
 ## Sprint 51 – Interaktives Einstellungsmenü
 
 ### Added

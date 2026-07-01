@@ -87,6 +87,13 @@ doctor:
   timer_systemd_missing: "systemd not available"
   config_not_loadable: "configuration cannot be loaded"
   no_changes: "No repairs or configuration changes were performed."
+  section_config: "Configuration"
+  section_programs: "Programs"
+  section_security: "Security"
+  section_targets: "Backup targets"
+  section_repositories: "Repositories"
+  section_schedule: "Schedule"
+  summary: "{ok} OK · {warnings} warning(s) · {errors} error(s) · {skipped} skipped"
   status:
     ok: "OK"
     warning: "WARNING"
