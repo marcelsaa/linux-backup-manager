@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 61 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 62 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -475,6 +475,9 @@ Konkret bedeutet das:
 * [ ] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
   enthalten sind *(betrifft aktuell v.a. `docs/reports/`; wird durch Ausschluss statt Redaktion
   gelöst, siehe unten – Filterung der Historie erfolgt unmittelbar vor der Veröffentlichung)*
+* [ ] `CLAUDE.md` muss bei der History-Filterung ebenfalls ausgeschlossen werden (bleibt
+  privat, siehe Entscheidung unten) – kein Datenschutzfund, aber derselbe
+  Ausschluss-Mechanismus wie bei `docs/reports/`
 * [ ] Autor-E-Mail der ersten vier Commits (Projektstart, 25.06.2026) enthält die reale
   Tailscale-MagicDNS-Adresse `marcel@blackpanther.tail6983d3.ts.net` statt der regulären
   Adresse – muss vor Veröffentlichung per History-Rewrite auf `marcel.saager@gmx.de`
@@ -484,9 +487,15 @@ Konkret bedeutet das:
   **Nein**, bleiben privat und werden vor der Veröffentlichung aus der Git-Historie gefiltert.
   Stattdessen fasst `docs/DEVELOPMENT.md` die Entwicklungsmethodik ohne personenbezogene
   Details zusammen *(Sprint 57)*
-* [ ] Entscheiden, ob `CLAUDE.md` mitveröffentlicht wird (separate, noch offene Frage)
-* [ ] Git-Verlauf enthält `Co-Authored-By: Claude Sonnet 4.6` – bewusste Entscheidung vor
-  Veröffentlichung treffen
+* [x] Entscheiden, ob `CLAUDE.md` mitveröffentlicht wird – **Nein**, bleibt privat, analog zu
+  `docs/reports/`. Enthält keine personenbezogenen Daten (geprüft), aber interne
+  Arbeitsanweisungen für den KI-Assistenten sind kein Nutzerdokument und bieten für die
+  Zielgruppe keinen Mehrwert; passt zum Engagement-Modell (keine Erklärungspflicht
+  gegenüber Dritten) *(Sprint 62)*
+* [x] Git-Verlauf enthält `Co-Authored-By: Claude Sonnet 4.6` – **bleibt unverändert
+  stehen**. Anders als der Tailscale-Fund ist das kein Datenschutzrisiko, sondern eine
+  zutreffende Attribution; ein History-Rewrite dafür wäre eine nachträgliche Verfälschung
+  ohne Datenschutz- oder Sicherheitsgrund *(Sprint 62)*
 
 **Sicherheit**
 
@@ -523,4 +532,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 61 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 62 abgeschlossen)

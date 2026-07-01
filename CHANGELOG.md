@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 62 – CLAUDE.md-Veröffentlichung und Co-Authored-By entschieden
+
+### Decided
+
+* `CLAUDE.md` bleibt privat, analog zu `docs/reports/`. Enthält keine personenbezogenen
+  Daten (geprüft), ist aber ein internes Arbeitsanweisungs-Dokument für den KI-Assistenten
+  ohne Mehrwert für die Zielgruppe – passt zum Engagement-Modell (Sprint 60). Muss bei der
+  späteren History-Filterung ebenfalls ausgeschlossen werden.
+* `Co-Authored-By: Claude Sonnet` im Git-Verlauf bleibt unverändert stehen. Anders als der
+  Tailscale-Fund (Sprint 58) ist das kein Datenschutzrisiko, sondern eine zutreffende
+  Attribution; ein History-Rewrite dafür wäre eine sachlich unbegründete Verfälschung.
+* `docs/ROADMAP.md` entsprechend aktualisiert (beide Checkboxen im Abschnitt
+  "Repository-Inhalt" abgehakt).
+
 ## Sprint 61 – Distributionskanal und Versionierung entschieden
 
 ### Decided
