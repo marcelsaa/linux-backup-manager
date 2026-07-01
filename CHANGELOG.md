@@ -19,8 +19,11 @@ The project follows Semantic Versioning and keeps a chronological history of all
   Fund: erster echter CI-Lauf auf GitHub nach der Veröffentlichung (Sprint 65) zeigte den
   Fehler auf `main`. Behoben durch Ergänzen von `runner=Mock(return_value=completed(stdout="3.12\n"))`,
   passend zum in allen anderen Installer-Tests verwendeten Dependency-Injection-Muster.
-* Der Bug besteht unverändert auch auf dem `main`-Branch (stammt aus Sprint 44 / v1.1.0);
-  Entscheidung zum Umgang damit siehe `docs/reports/SPRINT_66.md`.
+* Derselbe Bug bestand unverändert auch auf dem `main`-Branch (stammt aus Sprint 44 /
+  v1.1.0). Auf Nutzerentscheidung direkt dort gefixt (Commit `fix: mock restic in installer
+  dry-run test`, bewusste Abweichung vom Standard-"nur via PR aus develop"-Workflow, da reine
+  Testisolation ohne Verhaltensänderung) und zu GitHub gepusht. Beide CI-Läufe (`main` und
+  `develop`) sind jetzt grün.
 
 ## Sprint 65 – Repository öffentlich auf GitHub veröffentlicht
 
