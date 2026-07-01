@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 63 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 64 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -315,7 +315,9 @@ replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from
 * [x] Build `1.1.0rc2` because Sprint 43 fixes require another validation cycle
 * [x] Accept `1.1.0rc3` after managed fresh-install and Version 1.0.1 upgrade UAT
 * [x] Release Version 1.1.0
-* [ ] Begin Version 1.2 development after the Version 1.1.0 release
+* [x] Begin Version 1.2 development after the Version 1.1.0 release – underway since
+  Sprint 46; `pyproject.toml` bumped to `1.2.0.dev0` to reflect this, matching the
+  `1.1.0.dev0` convention used after the 1.0.1 release *(Sprint 64)*
 
 ## Sprint 44 – Managed Installation and Upgrade
 
@@ -553,4 +555,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 63 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0.dev0 in aktiver Entwicklung (Sprint 64 abgeschlossen)

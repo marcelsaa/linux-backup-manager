@@ -8,6 +8,16 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 64 – Versions- und Roadmap-Konsistenz
+
+### Changed
+
+* `pyproject.toml`: Version von `1.1.0` auf `1.2.0.dev0` gesetzt, passend zur seit Sprint 46
+  laufenden v1.2.0-Entwicklung. Folgt derselben Konvention wie der `1.1.0.dev0`-Bump direkt
+  nach dem 1.0.1-Release.
+* `docs/ROADMAP.md`: Checkbox "Begin Version 1.2 development after the Version 1.1.0
+  release" abgehakt – war seit Sprint 46 faktisch erfüllt, aber nie markiert.
+
 ## Sprint 63 – README für externe Zielgruppe und History-Bereinigung vorbereitet
 
 ### Changed
