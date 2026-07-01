@@ -240,6 +240,10 @@ The author assumes no liability for data loss or other damages resulting from th
 
 Linux Backup Manager is licensed under the GNU General Public License v3.0.
 
+Linux Backup Manager calls the external [Restic](https://restic.net/) binary as a separate
+system tool; there is no code linking between the two projects. Restic is licensed under the
+BSD 2-Clause License, which is compatible with GPL-3.0.
+
 ---
 
 Copyright © 2026 Marcel Saager

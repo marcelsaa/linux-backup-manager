@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 54 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 55 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -423,9 +423,9 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 
 **Lizenz und Rechtliches**
 
-* [ ] Lizenzwahl bestätigen (aktuell GPL-3.0-only in `pyproject.toml` – passt das?)
-* [ ] Restic-Lizenzkompatibilität dokumentieren (Restic: BSD-2-Clause, kompatibel mit GPL-3.0 –
-  in README als Hinweis aufnehmen)
+* [x] Lizenzwahl bestätigen (GPL-3.0-only in `pyproject.toml`) *(Sprint 55)*
+* [x] Restic-Lizenzkompatibilität dokumentieren (Restic: BSD-2-Clause, kompatibel mit GPL-3.0 –
+  in README aufgenommen) *(Sprint 55)*
 
 **Distribution**
 
@@ -445,8 +445,8 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 
 **Sicherheit**
 
-* [ ] `SECURITY.md` erstellen: Meldeweg für Sicherheitslücken (private E-Mail statt öffentlichem
-  Issue), da LBM Passwortdateien und Repository-Zugänge verwaltet
+* [x] `SECURITY.md` erstellen: Meldeweg für Sicherheitslücken (private E-Mail statt öffentlichem
+  Issue), da LBM Passwortdateien und Repository-Zugänge verwaltet *(Sprint 55)*
 
 **Community**
 
@@ -471,4 +471,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 54 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 55 abgeschlossen)

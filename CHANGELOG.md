@@ -8,6 +8,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 55 – Sicherheits-Meldeweg und Lizenz-Dokumentation
+
+### Added
+
+* Neue `SECURITY.md`: privater Meldeweg für Sicherheitslücken (E-Mail statt öffentlichem
+  Issue), da LBM Passwortdateien und Repository-Zugänge verwaltet.
+
+### Changed
+
+* `README.md`: Lizenzabschnitt um einen Hinweis zur Restic-Abhängigkeit ergänzt (Restic:
+  BSD-2-Clause, kompatibel mit GPL-3.0; keine Code-Verflechtung, da Restic als externes
+  Systemwerkzeug aufgerufen wird).
+* `docs/ROADMAP.md`: Checkboxen "Lizenzwahl bestätigen", "Restic-Lizenzkompatibilität
+  dokumentieren" und "`SECURITY.md` erstellen" im Abschnitt "GitHub-Veröffentlichung"
+  abgehakt.
+
 ## Sprint 54 – Konfigurationsexport und -import
 
 ### Added
