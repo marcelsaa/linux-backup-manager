@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 56 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 57 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -437,9 +437,13 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 **Repository-Inhalt**
 
 * [ ] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
-  enthalten sind
-* [ ] Entscheiden, ob `CLAUDE.md` und interne Sprint-Berichte (`docs/reports/`) mitveröffentlicht
-  werden
+  enthalten sind *(betrifft aktuell v.a. `docs/reports/`; wird durch Ausschluss statt Redaktion
+  gelöst, siehe unten – Filterung der Historie erfolgt unmittelbar vor der Veröffentlichung)*
+* [x] Entscheiden, ob interne Sprint-Berichte (`docs/reports/`) mitveröffentlicht werden –
+  **Nein**, bleiben privat und werden vor der Veröffentlichung aus der Git-Historie gefiltert.
+  Stattdessen fasst `docs/DEVELOPMENT.md` die Entwicklungsmethodik ohne personenbezogene
+  Details zusammen *(Sprint 57)*
+* [ ] Entscheiden, ob `CLAUDE.md` mitveröffentlicht wird (separate, noch offene Frage)
 * [ ] Git-Verlauf enthält `Co-Authored-By: Claude Sonnet 4.6` – bewusste Entscheidung vor
   Veröffentlichung treffen
 
@@ -471,4 +475,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 56 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 57 abgeschlossen)

@@ -204,6 +204,7 @@ Detailed documentation is available in the `docs/` directory.
 * Project Roadmap
 * Automatic Backup Guide
 * Internationalization Guide
+* Development Process
 
 ---
 

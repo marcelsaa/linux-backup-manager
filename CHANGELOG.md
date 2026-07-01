@@ -8,6 +8,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 57 – Kuratierte Entwicklungsdokumentation
+
+### Added
+
+* Neue `docs/DEVELOPMENT.md`: öffentliche Zusammenfassung der Entwicklungsmethodik
+  (iterative Sprints, verpflichtendes Quality Gate, Release-Candidate-Prozess) ohne
+  personenbezogene Details oder Sprint-Einzelheiten.
+* `README.md`-Dokumentationsliste um "Development Process" ergänzt.
+
+### Decided
+
+* `docs/reports/` (Sprint- und Validierungsberichte) bleibt privat und wird vor der
+  GitHub-Veröffentlichung aus der Git-Historie gefiltert statt redigiert – enthält reale
+  Pfade und Hostnamen, die vor dem ersten öffentlichen Push entfernt werden müssen.
+* `docs/ROADMAP.md` entsprechend aktualisiert: Entscheidung zu Sprint-Berichten
+  dokumentiert; Entscheidung zu `CLAUDE.md`-Veröffentlichung bleibt separat offen.
+
 ## Sprint 56 – Fehlende Befehlsdokumentation nachgezogen
 
 ### Changed
