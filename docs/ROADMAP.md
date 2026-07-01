@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 62 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 63 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -472,17 +472,17 @@ Konkret bedeutet das:
 
 **Repository-Inhalt**
 
-* [ ] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
-  enthalten sind *(betrifft aktuell v.a. `docs/reports/`; wird durch Ausschluss statt Redaktion
-  gelöst, siehe unten – Filterung der Historie erfolgt unmittelbar vor der Veröffentlichung)*
-* [ ] `CLAUDE.md` muss bei der History-Filterung ebenfalls ausgeschlossen werden (bleibt
-  privat, siehe Entscheidung unten) – kein Datenschutzfund, aber derselbe
-  Ausschluss-Mechanismus wie bei `docs/reports/`
-* [ ] Autor-E-Mail der ersten vier Commits (Projektstart, 25.06.2026) enthält die reale
-  Tailscale-MagicDNS-Adresse `marcel@blackpanther.tail6983d3.ts.net` statt der regulären
-  Adresse – muss vor Veröffentlichung per History-Rewrite auf `marcel.saager@gmx.de`
-  korrigiert werden *(gefunden in Sprint 58; Umsetzung Teil der History-Bereinigung
-  unmittelbar vor dem ersten öffentlichen Push, nicht vorher)*
+* [x] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
+  enthalten sind – erledigt für eine **separate, gefilterte Kopie** unter
+  `/home/marcel/Projekte/linux-backup-manager-public.git` (bare Repo, via `git-filter-repo`).
+  Das eigentliche Arbeits-Repo bleibt unverändert. `docs/reports/` und `CLAUDE.md` sind aus der
+  gesamten Historie entfernt und verifiziert nicht mehr als Objekte vorhanden (`git gc
+  --prune=now` durchgeführt) *(Sprint 63)*
+* [x] `CLAUDE.md` bei der History-Filterung ausgeschlossen – erledigt in derselben Filterung
+  *(Sprint 63)*
+* [x] Autor-E-Mail der ersten vier Commits korrigiert – per `--mailmap` in derselben Filterung
+  auf `Marcel <marcel.saager@gmx.de>` vereinheitlicht, verifiziert (`git log --all --format=%ae`
+  zeigt nur noch die reguläre Adresse) *(Sprint 63)*
 * [x] Entscheiden, ob interne Sprint-Berichte (`docs/reports/`) mitveröffentlicht werden –
   **Nein**, bleiben privat und werden vor der Veröffentlichung aus der Git-Historie gefiltert.
   Stattdessen fasst `docs/DEVELOPMENT.md` die Entwicklungsmethodik ohne personenbezogene
@@ -504,7 +504,11 @@ Konkret bedeutet das:
 
 **Community**
 
-* [ ] `README.md` für eine externe Zielgruppe überarbeiten (Badges, Screenshots, Installationslink)
+* [x] `README.md` für eine externe Zielgruppe überarbeiten – CI-/Lizenz-/Python-Badges,
+  konkreter Installationslink zur Releases-Seite, Klon-URL, illustrative
+  "Example Session" (keine echten Screenshots, da CLI-Tool ohne Bildmaterial),
+  klickbare Dokumentationsliste, "Contributing & Support"-Abschnitt, aktualisierter
+  Project-Status-Text (Feature-Freeze-Hinweis war veraltet) *(Sprint 63)*
 * [x] GitHub Actions / CI für öffentliches Repo prüfen – `.github/workflows/ci.yml` enthält
   keine Secrets, setzt `permissions: contents: read` und referenziert keine internen Pfade;
   unverändert veröffentlichungstauglich *(Sprint 58)*
@@ -515,6 +519,23 @@ Konkret bedeutet das:
   Erstellung des Repos auf GitHub, siehe "Engagement-Modell" oben)
 * [x] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional) –
   `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md` *(Sprint 59)*
+
+## Verbleibende manuelle Schritte zum Livegang
+
+Alle inhaltlichen Vorbereitungen sind abgeschlossen. Es bleibt:
+
+1. Auf GitHub unter `github.com/marcelsaa` das leere Repository
+   `linux-backup-manager` (öffentlich) anlegen.
+2. Die gefilterte, veröffentlichungsbereite Kopie unter
+   `/home/marcel/Projekte/linux-backup-manager-public.git` als Remote hinzufügen und pushen
+   (`main`, `develop`, Tags `v1.0.1`/`v1.1.0`/`v1.1.0rc2`). Diese Kopie ist ein separates
+   bare Repo, unabhängig vom eigentlichen Arbeits-Repo – **vor dem Push empfiehlt es sich,
+   die Filterung nochmal frisch laufen zu lassen**, falls zwischenzeitlich weitere Sprints im
+   Arbeits-Repo hinzukamen (die aktuelle Kopie spiegelt den Stand nach Sprint 63).
+3. Nach dem ersten Push: Issues in den Repository-Einstellungen deaktivieren (Settings →
+   Features → Haken bei "Issues" raus).
+4. Optional: Release `v1.2.0` mit Wheel + `installer.py` + SHA-256 als Assets anlegen, sobald
+   Version 1.2.0 fertig ist (siehe Abschnitt "Distribution" oben).
 
 ---
 
@@ -532,4 +553,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 62 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 63 abgeschlossen)

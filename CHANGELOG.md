@@ -8,6 +8,29 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 63 – README für externe Zielgruppe und History-Bereinigung vorbereitet
+
+### Changed
+
+* `README.md`: CI-/Lizenz-/Python-Badges ergänzt, Installationsabschnitt um konkreten
+  Releases-Link und Klon-URL erweitert, neue "Example Session" mit illustrativem
+  Terminal-Transkript (keine echten Screenshots, da CLI-Tool ohne Bildmaterial),
+  Dokumentationsliste in klickbare Links umgewandelt, neuer
+  "Contributing & Support"-Abschnitt (verweist auf `CONTRIBUTING.md`/`SECURITY.md`),
+  veralteten Feature-Freeze-Hinweis im "Project Status"-Abschnitt korrigiert.
+
+### Added (außerhalb des Arbeits-Repos)
+
+* Separate, gefilterte bare Kopie unter
+  `/home/marcel/Projekte/linux-backup-manager-public.git`, erzeugt via `git-filter-repo`:
+  `docs/reports/` und `CLAUDE.md` aus der gesamten Historie entfernt und verifiziert nicht
+  mehr als Objekte vorhanden; Autor-E-Mail der ersten vier Commits per `--mailmap` auf
+  `marcel.saager@gmx.de` vereinheitlicht; interner Tag `backup-v1.0.0-before-refactor`
+  entfernt; `refs/replace/*`- und `refs/codex/*`-Nebenreferenzen bereinigt;
+  `git gc --prune=now` durchgeführt. Das eigentliche Arbeits-Repo bleibt davon unberührt.
+  Funktionaler Sanity-Check (`compileall` + `pytest`, 182 Tests) in einem Checkout der
+  gefilterten Kopie erfolgreich.
+
 ## Sprint 62 – CLAUDE.md-Veröffentlichung und Co-Authored-By entschieden
 
 ### Decided
