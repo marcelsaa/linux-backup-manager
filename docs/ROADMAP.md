@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 58 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 59 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -431,7 +431,9 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 
 * [ ] Distributionskanal entscheiden: GitHub Releases (Wheel + `installer.py` + SHA-256) und/oder
   PyPI (`pip install linux-backup-manager`)
-* [ ] Paketname `linux-backup-manager` auf PyPI auf Verfügbarkeit prüfen
+* [x] Paketname `linux-backup-manager` auf PyPI auf Verfügbarkeit prüfen – verfügbar
+  (`https://pypi.org/pypi/linux-backup-manager/json` liefert `404`, Name ist nicht
+  registriert) *(Sprint 59)*
 * [ ] Versionierung und Release-Tags auf GitHub (`v1.2.0` als erster öffentlicher Tag?)
 
 **Repository-Inhalt**
@@ -464,7 +466,8 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
   keine Secrets, setzt `permissions: contents: read` und referenziert keine internen Pfade;
   unverändert veröffentlichungstauglich *(Sprint 58)*
 * [ ] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?)
-* [ ] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional)
+* [x] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional) –
+  `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md` *(Sprint 59)*
 
 ---
 
@@ -482,4 +485,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 58 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 59 abgeschlossen)

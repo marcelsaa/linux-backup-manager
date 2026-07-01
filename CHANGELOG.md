@@ -8,6 +8,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 59 – PyPI-Namensprüfung und Issue-Templates
+
+### Added
+
+* `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md`: strukturierte
+  GitHub-Issue-Vorlagen für die geplante öffentliche Veröffentlichung. Der
+  Feature-Request-Vorlage liegt ein Scope-Check gemäß der Design-Philosophie
+  (`docs/ROADMAP.md`) bei.
+
+### Changed
+
+* `docs/ROADMAP.md`: Paketnamen-Verfügbarkeit geprüft (`linux-backup-manager` ist auf PyPI
+  nicht registriert, `404` bei `pypi.org/pypi/linux-backup-manager/json`) und Checkbox
+  abgehakt. Issue-Templates-Checkbox abgehakt.
+
 ## Sprint 58 – CI-Workflow-Review und Git-Historie-Fund
 
 ### Changed
