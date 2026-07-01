@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 71 – UAT-Anleitung für 1.2.0rc1
+
+### Added
+
+* `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`: vollständige, schrittweise
+  UAT-Anleitung für die fällige VM-Validierung (fokussiert auf Neuinstallation, nicht
+  Upgrade). Deckt den kompletten Ablauf ab und legt besonderen Fokus auf die seit 1.1.0
+  neuen Befehle (`settings`, `change-password`, `export-config`/`import-config`) sowie die
+  strukturierte `doctor`-Ausgabe. Deutsch/Englisch-Unterschiede (Bestätigungs-Buchstaben
+  `[j/N]` vs. `[y/N]`, Doctor-Statuslabels, Timer-Statustexte) explizit tabellarisch
+  aufgeführt. Enthält leere Acceptance-Record- und Findings-Vorlagen sowie eine
+  Entscheidungsregel, analog zu `docs/reports/FINAL_USER_ACCEPTANCE_TEST_1.1.0rc1.md`.
+* `docs/reports/RELEASE_CANDIDATE_1.2.0rc1.md`: Verweis auf die neue UAT-Anleitung ergänzt.
+
 ## Sprint 70 – Version 1.2.0 Release Candidate 1
 
 ### Changed
