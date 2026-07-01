@@ -8,6 +8,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 67 – Bilinguale Dokumentation: README und User Guide
+
+### Added
+
+* `docs/de/README.md`: vollständige deutsche Übersetzung der README.
+* `docs/de/USER_GUIDE.md`: vollständige deutsche Übersetzung des Benutzerhandbuchs.
+* Gegenseitige Sprachumschalter-Links am Kopf von `README.md`/`docs/de/README.md` und
+  `docs/USER_GUIDE.md`/`docs/de/USER_GUIDE.md`.
+* `README.md`-Dokumentationsliste: Link zur deutschen USER_GUIDE ergänzt.
+
+### Changed
+
+* `docs/ROADMAP.md`: Fortschritt bei "Complete German and English documentation"
+  dokumentiert (2 von 8 vorgesehenen Dokumenten fertig); Architektur-/Prozess-Docs bleiben
+  bewusst englisch-only.
+* `CLAUDE.md`-Dokumentationsstruktur um `docs/de/*.md` ergänzt.
+
 ## Sprint 66 – Fix: installer-Test hing an echtem `restic`-Binary
 
 ### Fixed

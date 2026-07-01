@@ -4,6 +4,8 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](pyproject.toml)
 
+**[Deutsche Version](docs/de/README.md)**
+
 > **Reliable Linux backups should be simple.**
 
 Linux Backup Manager (LBM) is an open-source command-line application that simplifies creating, maintaining and restoring backups on Linux systems.
@@ -227,7 +229,7 @@ Summary: 4 OK, 0 warnings, 0 errors
 Detailed documentation is available in the `docs/` directory.
 
 * [Installation Guide](docs/INSTALL.md)
-* [User Guide](docs/USER_GUIDE.md)
+* [User Guide](docs/USER_GUIDE.md) ([Deutsch](docs/de/USER_GUIDE.md))
 * [Configuration Reference](docs/CONFIGURATION.md)
 * [Restore Guide](docs/RESTORE.md)
 * [Recovery and Password Safety Guide](docs/RECOVERY.md)

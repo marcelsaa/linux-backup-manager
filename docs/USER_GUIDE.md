@@ -2,6 +2,8 @@
 
 # User Guide
 
+**[Deutsche Version](de/USER_GUIDE.md)**
+
 **Version:** 1.1.0
 
 ---
