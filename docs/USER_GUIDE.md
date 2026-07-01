@@ -21,11 +21,15 @@ Before using any command except `setup`, make sure the initial setup has been co
 | Command     | Purpose                                                |
 | ----------- | ------------------------------------------------------ |
 | `setup`     | Configure Linux Backup Manager                         |
+| `settings`  | Change individual settings interactively               |
+| `export-config` | Copy the current configuration file to another location |
+| `import-config` | Validate and adopt an external configuration file  |
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
 | `doctor`    | Run comprehensive read-only diagnostics                |
 | `recovery-info` | Display password-safe recovery information         |
 | `recovery-sheet` | Create a password-free recovery document           |
+| `change-password` | Change the repository password                   |
 | `backup`    | Create a new backup                                    |
 | `schedule-install` | Install and activate automatic backups           |
 | `schedule-status` | Display automatic-backup timer status             |
@@ -84,6 +88,70 @@ An invalid repository password is reported separately from a missing repository.
 offers to initialize an existing repository that cannot be opened with the configured password.
 Before creating a password file, setup requires explicit confirmation that a forgotten repository
 password cannot be reset and that a protected copy must be stored separately.
+
+---
+
+# settings
+
+## Purpose
+
+Opens an interactive menu to change individual settings without running through the entire setup
+wizard again.
+
+## Command
+
+```bash
+backup-manager settings
+```
+
+## Available settings
+
+* Language
+* Backup paths
+* Backup targets (USB and NAS)
+* Automatic-backup schedule
+
+Select a menu entry to change it, or choose the exit option to leave the menu. Every change is
+saved atomically before the menu returns, and a `config.yaml.bak` backup of the previous
+configuration is created. The menu keeps running until the user chooses to exit, so multiple
+settings can be changed in one session.
+
+---
+
+# export-config
+
+## Purpose
+
+Copies the current configuration file to a location chosen by the user, for example to keep an
+external backup of the configuration or transfer it to another machine.
+
+## Command
+
+```bash
+backup-manager export-config
+```
+
+An existing file at the chosen destination is only overwritten after explicit confirmation. The
+command reports an error if no configuration exists yet.
+
+---
+
+# import-config
+
+## Purpose
+
+Reads an external configuration file, fully validates it and adopts it as the active
+configuration.
+
+## Command
+
+```bash
+backup-manager import-config
+```
+
+The source file is fully validated before anything is changed. An existing configuration is saved
+as `config.yaml.bak` before it is atomically replaced. If the source file is missing or fails
+validation, the existing configuration is left untouched.
 
 ---
 
@@ -195,6 +263,28 @@ explicit overwrite confirmation. The result is written atomically with permissio
 Print the sheet or copy it to a protected location separate from both the computer and backup
 repository. Manually record where the protected password copy is stored; do not write the password
 itself into an unprotected sheet.
+
+---
+
+# change-password
+
+## Purpose
+
+Changes the repository password across all configured repositories.
+
+## Command
+
+```bash
+backup-manager change-password
+```
+
+The new password is applied to every configured repository in sequence, and the password file is
+replaced atomically only after all repositories succeed. If a repository fails, the already
+changed repositories are reported by name and the password file remains unchanged, so no
+repository is left inaccessible with the old password file.
+
+After a successful change, the command offers to recreate the recovery sheet, since any previously
+created sheet still refers to the old password state.
 
 ---
 

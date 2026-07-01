@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 55 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 56 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -471,4 +471,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 55 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 56 abgeschlossen)

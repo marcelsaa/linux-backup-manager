@@ -167,11 +167,15 @@ backup-manager doctor
 | Command                    | Description                           |
 | -------------------------- | ------------------------------------- |
 | `backup-manager setup`     | Interactive setup wizard              |
+| `backup-manager settings`  | Change individual settings interactively |
+| `backup-manager export-config` | Copy the current configuration file to another location |
+| `backup-manager import-config` | Validate and adopt an external configuration file |
 | `backup-manager status`    | Display system information            |
 | `backup-manager health`    | Run health checks                     |
 | `backup-manager doctor`    | Run read-only support diagnostics     |
 | `backup-manager recovery-info` | Display password-safe recovery information |
 | `backup-manager recovery-sheet` | Create a password-free recovery document |
+| `backup-manager change-password` | Change the repository password  |
 | `backup-manager backup`    | Create a backup                       |
 | `backup-manager schedule-install` | Install and activate automatic backups |
 | `backup-manager schedule-status` | Display the systemd timer status |

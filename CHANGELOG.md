@@ -8,6 +8,17 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 56 – Fehlende Befehlsdokumentation nachgezogen
+
+### Changed
+
+* `README.md`: Befehlsübersicht um `settings`, `export-config`, `import-config` und
+  `change-password` ergänzt (Sprints 49/51/54 waren dort nie dokumentiert).
+* `docs/USER_GUIDE.md`: Vier neue Abschnitte für dieselben Befehle ergänzt, inklusive
+  Command-Overview-Tabelle. Beschreibt Menüoptionen von `settings`, das sequenzielle
+  Vorgehen bei `change-password` (inkl. Verhalten bei Teilfehlern) sowie Validierungs-
+  und Backup-Verhalten von `export-config`/`import-config`.
+
 ## Sprint 55 – Sicherheits-Meldeweg und Lizenz-Dokumentation
 
 ### Added
