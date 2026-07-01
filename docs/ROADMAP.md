@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 67 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
+**Last updated:** Sprint 68 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -231,9 +231,9 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Backup, restore, maintenance, recovery and schedule command migration
 * [x] Consistent translated CLI terminology and generated recovery sheets
 * [ ] Complete German and English documentation – in progress under `docs/de/`:
-  `README.md`, `USER_GUIDE.md` done *(Sprint 67)*; `INSTALL.md`, `RESTORE.md`,
-  `RECOVERY.md`, `FAQ.md`, `CONFIGURATION.md`, `SYSTEMD.md` still open. Architecture/process
-  docs (`ARCHITECTURE.md`, `QA_TESTPLAN.md`, `ROADMAP.md`, `DEVELOPMENT.md`,
+  `README.md`, `USER_GUIDE.md` *(Sprint 67)*, `INSTALL.md`, `RESTORE.md`, `RECOVERY.md`
+  *(Sprint 68)* done; `FAQ.md`, `CONFIGURATION.md`, `SYSTEMD.md` still open. Architecture/
+  process docs (`ARCHITECTURE.md`, `QA_TESTPLAN.md`, `ROADMAP.md`, `DEVELOPMENT.md`,
   `INTERNATIONALIZATION.md`) intentionally stay English-only.
 
 ---
@@ -563,5 +563,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0.dev0 in aktiver Entwicklung (Sprint 67 abgeschlossen) ·
+Stable Version 1.1.0 · v1.2.0.dev0 in aktiver Entwicklung (Sprint 68 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager

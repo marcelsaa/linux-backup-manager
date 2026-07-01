@@ -2,6 +2,8 @@
 
 # Installation Guide
 
+**[Deutsche Version](de/INSTALL.md)**
+
 **Version:** 1.1.0
 
 ---

@@ -228,11 +228,11 @@ Summary: 4 OK, 0 warnings, 0 errors
 
 Detailed documentation is available in the `docs/` directory.
 
-* [Installation Guide](docs/INSTALL.md)
+* [Installation Guide](docs/INSTALL.md) ([Deutsch](docs/de/INSTALL.md))
 * [User Guide](docs/USER_GUIDE.md) ([Deutsch](docs/de/USER_GUIDE.md))
 * [Configuration Reference](docs/CONFIGURATION.md)
-* [Restore Guide](docs/RESTORE.md)
-* [Recovery and Password Safety Guide](docs/RECOVERY.md)
+* [Restore Guide](docs/RESTORE.md) ([Deutsch](docs/de/RESTORE.md))
+* [Recovery and Password Safety Guide](docs/RECOVERY.md) ([Deutsch](docs/de/RECOVERY.md))
 * [FAQ](docs/FAQ.md)
 * [Architecture Overview](docs/ARCHITECTURE.md)
 * [Quality Assurance Test Plan](docs/QA_TESTPLAN.md)

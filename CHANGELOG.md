@@ -8,6 +8,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 68 – Bilinguale Dokumentation: Installation, Restore, Recovery
+
+### Added
+
+* `docs/de/INSTALL.md`, `docs/de/RESTORE.md`, `docs/de/RECOVERY.md`: vollständige deutsche
+  Übersetzungen.
+* Sprachumschalter-Links in beiden Richtungen für alle drei Dokumente.
+* `README.md`-Dokumentationsliste um die drei deutschen Links ergänzt.
+
+### Fixed
+
+* `docs/de/README.md` verlinkte bereits auf noch nicht existierende
+  `docs/de/CONFIGURATION.md`/`FAQ.md`/`SYSTEMD.md` (vorausschauend in Sprint 67 gesetzt).
+  Bis zur Übersetzung dieser drei Dokumente zeigen die Links vorübergehend auf die
+  englischen Originale.
+
 ## Sprint 67 – Bilinguale Dokumentation: README und User Guide
 
 ### Added
