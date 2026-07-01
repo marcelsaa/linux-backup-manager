@@ -8,6 +8,16 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 53 – JSON-Parsing für Backup-Ausgabe
+
+### Changed
+
+* `restic backup` wird jetzt mit `--json` aufgerufen. Die Ausgabe wird strukturiert via
+  `_parse_backup_json()` ausgewertet statt durch fragile Regex-Muster.
+* Neue Hilfsfunktionen `_format_bytes()` und `_format_duration()` formatieren Bytes und
+  Sekunden aus der JSON-Ausgabe in lesbare Strings.
+* `import re` aus `restic.py` entfernt.
+
 ## Sprint 52 – Verbesserte Diagnose-Darstellung
 
 ### Changed

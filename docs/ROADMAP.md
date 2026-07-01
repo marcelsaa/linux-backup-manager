@@ -346,7 +346,7 @@ fresh install. Version 1.1.0rc3 is approved for migration from Version 1.0.1.**
 
 * [x] Interactive configuration menus *(Sprint 51)*
 * [ ] Configuration import/export
-* [ ] Repository migration
+* [ ] Repository migration *(auf v1.3 verschoben – kein natives Restic-Migrate-Tool)*
 * [x] Improved diagnostic presentation *(Sprint 52)*
 * [x] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup *(Sprint 46)*
 * [x] Automatic forget and prune after every successful backup (hidden from the user) *(Sprint 46)*

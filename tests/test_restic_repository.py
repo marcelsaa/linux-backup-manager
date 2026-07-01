@@ -12,11 +12,11 @@ def test_backup_uses_argument_list_without_shell() -> None:
 
     fake_result = Mock()
     fake_result.returncode = 0
-    fake_result.stdout = """
-Files:           1 new,     0 changed,     0 unmodified
-processed 1 files, 10 B in 0:00
-snapshot abc123 saved
-"""
+    fake_result.stdout = (
+        '{"message_type":"summary","files_new":1,"files_changed":0,'
+        '"files_unmodified":0,"total_files_processed":1,'
+        '"total_bytes_processed":10,"total_duration":0.1,"snapshot_id":"abc123"}\n'
+    )
     fake_result.stderr = ""
 
     with patch("lbm.backup.restic.subprocess.run", return_value=fake_result) as run_mock:
@@ -29,36 +29,54 @@ snapshot abc123 saved
 
     assert isinstance(args[0], list)
     assert kwargs.get("shell") is None
+    assert "--json" in args[0]
     assert "/tmp/source; rm -rf root" in args[0]
     assert "$(whoami)" in args[0]
 
-def test_parse_backup_output() -> None:
-    repository = ResticRepository(
-        repository=Path("/tmp/repo"),
-        password_file=Path("/tmp/password"),
+
+def test_parse_backup_json_extracts_all_fields() -> None:
+    repository = ResticRepository(Path("/tmp/repo"), Path("/tmp/password"))
+    output = (
+        '{"message_type":"status","seconds_elapsed":0.1}\n'
+        '{"message_type":"summary","files_new":5,"files_changed":2,'
+        '"files_unmodified":100,"total_files_processed":107,'
+        '"total_bytes_processed":10485760,"total_duration":8.0,'
+        '"snapshot_id":"abcdef12"}\n'
     )
-
-    output = """
-repository 123 opened (version 2, compression level auto)
-
-Files:           5 new,     2 changed,   100 unmodified
-Dirs:            1 new,     0 changed,    20 unmodified
-Added to the repository: 25.123 MiB (10.000 MiB stored)
-
-processed 107 files, 125.123 MiB in 0:08
-snapshot abcdef12 saved
-"""
-
-    result = repository._parse_backup_output(output)
-
+    result = repository._parse_backup_json(output)
     assert result.ok is True
     assert result.snapshot_id == "abcdef12"
     assert result.files_new == 5
     assert result.files_changed == 2
     assert result.files_unmodified == 100
     assert result.processed_files == 107
-    assert result.processed_size == "125.123 MiB"
+    assert result.processed_size == "10.000 MiB"
     assert result.duration == "0:08"
+
+
+def test_parse_backup_json_fallback_when_no_summary() -> None:
+    repository = ResticRepository(Path("/tmp/repo"), Path("/tmp/password"))
+    result = repository._parse_backup_json("unexpected non-json output\n")
+    assert result.ok is True
+    assert result.snapshot_id is None
+    assert result.files_new == 0
+
+
+def test_format_bytes_converts_to_human_readable() -> None:
+    repo = ResticRepository(Path("/tmp/repo"), Path("/tmp/pw"))
+    assert repo._format_bytes(0) == "0 B"
+    assert repo._format_bytes(512) == "512 B"
+    assert repo._format_bytes(1024) == "1.000 KiB"
+    assert repo._format_bytes(10485760) == "10.000 MiB"
+    assert repo._format_bytes(1073741824) == "1.000 GiB"
+
+
+def test_format_duration_formats_seconds() -> None:
+    repo = ResticRepository(Path("/tmp/repo"), Path("/tmp/pw"))
+    assert repo._format_duration(0.0) == "0:00"
+    assert repo._format_duration(8.0) == "0:08"
+    assert repo._format_duration(65.7) == "1:05"
+    assert repo._format_duration(3661.0) == "61:01"
 
 def test_backup_returns_failed_result_on_restic_error() -> None:
     repository = ResticRepository(
