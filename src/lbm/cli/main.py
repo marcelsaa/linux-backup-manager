@@ -52,6 +52,8 @@ class CommandLineInterface:
                 "schedule-remove",
                 "change-password",
                 "settings",
+                "export-config",
+                "import-config",
             ],
             help=language.translate("cli.command_help"),
         )
@@ -99,6 +101,8 @@ class CommandLineInterface:
             "schedule-remove": self.application.schedule_remove,
             "change-password": self.application.change_password,
             "settings": self.application.settings,
+            "export-config": self.application.export_config,
+            "import-config": self.application.import_config,
         }
         result = command_methods[args.command]()
         return result is not False

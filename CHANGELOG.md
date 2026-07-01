@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 54 – Konfigurationsexport und -import
+
+### Added
+
+* Neuer Befehl `backup-manager export-config`: kopiert die aktuelle Konfigurationsdatei
+  an einen vom Nutzer gewählten Zielort. Überschreiben wird bestätigt, bevor es passiert.
+* Neuer Befehl `backup-manager import-config`: liest eine externe Konfigurationsdatei,
+  validiert sie vollständig (AppConfig + Pydantic), sichert die bestehende Konfiguration
+  als `.bak` und ersetzt sie atomar.
+* `ConfigExportService` und `ConfigImportService` in `lbm/services/config_transfer.py`;
+  Spracherkennung aus der vorhandenen Konfiguration mit Fallback auf Deutsch.
+* 12 neue i18n-Schlüssel unter `config_transfer:` in Deutsch und Englisch.
+* 8 neue Tests in `tests/test_config_transfer.py`.
+
 ## Sprint 53 – JSON-Parsing für Backup-Ausgabe
 
 ### Changed

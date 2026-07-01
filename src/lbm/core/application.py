@@ -4,6 +4,7 @@ from pathlib import Path
 from lbm.core.config import AppConfig, ConfigLoader
 from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
+from lbm.services.config_transfer import ConfigExportService, ConfigImportService
 from lbm.services.doctor import DoctorService
 from lbm.services.health import HealthService
 from lbm.services.language import LanguageService
@@ -125,6 +126,12 @@ class Application:
 
     def change_password(self) -> bool:
         return PasswordChangeService(self._load_config(), self.config_file).run()
+
+    def export_config(self) -> bool:
+        return ConfigExportService(self.config_file).run()
+
+    def import_config(self) -> bool:
+        return ConfigImportService(self.config_file).run()
 
     def settings(self) -> bool:
         from lbm.setup.wizard import SetupWizard
