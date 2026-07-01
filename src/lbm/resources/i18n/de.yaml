@@ -274,6 +274,17 @@ recovery_info:
   step_6: "6. Snapshots anzeigen: backup-manager snapshots"
   step_7: "7. Wiederherstellung starten: backup-manager restore"
   store_separately: "Bewahren Sie eine Kopie der Passwortdatei getrennt vom Backup-Repository und vor unbefugtem Zugriff geschützt auf."
+settings:
+  title: "Linux Backup Manager – Einstellungen"
+  prompt: "Auswahl: "
+  language: "Sprache / Language"
+  backup_paths: "Backup-Pfade"
+  targets: "Backup-Ziele (USB, NAS)"
+  schedule: "Zeitplan"
+  exit: "Beenden"
+  saved: "Einstellungen gespeichert."
+  no_config: "Keine Konfiguration vorhanden. Bitte zuerst 'backup-manager setup' ausführen."
+  invalid_choice: "Ungültige Auswahl."
 password_change:
   warning: "Achtung: Diese Aktion ändert das Passwort in allen konfigurierten Repositories."
   irreversible: "Das alte Passwort wird danach dauerhaft ungültig."

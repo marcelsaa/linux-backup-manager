@@ -375,3 +375,111 @@ def test_configure_schedule_accepts_custom_time_and_interval() -> None:
     assert data["schedule"]["enabled"] is True
     assert data["schedule"]["daily_time"] == "18:30"
     assert data["schedule"]["interval_days"] == 7
+
+
+def _write_minimal_config(config_file: Path) -> None:
+    config_file.parent.mkdir(parents=True, exist_ok=True)
+    config_file.write_text(
+        yaml.safe_dump(
+            {
+                "system": {"host_name": "test", "language": "de"},
+                "paths": {
+                    "log_dir": "logs",
+                    "state_dir": "state",
+                    "password_file": str(config_file.parent / "restic.pass"),
+                },
+                "backup": {"paths": ["/home/test"], "excludes": []},
+                "targets": {
+                    "usb": {
+                        "enabled": True,
+                        "label": "TestUSB",
+                        "repository_path": "restic/default",
+                    },
+                    "nas": {
+                        "enabled": False,
+                        "mount_path": "/mnt/nas",
+                        "repository_path": "restic/default",
+                    },
+                },
+                "retention": {
+                    "keep_daily": 14,
+                    "keep_weekly": 8,
+                    "keep_monthly": 12,
+                    "keep_yearly": 3,
+                },
+                "schedule": {
+                    "enabled": True,
+                    "daily_time": "20:00",
+                    "interval_days": 1,
+                    "boot_delay_minutes": 2,
+                },
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_settings_returns_false_when_no_config(tmp_path: Path) -> None:
+    wizard = SetupWizard(tmp_path / "config.yaml")
+    result = wizard.configure_settings()
+    assert result is False
+
+
+def test_settings_exit_choice_returns_true(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice "5" = Exit (4 menu items + 1)
+    with patch("builtins.input", return_value="5"):
+        result = SetupWizard(config_file).configure_settings()
+    assert result is True
+
+
+def test_settings_invalid_choice_loops_then_exits(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    with patch("builtins.input", side_effect=["99", "abc", "5"]):
+        result = SetupWizard(config_file).configure_settings()
+    assert result is True
+
+
+def test_settings_language_change_saves_config(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice 1 = language, then select "en", then exit
+    with patch("builtins.input", side_effect=["1", "en", "5"]):
+        SetupWizard(config_file).configure_settings()
+    saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    assert saved["system"]["language"] == "en"
+
+
+def test_settings_backup_paths_change_saves_config(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice 2 = backup paths: decline all 5 defaults, keep /home/test, add custom, exit
+    with patch(
+        "builtins.input",
+        side_effect=["2", "n", "n", "n", "n", "n", "j", "/home/test/Dokumente", "", "5"],
+    ):
+        SetupWizard(config_file).configure_settings()
+    saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    assert "/home/test/Dokumente" in saved["backup"]["paths"]
+
+
+def test_settings_creates_backup_file_on_save(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    with patch("builtins.input", side_effect=["1", "en", "5"]):
+        SetupWizard(config_file).configure_settings()
+    assert config_file.with_name("config.yaml.bak").exists()
+
+
+def test_settings_schedule_change_saves_config(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice 4 = schedule: keep enabled, set 03:00, interval 7 days, then exit
+    with patch("builtins.input", side_effect=["4", "j", "03:00", "7", "5"]):
+        SetupWizard(config_file).configure_settings()
+    saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    assert saved["schedule"]["daily_time"] == "03:00"
+    assert saved["schedule"]["interval_days"] == 7

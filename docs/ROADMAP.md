@@ -344,7 +344,7 @@ fresh install. Version 1.1.0rc3 is approved for migration from Version 1.0.1.**
 
 ## User Experience
 
-* [ ] Interactive configuration menus
+* [x] Interactive configuration menus *(Sprint 51)*
 * [ ] Configuration import/export
 * [ ] Repository migration
 * [ ] Improved diagnostic presentation

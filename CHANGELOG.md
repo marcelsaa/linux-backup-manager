@@ -8,6 +8,16 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 51 – Interaktives Einstellungsmenü
+
+### Added
+
+* Neuer Befehl `backup-manager settings`: zeigt ein nummeriertes Menü zum gezielten Ändern
+  einzelner Einstellungen (Sprache, Backup-Pfade, Backup-Ziele, Zeitplan).
+* Nach jeder Änderung wird die Konfiguration atomar gespeichert (`.bak`-Backup) und das
+  Menü kehrt zurück, bis der Nutzer "Beenden" wählt.
+* 10 neue i18n-Schlüssel unter `settings:` in Deutsch und Englisch.
+
 ## Sprint 50 – Refactoring: `_is_yes()` Utility
 
 ### Changed

@@ -515,6 +515,74 @@ class SetupWizard:
             language=self.config.system.language,
         ).install()
 
+    def configure_settings(self) -> bool:
+        self._detect_language()
+        if not self.config_file.is_file():
+            Console.error(self._text("settings.no_config"))
+            return False
+
+        try:
+            data = yaml.load(
+                self.config_file.read_text(encoding="utf-8"),
+                Loader=UniqueKeyLoader,
+            )
+        except (OSError, yaml.YAMLError) as error:
+            Console.error(self._text("setup.config_edit_failed", error=error))
+            return False
+
+        menu = [
+            ("language", self._text("settings.language")),
+            ("paths", self._text("settings.backup_paths")),
+            ("targets", self._text("settings.targets")),
+            ("schedule", self._text("settings.schedule")),
+        ]
+
+        while True:
+            print()
+            title = self._text("settings.title")
+            print(title)
+            print("=" * len(title))
+            print()
+            for index, (_, label) in enumerate(menu, start=1):
+                print(f"{index}) {label}")
+            print(f"{len(menu) + 1}) {self._text('settings.exit')}")
+            print()
+
+            raw = input(self._text("settings.prompt")).strip()
+            try:
+                choice = int(raw)
+            except ValueError:
+                Console.error(self._text("settings.invalid_choice"))
+                continue
+
+            if choice == len(menu) + 1:
+                return True
+            if choice < 1 or choice > len(menu):
+                Console.error(self._text("settings.invalid_choice"))
+                continue
+
+            key = menu[choice - 1][0]
+            if key == "language":
+                self._configure_language(data)
+            elif key == "paths":
+                data["backup"]["paths"] = self._ask_backup_paths(
+                    data["backup"]["paths"]
+                )
+            elif key == "targets":
+                if not self._configure_targets(data):
+                    continue
+            elif key == "schedule":
+                self._configure_schedule(data)
+
+            try:
+                AppConfig.model_validate(data)
+                backup_file = self.config_file.with_name(f"{self.config_file.name}.bak")
+                copy2(self.config_file, backup_file)
+                self._write_config(data)
+                Console.success(self._text("settings.saved"))
+            except (OSError, ValueError, yaml.YAMLError) as error:
+                Console.error(self._text("setup.config_save_failed", error=error))
+
     def run(self) -> bool:
         self._detect_language()
         if self.interactive and not self.config_file.exists():

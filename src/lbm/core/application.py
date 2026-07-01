@@ -126,5 +126,10 @@ class Application:
     def change_password(self) -> bool:
         return PasswordChangeService(self._load_config(), self.config_file).run()
 
+    def settings(self) -> bool:
+        from lbm.setup.wizard import SetupWizard
+
+        return SetupWizard(self.config_file).configure_settings()
+
     def setup(self, interactive: bool = True) -> bool:
         return SetupService(self.config_file).run(interactive=interactive)
