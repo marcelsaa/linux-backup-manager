@@ -8,6 +8,24 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 72 – UAT-Durchführung 1.2.0rc1 (deutscher Durchlauf)
+
+### UAT
+
+* Kompletter deutscher UAT-Durchlauf (Schritte 1–15) in einer isolierten GNOME-Boxes-VM
+  (Linux Mint 22.3) per SSH durchgeführt. 14 von 15 Bereichen ohne Befund bestanden.
+* **Fund UAT-1.2.0-DE-001:** Das `settings`-Zeitplan-Untermenü aktualisiert `config.yaml`,
+  installiert den systemd-Timer aber nicht neu – der Timer behält die alte `OnCalendar`-Zeit,
+  ohne Warnhinweis. `doctor` erkennt diese Diskrepanz ebenfalls nicht (prüft nur
+  aktiv/aktiviert, nicht die Zeit-Übereinstimmung). Nicht release-blockierend (bestehender
+  Zeitplan funktioniert weiter), aber ein reales Verhaltensproblem.
+* Bestätigt: Der 1.1.0rc1-Fund UAT-DE-002 (unerwünschtes Catch-up-Snapshot durch den
+  `due`-Timer) tritt in 1.2.0rc1 nicht mehr auf.
+* Bestätigt: Der 1.1.0rc1-Fund UAT-DE-001 (Beispiel-Hostname `blackpanther` statt echtem
+  Hostnamen) ist behoben – `setup` setzt `host_name` korrekt über `gethostname()`.
+* Englischer Durchlauf noch offen (braucht eine zweite frische VM oder ein zurückgesetztes
+  Abbild derselben VM).
+
 ## Sprint 71 – UAT-Anleitung für 1.2.0rc1
 
 ### Added

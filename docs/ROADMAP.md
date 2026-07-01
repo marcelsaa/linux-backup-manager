@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 71 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
+**Last updated:** Sprint 72 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
 Version 1.2.0rc1 in Vorbereitung (Feature Freeze aktiv).
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
@@ -578,6 +578,6 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0rc1 in Vorbereitung, Feature Freeze aktiv (Sprint 71
+Stable Version 1.1.0 · v1.2.0rc1 in Vorbereitung, Feature Freeze aktiv (Sprint 72
 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager
