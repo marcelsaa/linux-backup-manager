@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 57 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 58 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -439,6 +439,11 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 * [ ] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
   enthalten sind *(betrifft aktuell v.a. `docs/reports/`; wird durch Ausschluss statt Redaktion
   gelöst, siehe unten – Filterung der Historie erfolgt unmittelbar vor der Veröffentlichung)*
+* [ ] Autor-E-Mail der ersten vier Commits (Projektstart, 25.06.2026) enthält die reale
+  Tailscale-MagicDNS-Adresse `marcel@blackpanther.tail6983d3.ts.net` statt der regulären
+  Adresse – muss vor Veröffentlichung per History-Rewrite auf `marcel.saager@gmx.de`
+  korrigiert werden *(gefunden in Sprint 58; Umsetzung Teil der History-Bereinigung
+  unmittelbar vor dem ersten öffentlichen Push, nicht vorher)*
 * [x] Entscheiden, ob interne Sprint-Berichte (`docs/reports/`) mitveröffentlicht werden –
   **Nein**, bleiben privat und werden vor der Veröffentlichung aus der Git-Historie gefiltert.
   Stattdessen fasst `docs/DEVELOPMENT.md` die Entwicklungsmethodik ohne personenbezogene
@@ -455,7 +460,9 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 **Community**
 
 * [ ] `README.md` für eine externe Zielgruppe überarbeiten (Badges, Screenshots, Installationslink)
-* [ ] GitHub Actions / CI für öffentliches Repo prüfen (aktuell `.github/workflows/ci.yml` vorhanden)
+* [x] GitHub Actions / CI für öffentliches Repo prüfen – `.github/workflows/ci.yml` enthält
+  keine Secrets, setzt `permissions: contents: read` und referenziert keine internen Pfade;
+  unverändert veröffentlichungstauglich *(Sprint 58)*
 * [ ] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?)
 * [ ] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional)
 
@@ -475,4 +482,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 57 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 58 abgeschlossen)

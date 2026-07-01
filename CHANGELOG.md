@@ -8,6 +8,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 58 – CI-Workflow-Review und Git-Historie-Fund
+
+### Changed
+
+* `docs/ROADMAP.md`: Roadmap-Punkt "GitHub Actions / CI für öffentliches Repo prüfen"
+  abgehakt – `.github/workflows/ci.yml` enthält keine Secrets, setzt
+  `permissions: contents: read` und referenziert keine internen Pfade.
+
+### Found
+
+* Die ersten vier Commits (Projektstart, 25.06.2026) tragen als Autor-E-Mail die reale
+  Tailscale-MagicDNS-Adresse (`marcel@blackpanther.tail6983d3.ts.net`) statt der regulären
+  Adresse. Als neuer Punkt unter "Repository-Inhalt" in `docs/ROADMAP.md` vermerkt; Korrektur
+  per History-Rewrite ist Teil der Bereinigung unmittelbar vor der Veröffentlichung, nicht
+  Teil dieses Sprints.
+
 ## Sprint 57 – Kuratierte Entwicklungsdokumentation
 
 ### Added
