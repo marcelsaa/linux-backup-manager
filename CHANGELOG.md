@@ -8,6 +8,34 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 70 – Version 1.2.0 Release Candidate 1
+
+### Changed
+
+* Package version advanced from `1.2.0.dev0` to `1.2.0rc1` for RC validation.
+* Feature freeze begins: from this point on, only bug fixes, documentation and translation
+  corrections are applied until the 1.2.0 release.
+* Local quality gate passed: `ruff check .`, `python -m compileall`, `pytest` (182 tests),
+  `python -m build`, `python -m twine check dist/*` – all green.
+* Wheel built: `linux_backup_manager-1.2.0rc1-py3-none-any.whl`, SHA-256
+  `0f012f29125f59104422c2d70d6f021f683b25489a39e9c3a47adac9daa9c9f9`.
+
+### Scope of 1.2.0
+
+Product features since 1.1.0 (Sprints 46–54): automatic repository cleanup and retention
+defaults, systemd timer diagnostics, desktop integration, `change-password`, interactive
+`settings` menu, structured `doctor` output, `restic --json` parsing, `export-config`/
+`import-config`. Process and documentation work (Sprints 55–69): license and security
+policy, full GitHub publication, and complete bilingual documentation. User tutorials and
+additional examples are deferred past 1.2.0 and do not block this release.
+
+### Pending before release
+
+* Managed fresh-install validation in an isolated VM (manual, not automatable in this
+  environment).
+* Manual UAT in German and English.
+* Merge to `main` after UAT passes.
+
 ## Sprint 69 – Bilinguale Dokumentation abgeschlossen: FAQ, Konfiguration, systemd
 
 ### Added

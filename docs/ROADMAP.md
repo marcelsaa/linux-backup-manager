@@ -2,7 +2,8 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 69 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
+**Last updated:** Sprint 70 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
+Version 1.2.0rc1 in Vorbereitung (Feature Freeze aktiv).
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -403,8 +404,20 @@ All entries shall be optional and individually selectable.
 
 ## Documentation
 
-* [ ] User tutorials
-* [ ] Additional examples
+* [ ] User tutorials *(deferred past 1.2.0, does not block the release)*
+* [ ] Additional examples *(deferred past 1.2.0, does not block the release)*
+* [x] Complete German and English documentation for all user-facing docs *(Sprints 67–69)*
+
+## Release Candidate Policy
+
+* [x] Feature freeze begins with `1.2.0rc1` *(Sprint 70)*
+* [x] Apply only bug fixes, documentation and translation corrections from this point on
+* [x] Local quality gate passed (Ruff, compileall, pytest, build, twine check) – wheel
+  SHA-256: `0f012f29125f59104422c2d70d6f021f683b25489a39e9c3a47adac9daa9c9f9` *(Sprint 70)*
+* [ ] Managed fresh-install validation in an isolated VM (user-run, not automatable here)
+* [ ] Manual UAT in German and English (user-run)
+* [ ] Merge to `main` after UAT passes
+* [ ] Release Version 1.2.0
 
 ---
 
@@ -565,5 +578,6 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0.dev0 in aktiver Entwicklung (Sprint 69 abgeschlossen) ·
+Stable Version 1.1.0 · v1.2.0rc1 in Vorbereitung, Feature Freeze aktiv (Sprint 70
+abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager
