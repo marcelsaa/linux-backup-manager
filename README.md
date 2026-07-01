@@ -230,14 +230,14 @@ Detailed documentation is available in the `docs/` directory.
 
 * [Installation Guide](docs/INSTALL.md) ([Deutsch](docs/de/INSTALL.md))
 * [User Guide](docs/USER_GUIDE.md) ([Deutsch](docs/de/USER_GUIDE.md))
-* [Configuration Reference](docs/CONFIGURATION.md)
+* [Configuration Reference](docs/CONFIGURATION.md) ([Deutsch](docs/de/CONFIGURATION.md))
 * [Restore Guide](docs/RESTORE.md) ([Deutsch](docs/de/RESTORE.md))
 * [Recovery and Password Safety Guide](docs/RECOVERY.md) ([Deutsch](docs/de/RECOVERY.md))
-* [FAQ](docs/FAQ.md)
+* [FAQ](docs/FAQ.md) ([Deutsch](docs/de/FAQ.md))
 * [Architecture Overview](docs/ARCHITECTURE.md)
 * [Quality Assurance Test Plan](docs/QA_TESTPLAN.md)
 * [Project Roadmap](docs/ROADMAP.md)
-* [Automatic Backup Guide](docs/SYSTEMD.md)
+* [Automatic Backup Guide](docs/SYSTEMD.md) ([Deutsch](docs/de/SYSTEMD.md))
 * [Internationalization Guide](docs/INTERNATIONALIZATION.md)
 * [Development Process](docs/DEVELOPMENT.md)
 

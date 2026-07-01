@@ -239,11 +239,11 @@ Ausführliche Dokumentation befindet sich im `docs/`-Verzeichnis.
 
 * [Installationsanleitung](INSTALL.md)
 * [Benutzerhandbuch](USER_GUIDE.md)
-* [Konfigurationsreferenz](../CONFIGURATION.md) *(noch nicht übersetzt, englisch)*
+* [Konfigurationsreferenz](CONFIGURATION.md)
 * [Restore-Anleitung](RESTORE.md)
 * [Passwort-Sicherheit und Recovery-Leitfaden](RECOVERY.md)
-* [FAQ](../FAQ.md) *(noch nicht übersetzt, englisch)*
-* [Anleitung für automatische Backups](../SYSTEMD.md) *(noch nicht übersetzt, englisch)*
+* [FAQ](FAQ.md)
+* [Anleitung für automatische Backups](SYSTEMD.md)
 
 Die folgenden Dokumente sind bewusst nur auf Englisch verfügbar (projektinterne
 Architektur- und Prozessdokumentation): [Architekturübersicht](../ARCHITECTURE.md),

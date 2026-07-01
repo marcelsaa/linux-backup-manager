@@ -8,6 +8,25 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 69 – Bilinguale Dokumentation abgeschlossen: FAQ, Konfiguration, systemd
+
+### Added
+
+* `docs/de/FAQ.md`, `docs/de/CONFIGURATION.md`, `docs/de/SYSTEMD.md`: vollständige deutsche
+  Übersetzungen – letzte Gruppe der bilingualen Dokumentation. Damit sind alle 8
+  vorgesehenen nutzerorientierten Docs zweisprachig verfügbar.
+* Sprachumschalter-Links in beiden Richtungen für alle drei Dokumente.
+* `README.md`- und `docs/de/README.md`-Dokumentationslisten vervollständigt (Platzhalter aus
+  Sprint 67/68 durch echte Links ersetzt).
+
+### Fixed
+
+* `docs/FAQ.md` enthielt veraltete Antworten: "Kann ich ein NAS verwenden?" behauptete
+  fälschlich "noch nicht", obwohl NAS-Unterstützung bereits vor 1.1.0 implementiert wurde;
+  die "Future Features"-Liste war komplett überholt (alle fünf Punkte bereits erledigt oder
+  in Arbeit). Vor der Übersetzung im englischen Original korrigiert, um den Fehler nicht in
+  beide Sprachen zu übernehmen.
+
 ## Sprint 68 – Bilinguale Dokumentation: Installation, Restore, Recovery
 
 ### Added
