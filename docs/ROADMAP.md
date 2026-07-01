@@ -2,7 +2,7 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 59 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
+**Last updated:** Sprint 60 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026
 
 ---
 
@@ -421,6 +421,31 @@ All entries shall be optional and individually selectable.
 Mit dem nächsten stabilen Release (Version 1.2.0) soll das Repository öffentlich auf GitHub
 veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu klären:
 
+## Engagement-Modell (Entscheidung 2026-07-01)
+
+Die Veröffentlichung ist ausschließlich eine **Geste** – das Projekt wurde für den eigenen
+Bedarf entwickelt, und andere sollen den Code sehen und nutzen können. Es soll daraus
+**keinerlei laufender Aufwand** entstehen: keine Support-Verpflichtung, kein Zwang, PRs zu
+prüfen oder zu mergen, keine Erwartungshaltung von außen.
+
+Konkret bedeutet das:
+
+* **Öffentlich sichtbar** (klonbar, forkbar) – das ist der einzige Zweck der Veröffentlichung.
+* **Issues deaktiviert** in den GitHub-Repository-Einstellungen (Settings → Features → Issues
+  aus) – technisch keine Möglichkeit für Dritte, Bug-Reports oder Feature-Wünsche zu eröffnen.
+  Dies ist eine manuelle Einstellung im GitHub-Web-UI, die erst nach dem Erstellen des
+  Repositories dort vorgenommen werden kann – nicht Teil dieses lokalen Repos.
+* **Pull Requests** lassen sich technisch nicht sperren (Forken + PR ist Grundprinzip von
+  öffentlichem GitHub), erzeugen aber keine Verpflichtung – ein geöffneter PR kann ignoriert,
+  kommentarlos geschlossen oder irgendwann bearbeitet werden, ganz nach Belieben.
+* **Sicherheitsmeldungen** laufen unverändert privat über `SECURITY.md` (E-Mail), unabhängig
+  von Issues.
+* `.github/ISSUE_TEMPLATE/` (Sprint 59) bleibt bestehen, auch wenn Issues deaktiviert werden –
+  falls sich das später ändert, sind die Vorlagen bereits vorhanden. Kein Nutzen, aber auch
+  kein Schaden, solange Issues aus sind.
+* `CONTRIBUTING.md` dokumentiert diese Erwartungshaltung explizit für jeden, der das Repo
+  besucht oder forkt.
+
 **Lizenz und Rechtliches**
 
 * [x] Lizenzwahl bestätigen (GPL-3.0-only in `pyproject.toml`) *(Sprint 55)*
@@ -465,7 +490,11 @@ veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu kläre
 * [x] GitHub Actions / CI für öffentliches Repo prüfen – `.github/workflows/ci.yml` enthält
   keine Secrets, setzt `permissions: contents: read` und referenziert keine internen Pfade;
   unverändert veröffentlichungstauglich *(Sprint 58)*
-* [ ] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?)
+* [x] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?) –
+  Entschieden: Projekt wird als Geste veröffentlicht, keine aktive Pflege-Erwartung; siehe
+  "Engagement-Modell" oben und `CONTRIBUTING.md` *(Sprint 60)*
+* [ ] Issues in den GitHub-Repository-Einstellungen deaktivieren (manueller Schritt nach
+  Erstellung des Repos auf GitHub, siehe "Engagement-Modell" oben)
 * [x] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional) –
   `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md` *(Sprint 59)*
 
@@ -485,4 +514,4 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 59 abgeschlossen)
+Stable Version 1.1.0 · v1.2.0 in aktiver Entwicklung (Sprint 60 abgeschlossen)

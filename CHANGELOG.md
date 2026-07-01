@@ -8,6 +8,25 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 60 – Engagement-Modell für die Veröffentlichung
+
+### Added
+
+* Neue `CONTRIBUTING.md`: legt explizit fest, dass die Veröffentlichung eine reine Geste ist –
+  keine Support-Verpflichtung, keine Zusage zur Prüfung oder Annahme von Pull Requests, Fork
+  statt Feature-Wunsch als empfohlener Weg. Sicherheitsmeldungen bleiben über `SECURITY.md`
+  ausgenommen.
+
+### Decided
+
+* Engagement-Modell für die Veröffentlichung festgelegt: öffentlich sichtbar/forkbar, aber
+  Issues werden in den GitHub-Repository-Einstellungen deaktiviert (manueller Schritt nach
+  Repo-Erstellung), Pull Requests erzeugen keine Verpflichtung. Details in
+  `docs/ROADMAP.md`, Abschnitt "Engagement-Modell".
+* `.github/ISSUE_TEMPLATE/` aus Sprint 59 bleibt trotz geplanter Issue-Deaktivierung bestehen
+  (auf Wunsch des Nutzers), für den Fall einer künftigen Kursänderung.
+* Contribution-Richtlinien-Checkbox in `docs/ROADMAP.md` abgehakt.
+
 ## Sprint 59 – PyPI-Namensprüfung und Issue-Templates
 
 ### Added
