@@ -2,11 +2,12 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 74 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
+**Last updated:** Sprint 75 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
 Version 1.2.0rc2 in Vorbereitung (Feature Freeze aktiv). Englischer UAT-Durchlauf
 nicht sicher durchführbar (VM-Hardware-Instabilität) – als Owner-Ausnahme dokumentiert,
-manuelle Nachprüfung nach Release geplant. UAT-1.2.0-DE-001 behoben, Re-Validierungsumfang
-und 1.0.1→1.2.0-Upgrade-Pfad noch offen.
+manuelle Nachprüfung nach Release geplant. UAT-1.2.0-DE-001 behoben; Dry-Run des
+1.0.1→1.2.0-Upgrade-Pfads auf dem Produktivsystem bestanden; voller Upgrade-Lauf und
+Re-Validierungsumfang für den rc2-Fix noch offen.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -428,8 +429,10 @@ All entries shall be optional and individually selectable.
   `4b6ff1176e5516b314b556c3fafd52897cd514134611f8ecc16211201c422467` *(Sprint 74)*
 * [ ] Decide re-validation scope for the rc2 fix (full UAT re-run vs. targeted check vs.
   deferred to owner) once the test VM is stable again
-* [ ] Validate the 1.0.1 → 1.2.0 upgrade path (newly identified gap, Sprint 74) before the
-  real production upgrade – see `docs/reports/RELEASE_CANDIDATE_1.2.0rc2.md`
+* [x] `installer.py --dry-run` for the 1.0.1 upgrade path run on the real production system
+  – detection and preflight checks passed, no side effects *(Sprint 75)*
+* [ ] Full upgrade run (not just dry-run) for 1.2.0, ideally in a VM once stable, to
+  validate the actual migration/rollback steps – see `docs/reports/RELEASE_CANDIDATE_1.2.0rc2.md`
 * [ ] Merge to `main` after remaining gate items pass
 * [ ] Release Version 1.2.0
 

@@ -8,6 +8,18 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 75 – Dry-Run-Validierung des 1.0.1→1.2.0-Upgrade-Pfads
+
+### UAT / Validierung
+
+* `installer.py --dry-run` mit dem `1.2.0rc2`-Wheel direkt auf dem echten Produktivsystem
+  ausgeführt (Version dort: `1.0.1`). Ergebnis: Modus korrekt als `upgrade` erkannt,
+  Preflight-Prüfungen (Python ≥ 3.12, Restic, Speicherplatz) bestanden, keinerlei
+  Seiteneffekte (Config, Passwortdatei, systemd-Timer vor/nach Lauf verifiziert
+  unverändert). Deckt aber nur Erkennung/Preflight ab, nicht die eigentliche Migration
+  (venv-Cutover, Rollback) – ein voller Upgrade-Lauf bleibt vor dem echten Produktiv-Upgrade
+  empfohlen.
+
 ## Sprint 74 – UAT-1.2.0-DE-001 behoben (1.2.0rc2)
 
 ### Fixed
