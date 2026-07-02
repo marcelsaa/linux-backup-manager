@@ -4,7 +4,7 @@
 
 **[English version](../USER_GUIDE.md)**
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ---
 
@@ -470,4 +470,4 @@ LBM-Prozess. Backup-Ziele müssen eingehängt und erreichbar sein, wenn ein Time
 
 Linux Backup Manager Dokumentation
 
-Version 1.1.0
+Version 1.2.0

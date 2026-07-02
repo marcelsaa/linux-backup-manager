@@ -4,7 +4,7 @@
 
 **[English version](../RESTORE.md)**
 
-**Version:** 1.1.0-rc1
+**Version:** 1.2.0
 
 ---
 
@@ -157,4 +157,4 @@ tatsächlich wiederhergestellt werden können.
 
 Linux Backup Manager Dokumentation
 
-Release Candidate 1.1.0-rc1
+Version 1.2.0

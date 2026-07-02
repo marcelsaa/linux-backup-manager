@@ -4,7 +4,7 @@
 
 **[English version](../CONFIGURATION.md)**
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ---
 
@@ -191,4 +191,4 @@ Backup-Pfade oder -Ziele auswählen könnten.
 
 Linux Backup Manager Dokumentation
 
-Version 1.1.0
+Version 1.2.0

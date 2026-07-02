@@ -4,7 +4,7 @@
 
 **[Deutsche Version](de/CONFIGURATION.md)**
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ---
 
@@ -185,4 +185,4 @@ backup paths or destinations.
 
 Linux Backup Manager Documentation
 
-Version 1.1.0
+Version 1.2.0

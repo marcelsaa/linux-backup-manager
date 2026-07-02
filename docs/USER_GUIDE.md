@@ -4,7 +4,7 @@
 
 **[Deutsche Version](de/USER_GUIDE.md)**
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ---
 
@@ -451,4 +451,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Version 1.1.0
+Version 1.2.0
