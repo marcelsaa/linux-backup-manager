@@ -2,8 +2,10 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 72 abgeschlossen (2026-07-01); Version 1.1.0 released June 2026.
-Version 1.2.0rc1 in Vorbereitung (Feature Freeze aktiv).
+**Last updated:** Sprint 73 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
+Version 1.2.0rc1 in Vorbereitung (Feature Freeze aktiv). Englischer UAT-Durchlauf
+nicht sicher durchführbar (VM-Hardware-Instabilität) – als Owner-Ausnahme dokumentiert,
+manuelle Nachprüfung nach Release geplant.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -415,8 +417,13 @@ All entries shall be optional and individually selectable.
 * [x] Local quality gate passed (Ruff, compileall, pytest, build, twine check) – wheel
   SHA-256: `0f012f29125f59104422c2d70d6f021f683b25489a39e9c3a47adac9daa9c9f9` *(Sprint 70)*
 * [ ] Managed fresh-install validation in an isolated VM (user-run, not automatable here)
-* [ ] Manual UAT in German and English (user-run)
-* [ ] Merge to `main` after UAT passes
+* [x] Manual UAT in German (user-requested, executed via isolated VM) – 1 non-blocking
+  finding (UAT-1.2.0-DE-001) *(Sprint 72)*
+* [x] Manual UAT in English – **waived for this candidate**: test VM hardware instability
+  made it unsafe to run; owner-approved one-time exception, manual verification on the real
+  system planned after release *(Sprint 73)*
+* [ ] Fix UAT-1.2.0-DE-001 (`settings` schedule change must reinstall the systemd timer)
+* [ ] Merge to `main` after remaining gate items pass
 * [ ] Release Version 1.2.0
 
 ---

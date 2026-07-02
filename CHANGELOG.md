@@ -8,6 +8,19 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 73 – Englischer UAT-Durchlauf: nicht sicher durchführbar
+
+### UAT
+
+* Der englische UAT-Durchlauf für 1.2.0rc1 konnte nicht sicher durchgeführt werden: die
+  Host-Hardware für die GNOME-Boxes-Test-VM wurde instabil (VM startete unzuverlässig,
+  SSH-Portweiterleitung brach wiederholt ab). Auf ausdrückliche Weisung des Projektinhabers
+  wird dies als "nicht sicher durchgeführt" dokumentiert statt stillschweigend übersprungen
+  oder fälschlich als bestanden vermerkt – siehe
+  `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`, Abschnitt "English Pass Waived".
+* Dies ist eine einmalige, vom Projektinhaber freigegebene Ausnahme; die englischsprachige
+  Bedienung wird nach dem Release manuell auf dem Echtsystem verifiziert.
+
 ## Sprint 72 – UAT-Durchführung 1.2.0rc1 (deutscher Durchlauf)
 
 ### UAT
