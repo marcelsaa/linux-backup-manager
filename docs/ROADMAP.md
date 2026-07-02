@@ -2,12 +2,15 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 75 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
-Version 1.2.0rc2 in Vorbereitung (Feature Freeze aktiv). Englischer UAT-Durchlauf
-nicht sicher durchführbar (VM-Hardware-Instabilität) – als Owner-Ausnahme dokumentiert,
-manuelle Nachprüfung nach Release geplant. UAT-1.2.0-DE-001 behoben; Dry-Run des
-1.0.1→1.2.0-Upgrade-Pfads auf dem Produktivsystem bestanden; voller Upgrade-Lauf und
-Re-Validierungsumfang für den rc2-Fix noch offen.
+**Last updated:** Sprint 78 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
+Version 1.2.0rc2: **alle Release-Gates erfüllt** (Feature Freeze aktiv seit Sprint 70).
+Beide UAT-Sprachdurchläufe abgeschlossen (Deutsch gegen rc1, Englisch gegen rc2) –
+UAT-Entscheidung auf "Passed"; UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert;
+voller 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) in isolierter VM bestanden;
+`installer.py`-Managed-Fresh-Install-Validierung in isolierter VM bestanden. Kandidat
+technisch bereit für Merge nach `main`, wartet auf ausdrückliche Nutzerfreigabe. Ein
+nicht-blockierender Fund (UAT-1.2.0-EN-001, doctor-Sprachfallback bei kaputter Config) für
+einen späteren Sprint vorgemerkt.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -418,22 +421,30 @@ All entries shall be optional and individually selectable.
 * [x] Apply only bug fixes, documentation and translation corrections from this point on
 * [x] Local quality gate passed (Ruff, compileall, pytest, build, twine check) – wheel
   SHA-256: `0f012f29125f59104422c2d70d6f021f683b25489a39e9c3a47adac9daa9c9f9` *(Sprint 70)*
-* [ ] Managed fresh-install validation in an isolated VM (user-run, not automatable here)
 * [x] Manual UAT in German (user-requested, executed via isolated VM) – 1 non-blocking
   finding (UAT-1.2.0-DE-001) *(Sprint 72)*
-* [x] Manual UAT in English – **waived for this candidate**: test VM hardware instability
-  made it unsafe to run; owner-approved one-time exception, manual verification on the real
-  system planned after release *(Sprint 73)*
+* [x] Manual UAT in English – **waived for `1.2.0rc1`**: test VM hardware instability made
+  it unsafe to run at the time; owner-approved one-time exception *(Sprint 73)*, later
+  caught up against `1.2.0rc2` on a new stable VM – see below *(Sprint 76)*
 * [x] Fix UAT-1.2.0-DE-001 (`settings` schedule change now reinstalls/removes the systemd
   timer) – `1.2.0rc2`, wheel SHA-256:
   `4b6ff1176e5516b314b556c3fafd52897cd514134611f8ecc16211201c422467` *(Sprint 74)*
-* [ ] Decide re-validation scope for the rc2 fix (full UAT re-run vs. targeted check vs.
-  deferred to owner) once the test VM is stable again
 * [x] `installer.py --dry-run` for the 1.0.1 upgrade path run on the real production system
   – detection and preflight checks passed, no side effects *(Sprint 75)*
-* [ ] Full upgrade run (not just dry-run) for 1.2.0, ideally in a VM once stable, to
-  validate the actual migration/rollback steps – see `docs/reports/RELEASE_CANDIDATE_1.2.0rc2.md`
-* [ ] Merge to `main` after remaining gate items pass
+* [x] Manual UAT in English run against `1.2.0rc2` on a new libvirt/KVM VM (all 15 steps
+  passed); Step 7 also served as the end-to-end re-validation of the UAT-1.2.0-DE-001 fix
+  against a real systemd user instance, accepted by the owner as sufficient. One new
+  non-blocking finding, UAT-1.2.0-EN-001 (doctor's language fallback on an unloadable
+  config), accepted as known/deferred. UAT decision updated to `Passed` *(Sprint 76)*
+* [x] Full upgrade run (not just dry-run) for 1.2.0 in an isolated VM: real 1.0.1 legacy
+  installation upgraded to `1.2.0rc2` via `installer.py`; negative preflight, config/password
+  preservation, launcher/unit/timer cutover, post-upgrade backup/restore and idempotent
+  rerun all verified *(Sprint 77)*
+* [x] Managed fresh-install validation of `1.2.0rc2` via `installer.py` in an isolated VM:
+  dry-run and real run, launcher/versioned-venv cutover, setup, backup/restore, EOF
+  handling, doctor/health, cleanup, and idempotent rerun all verified — **last outstanding
+  gate item, now resolved** *(Sprint 78)*
+* [ ] Merge to `main` — technically ready, awaiting explicit owner sign-off
 * [ ] Release Version 1.2.0
 
 ---
@@ -595,6 +606,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0rc1 in Vorbereitung, Feature Freeze aktiv (Sprint 72
-abgeschlossen) ·
+Stable Version 1.1.0 · v1.2.0rc2 bereit für Merge (Sprint 78 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager

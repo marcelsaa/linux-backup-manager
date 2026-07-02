@@ -8,6 +8,57 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 78 – Managed-Fresh-Install-Validierung über installer.py bestanden
+
+### UAT / Validierung
+
+* Verwaltete Neuinstallation von `1.2.0rc2` über `installer.py` (Dry-Run dann echter Lauf)
+  in einer vierten isolierten VM (`ubuntu24.04-managed-Fresh`) durchgeführt: Modus korrekt
+  als `fresh` erkannt, Launcher-Symlink korrekt auf die neue versionierte venv gesetzt,
+  keine `config.yaml` durch den Installer selbst angelegt. Anschließendes First-User-Setup
+  (Deutsch), Backup/Check, Restore, EOF-Verhalten, `doctor`/`health`, `schedule-remove` und
+  ein idempotenter Re-Lauf (`Detected mode: current`) alle bestanden.
+* Damit sind **alle** Punkte aus `docs/reports/RELEASE_CANDIDATE_1.2.0rc2.md`
+  ("Outstanding Before Release") erledigt. Der Kandidat ist technisch bereit für den Merge
+  nach `main`; der Merge selbst erfolgt erst nach ausdrücklicher Freigabe des Nutzers.
+
+## Sprint 77 – Voller Upgrade-Lauf 1.0.1→1.2.0rc2 in isolierter VM bestanden
+
+### UAT / Validierung
+
+* Voller (nicht nur Dry-Run) Upgrade-Lauf von einer echten 1.0.1-Installation (Legacy-Venv-
+  Layout wie auf dem Produktivsystem, echte Config/Passwort/NAS-Repository/Snapshots/Timer)
+  auf `1.2.0rc2` in einer dritten isolierten VM (`ubuntu24.04-UAT`) durchgeführt. 1.0.1-Wheel
+  aus dem Git-Tag `v1.0.1` gebaut, da kein fertiges Artefakt mehr vorlag.
+* Negativer Preflight (unerreichbares NAS) korrekt mit Exit `1` und ohne Zustandsänderung
+  abgelehnt. Echter Upgrade-Lauf: Config/Passwort-Inhalt und -Rechte exakt erhalten, alter
+  1.0.1-Venv für Rollback erhalten, Launcher korrekt auf neue versionierte venv umgeschaltet,
+  systemd-Units auf neuen Interpreter aktualisiert, Timer-Zustand erhalten, `doctor`/`check`
+  danach fehlerfrei. Post-Upgrade-Backup und -Restore erfolgreich (SHA-256-Match), erneuter
+  Installer-Lauf korrekt als `current` (idempotent) erkannt.
+* Damit ist der seit Sprint 74/75 offene Punkt "voller Upgrade-Lauf" erledigt. Letzter
+  verbleibender Punkt vor Merge nach `main`: Managed-Fresh-Install-Validierung über
+  `installer.py`.
+
+## Sprint 76 – Englischer UAT-Durchlauf für 1.2.0rc2 auf neuer VM-Umgebung
+
+### UAT / Validierung
+
+* Englischer UAT-Durchlauf (seit Sprint 73 ausstehend) auf einer neuen, stabilen
+  libvirt/KVM-VM (`Ubuntu24.04-Clean`, Ubuntu 24.04) vollständig und ohne Workaround
+  durchgeführt – gegen `1.2.0rc2` statt des überholten `1.2.0rc1`. Alle 15 Schritte
+  bestanden, durchgehend Englisch.
+* Schritt 7 (Settings → Zeitplan) diente gleichzeitig als End-to-End-Nachprüfung des
+  UAT-1.2.0-DE-001-Fixes gegen eine echte systemd-User-Instanz: Timer-`OnCalendar`
+  bestätigt aktualisiert, `list-timers` bestätigt neuen Trigger. Vom Projektinhaber als
+  ausreichende Re-Validierung akzeptiert – Fix jetzt vollständig bestätigt.
+* Neuer, nicht-blockierender Fund UAT-1.2.0-EN-001: `doctor` fällt bei komplett nicht
+  ladbarer Konfiguration auf Deutsch statt Englisch zurück
+  (`_configured_language()` in `src/lbm/cli/main.py`). Vom Projektinhaber als bekannt und
+  aufgeschoben akzeptiert, kein Release-Blocker.
+* UAT-Entscheidung in `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md` von "Pending" auf
+  "Passed" aktualisiert – beide Sprachdurchläufe jetzt abgeschlossen.
+
 ## Sprint 75 – Dry-Run-Validierung des 1.0.1→1.2.0-Upgrade-Pfads
 
 ### UAT / Validierung
