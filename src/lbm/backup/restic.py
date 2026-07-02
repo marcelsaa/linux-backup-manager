@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime
@@ -109,28 +108,54 @@ class ResticRepository:
             status,
         )
     
-    def _parse_backup_output(self, output: str) -> BackupResult:
-        snapshot_match = re.search(r"snapshot\s+([a-f0-9]+)\s+saved", output)
-        files_match = re.search(
-            r"Files:\s+(\d+)\s+new,\s+(\d+)\s+changed,\s+(\d+)\s+unmodified",
-            output,
-        )
-        processed_match = re.search(
-            r"processed\s+(\d+)\s+files,\s+(.+?)\s+in\s+(.+)",
-            output,
-        )
-
+    def _parse_backup_json(self, output: str) -> BackupResult:
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if data.get("message_type") != "summary":
+                continue
+            return BackupResult(
+                ok=True,
+                snapshot_id=data.get("snapshot_id"),
+                files_new=int(data.get("files_new", 0)),
+                files_changed=int(data.get("files_changed", 0)),
+                files_unmodified=int(data.get("files_unmodified", 0)),
+                processed_files=int(data.get("total_files_processed", 0)),
+                processed_size=self._format_bytes(int(data.get("total_bytes_processed", 0))),
+                duration=self._format_duration(float(data.get("total_duration", 0))),
+                message=output.strip(),
+            )
         return BackupResult(
             ok=True,
-            snapshot_id=snapshot_match.group(1) if snapshot_match else None,
-            files_new=int(files_match.group(1)) if files_match else 0,
-            files_changed=int(files_match.group(2)) if files_match else 0,
-            files_unmodified=int(files_match.group(3)) if files_match else 0,
-            processed_files=int(processed_match.group(1)) if processed_match else 0,
-            processed_size=processed_match.group(2) if processed_match else "unbekannt",
-            duration=processed_match.group(3) if processed_match else "unbekannt",
+            snapshot_id=None,
+            files_new=0,
+            files_changed=0,
+            files_unmodified=0,
+            processed_files=0,
+            processed_size="",
+            duration="",
             message=output.strip(),
         )
+
+    @staticmethod
+    def _format_bytes(n: int) -> str:
+        if n < 1024:
+            return f"{n} B"
+        if n < 1024 ** 2:
+            return f"{n / 1024:.3f} KiB"
+        if n < 1024 ** 3:
+            return f"{n / 1024 ** 2:.3f} MiB"
+        return f"{n / 1024 ** 3:.3f} GiB"
+
+    @staticmethod
+    def _format_duration(seconds: float) -> str:
+        total = int(seconds)
+        return f"{total // 60}:{total % 60:02d}"
 
     def init_repository(self) -> ResticRepositoryInfo:
         result = self._run(["restic", "init"])
@@ -149,7 +174,7 @@ class ResticRepository:
         )
     
     def backup(self, paths: list[Path], excludes: list[str]) -> BackupResult:
-        command = ["restic", "backup"]
+        command = ["restic", "backup", "--json"]
 
         for exclude in excludes:
             command.extend(["--exclude", exclude])
@@ -159,7 +184,7 @@ class ResticRepository:
         result = self._run(command)
 
         if result.returncode == 0:
-            return self._parse_backup_output(result.stdout)
+            return self._parse_backup_json(result.stdout)
 
         return BackupResult(
             ok=False,
@@ -341,3 +366,31 @@ class ResticRepository:
             return result.stderr.strip()
 
         return result.stdout.strip()
+
+    def change_password(self, new_password_file: Path) -> bool:
+        result = self._run(
+            ["restic", "key", "passwd", "--new-password-file", str(new_password_file)]
+        )
+        return result.returncode == 0
+
+    def cleanup(
+        self,
+        keep_daily: int,
+        keep_weekly: int,
+        keep_monthly: int,
+        keep_yearly: int,
+    ) -> bool:
+        forget = self._run(
+            [
+                "restic",
+                "forget",
+                "--keep-daily", str(keep_daily),
+                "--keep-weekly", str(keep_weekly),
+                "--keep-monthly", str(keep_monthly),
+                "--keep-yearly", str(keep_yearly),
+            ]
+        )
+        if forget.returncode != 0:
+            return False
+        prune = self._run(["restic", "prune"])
+        return prune.returncode == 0

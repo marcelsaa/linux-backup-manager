@@ -3,6 +3,7 @@ from pathlib import Path
 from lbm.core.config import AppConfig
 from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryProvider
+from lbm.utils.prompts import is_yes
 
 
 class RestoreService:
@@ -56,11 +57,11 @@ class RestoreService:
 
         if target.exists() and any(target.iterdir()):
             warning = input(self._text("restore.nonempty_target"))
-            if not self._is_yes(warning):
+            if not is_yes(warning, self._text("common.yes_short")):
                 print(self._text("common.cancelled"))
                 return False
 
-        if not self._is_yes(input(self._text("restore.start"))):
+        if not is_yes(input(self._text("restore.start")), self._text("common.yes_short")):
             print(self._text("common.cancelled"))
             return False
 
@@ -77,9 +78,6 @@ class RestoreService:
         default = Path.home() / "lbm-restore" / snapshot_id
         value = input(self._text("restore.target_prompt", default=default)).strip()
         return Path(value).expanduser() if value else default
-
-    def _is_yes(self, answer: str) -> bool:
-        return answer.strip().lower() in {"j", "y", self._text("common.yes_short")}
 
     def _text(self, key: str, **values: object) -> str:
         return self.language.translate(key, **values)

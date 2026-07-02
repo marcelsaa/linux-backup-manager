@@ -3,7 +3,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import pytest
@@ -258,6 +258,84 @@ def test_preflight_rejects_insufficient_space(
 
     with pytest.raises(InstallerError, match="Insufficient free space"):
         installer._preflight(None)
+
+
+def test_desktop_entry_created_when_user_confirms(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    with patch("builtins.input", return_value="y"):
+        installer._offer_desktop_entry(assume_yes=False)
+
+    assert layout.desktop_entry.is_file()
+    content = layout.desktop_entry.read_text()
+    assert "Terminal=true" in content
+    assert str(layout.launcher) in content
+    assert layout.desktop_entry.stat().st_mode & 0o644 == 0o644
+
+
+def test_desktop_entry_not_created_when_user_declines(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    with patch("builtins.input", return_value="n"):
+        installer._offer_desktop_entry(assume_yes=False)
+
+    assert not layout.desktop_entry.exists()
+
+
+def test_desktop_entry_created_with_assume_yes(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    installer._offer_desktop_entry(assume_yes=True)
+
+    assert layout.desktop_entry.is_file()
+
+
+def test_desktop_icon_created_when_desktop_dir_exists(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    layout.desktop.mkdir(parents=True)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    with patch("builtins.input", side_effect=["y", "y"]):
+        installer._offer_desktop_entry(assume_yes=False)
+
+    assert layout.desktop_icon.is_file()
+    assert layout.desktop_icon.stat().st_mode & 0o111
+
+
+def test_desktop_icon_skipped_when_desktop_dir_missing(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    with patch("builtins.input", side_effect=["y", "y"]):
+        installer._offer_desktop_entry(assume_yes=False)
+
+    assert layout.desktop_entry.is_file()
+    assert not layout.desktop_icon.exists()
+
+
+def test_desktop_icon_not_created_with_assume_yes(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    layout.desktop.mkdir(parents=True)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    installer._offer_desktop_entry(assume_yes=True)
+
+    assert layout.desktop_entry.is_file()
+    assert not layout.desktop_icon.exists()
+
+
+def test_desktop_content_uses_launcher_path(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    content = installer._desktop_content()
+
+    assert f"Exec={layout.launcher}" in content
+    assert "Terminal=true" in content
+    assert "Type=Application" in content
 
 
 def test_failed_upgrade_restores_exact_operational_state(tmp_path: Path) -> None:

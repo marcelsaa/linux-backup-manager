@@ -72,10 +72,10 @@ class BackupConfig(BaseModel):
     excludes: list[str]
 
 class RetentionConfig(BaseModel):
-    keep_daily: int
-    keep_weekly: int
-    keep_monthly: int
-    keep_yearly: int
+    keep_daily: int = 14
+    keep_weekly: int = 8
+    keep_monthly: int = 12
+    keep_yearly: int = 3
 
 
 class ScheduleConfig(BaseModel):

@@ -2,6 +2,8 @@
 
 # Configuration Reference
 
+**[Deutsche Version](de/CONFIGURATION.md)**
+
 **Version:** 1.1.0
 
 ---

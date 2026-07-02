@@ -2,6 +2,8 @@
 
 # Frequently Asked Questions (FAQ)
 
+**[Deutsche Version](de/FAQ.md)**
+
 **Version:** 1.1.0-rc1
 
 ---
@@ -65,17 +67,16 @@ reports USB reachability and the repository state without changing either one.
 
 ## Can I use multiple USB drives?
 
-Not yet.
-
-Support for multiple backup targets is planned for Version 1.1.
+Not simultaneously as two independent USB targets. Only one USB target can be configured at
+a time. See `docs/ROADMAP.md` for planned work in this area.
 
 ---
 
 ## Can I use a NAS?
 
-Not yet.
-
-NAS support is part of the Version 1.1 roadmap.
+Yes. NAS backups to a mounted network share are supported alongside USB, and both run in
+parallel when enabled. See `docs/CONFIGURATION.md` for the `targets.nas` configuration
+options.
 
 ---
 
@@ -138,13 +139,7 @@ Normally it is executed after `forget`.
 
 # Future Features
 
-The following features are already planned:
-
-* Multiple backup targets
-* NAS support
-* Interactive backup configuration
-* German and English application language
-* German documentation
+See `docs/ROADMAP.md` for completed and planned work.
 
 ---
 

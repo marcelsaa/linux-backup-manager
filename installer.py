@@ -72,6 +72,22 @@ class Layout:
     def backup_root(self) -> Path:
         return self.data_root / "upgrade-backups"
 
+    @property
+    def applications_dir(self) -> Path:
+        return self.home / ".local/share/applications"
+
+    @property
+    def desktop_entry(self) -> Path:
+        return self.applications_dir / "linux-backup-manager.desktop"
+
+    @property
+    def desktop(self) -> Path:
+        return self.home / "Desktop"
+
+    @property
+    def desktop_icon(self) -> Path:
+        return self.desktop / "linux-backup-manager.desktop"
+
 
 Run = Callable[..., subprocess.CompletedProcess[str]]
 
@@ -158,6 +174,7 @@ class Installer:
         else:
             assert old_python is not None
             self._upgrade(old_python)
+        self._offer_desktop_entry(assume_yes=assume_yes)
         return mode
 
     def _installed_python(self) -> Path | None:
@@ -555,6 +572,51 @@ print('LBM_REPOSITORIES=' + hashlib.sha256(payload).hexdigest())
             raise InstallerError("systemd timer state differs")
         if self._repository_signature(old_python) != repository_before:
             raise InstallerError("repository snapshot state differs")
+
+    def _offer_desktop_entry(self, *, assume_yes: bool) -> None:
+        print()
+        print("Create desktop shortcut?")
+        print("You can start Linux Backup Manager conveniently by double-clicking the shortcut.")
+        if not assume_yes:
+            answer = input("Create application menu entry? [y/j/N]: ").strip().lower()
+            if answer not in {"y", "yes", "j", "ja"}:
+                return
+
+        self.layout.applications_dir.mkdir(parents=True, exist_ok=True)
+        self.layout.desktop_entry.write_text(self._desktop_content(), encoding="utf-8")
+        self.layout.desktop_entry.chmod(0o644)
+        print(f"Application menu entry created: {self.layout.desktop_entry}")
+
+        if shutil.which("update-desktop-database"):
+            self.runner(
+                ["update-desktop-database", str(self.layout.applications_dir)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        if assume_yes:
+            return
+        answer = input("Also create a shortcut on the Desktop? [y/j/N]: ").strip().lower()
+        if answer not in {"y", "yes", "j", "ja"}:
+            return
+        if not self.layout.desktop.is_dir():
+            print(f"Desktop directory not found: {self.layout.desktop}")
+            return
+        shutil.copy2(self.layout.desktop_entry, self.layout.desktop_icon)
+        self.layout.desktop_icon.chmod(0o755)
+        print(f"Desktop shortcut created: {self.layout.desktop_icon}")
+
+    def _desktop_content(self) -> str:
+        return (
+            "[Desktop Entry]\n"
+            "Type=Application\n"
+            "Name=Linux Backup Manager\n"
+            "Comment=Manage your Restic backups\n"
+            f"Exec={self.layout.launcher}\n"
+            "Terminal=true\n"
+            "Categories=System;Utility;\n"
+        )
 
     def _remove_backup(self, backup: Path) -> None:
         shutil.rmtree(backup, ignore_errors=True)

@@ -6,6 +6,521 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
+# Unreleased – v1.2.0
+
+## Sprint 78 – Managed-Fresh-Install-Validierung über installer.py bestanden
+
+### UAT / Validierung
+
+* Verwaltete Neuinstallation von `1.2.0rc2` über `installer.py` (Dry-Run dann echter Lauf)
+  in einer vierten isolierten VM (`ubuntu24.04-managed-Fresh`) durchgeführt: Modus korrekt
+  als `fresh` erkannt, Launcher-Symlink korrekt auf die neue versionierte venv gesetzt,
+  keine `config.yaml` durch den Installer selbst angelegt. Anschließendes First-User-Setup
+  (Deutsch), Backup/Check, Restore, EOF-Verhalten, `doctor`/`health`, `schedule-remove` und
+  ein idempotenter Re-Lauf (`Detected mode: current`) alle bestanden.
+* Damit sind **alle** Punkte aus `docs/reports/RELEASE_CANDIDATE_1.2.0rc2.md`
+  ("Outstanding Before Release") erledigt. Der Kandidat ist technisch bereit für den Merge
+  nach `main`; der Merge selbst erfolgt erst nach ausdrücklicher Freigabe des Nutzers.
+
+## Sprint 77 – Voller Upgrade-Lauf 1.0.1→1.2.0rc2 in isolierter VM bestanden
+
+### UAT / Validierung
+
+* Voller (nicht nur Dry-Run) Upgrade-Lauf von einer echten 1.0.1-Installation (Legacy-Venv-
+  Layout wie auf dem Produktivsystem, echte Config/Passwort/NAS-Repository/Snapshots/Timer)
+  auf `1.2.0rc2` in einer dritten isolierten VM (`ubuntu24.04-UAT`) durchgeführt. 1.0.1-Wheel
+  aus dem Git-Tag `v1.0.1` gebaut, da kein fertiges Artefakt mehr vorlag.
+* Negativer Preflight (unerreichbares NAS) korrekt mit Exit `1` und ohne Zustandsänderung
+  abgelehnt. Echter Upgrade-Lauf: Config/Passwort-Inhalt und -Rechte exakt erhalten, alter
+  1.0.1-Venv für Rollback erhalten, Launcher korrekt auf neue versionierte venv umgeschaltet,
+  systemd-Units auf neuen Interpreter aktualisiert, Timer-Zustand erhalten, `doctor`/`check`
+  danach fehlerfrei. Post-Upgrade-Backup und -Restore erfolgreich (SHA-256-Match), erneuter
+  Installer-Lauf korrekt als `current` (idempotent) erkannt.
+* Damit ist der seit Sprint 74/75 offene Punkt "voller Upgrade-Lauf" erledigt. Letzter
+  verbleibender Punkt vor Merge nach `main`: Managed-Fresh-Install-Validierung über
+  `installer.py`.
+
+## Sprint 76 – Englischer UAT-Durchlauf für 1.2.0rc2 auf neuer VM-Umgebung
+
+### UAT / Validierung
+
+* Englischer UAT-Durchlauf (seit Sprint 73 ausstehend) auf einer neuen, stabilen
+  libvirt/KVM-VM (`Ubuntu24.04-Clean`, Ubuntu 24.04) vollständig und ohne Workaround
+  durchgeführt – gegen `1.2.0rc2` statt des überholten `1.2.0rc1`. Alle 15 Schritte
+  bestanden, durchgehend Englisch.
+* Schritt 7 (Settings → Zeitplan) diente gleichzeitig als End-to-End-Nachprüfung des
+  UAT-1.2.0-DE-001-Fixes gegen eine echte systemd-User-Instanz: Timer-`OnCalendar`
+  bestätigt aktualisiert, `list-timers` bestätigt neuen Trigger. Vom Projektinhaber als
+  ausreichende Re-Validierung akzeptiert – Fix jetzt vollständig bestätigt.
+* Neuer, nicht-blockierender Fund UAT-1.2.0-EN-001: `doctor` fällt bei komplett nicht
+  ladbarer Konfiguration auf Deutsch statt Englisch zurück
+  (`_configured_language()` in `src/lbm/cli/main.py`). Vom Projektinhaber als bekannt und
+  aufgeschoben akzeptiert, kein Release-Blocker.
+* UAT-Entscheidung in `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md` von "Pending" auf
+  "Passed" aktualisiert – beide Sprachdurchläufe jetzt abgeschlossen.
+
+## Sprint 75 – Dry-Run-Validierung des 1.0.1→1.2.0-Upgrade-Pfads
+
+### UAT / Validierung
+
+* `installer.py --dry-run` mit dem `1.2.0rc2`-Wheel direkt auf dem echten Produktivsystem
+  ausgeführt (Version dort: `1.0.1`). Ergebnis: Modus korrekt als `upgrade` erkannt,
+  Preflight-Prüfungen (Python ≥ 3.12, Restic, Speicherplatz) bestanden, keinerlei
+  Seiteneffekte (Config, Passwortdatei, systemd-Timer vor/nach Lauf verifiziert
+  unverändert). Deckt aber nur Erkennung/Preflight ab, nicht die eigentliche Migration
+  (venv-Cutover, Rollback) – ein voller Upgrade-Lauf bleibt vor dem echten Produktiv-Upgrade
+  empfohlen.
+
+## Sprint 74 – UAT-1.2.0-DE-001 behoben (1.2.0rc2)
+
+### Fixed
+
+* `settings`-Zeitplan-Untermenü (`configure_settings()` in `src/lbm/setup/wizard.py`)
+  installiert den systemd-Timer jetzt korrekt neu, wenn der Zeitplan geändert wird
+  (`SystemdScheduler.install()`), bzw. entfernt ihn, wenn die Planung im Menü deaktiviert
+  wird (`SystemdScheduler.remove()`). Vorher wurde nur `config.yaml` aktualisiert, der Timer
+  behielt die alte Zeit bei. Behebt UAT-1.2.0-DE-001.
+* Neue Tests in `tests/test_setup_wizard.py`: Reinstall bei aktiviertem Zeitplan, Removal bei
+  Deaktivierung, kein Scheduler-Aufruf bei anderen Menüpunkten (185 Tests, vorher 182).
+* Version auf `1.2.0rc2` angehoben; neues Wheel gebaut (SHA-256
+  `4b6ff1176e5516b314b556c3fafd52897cd514134611f8ecc16211201c422467`).
+
+## Sprint 73 – Englischer UAT-Durchlauf: nicht sicher durchführbar
+
+### UAT
+
+* Der englische UAT-Durchlauf für 1.2.0rc1 konnte nicht sicher durchgeführt werden: die
+  Host-Hardware für die GNOME-Boxes-Test-VM wurde instabil (VM startete unzuverlässig,
+  SSH-Portweiterleitung brach wiederholt ab). Auf ausdrückliche Weisung des Projektinhabers
+  wird dies als "nicht sicher durchgeführt" dokumentiert statt stillschweigend übersprungen
+  oder fälschlich als bestanden vermerkt – siehe
+  `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`, Abschnitt "English Pass Waived".
+* Dies ist eine einmalige, vom Projektinhaber freigegebene Ausnahme; die englischsprachige
+  Bedienung wird nach dem Release manuell auf dem Echtsystem verifiziert.
+
+## Sprint 72 – UAT-Durchführung 1.2.0rc1 (deutscher Durchlauf)
+
+### UAT
+
+* Kompletter deutscher UAT-Durchlauf (Schritte 1–15) in einer isolierten GNOME-Boxes-VM
+  (Linux Mint 22.3) per SSH durchgeführt. 14 von 15 Bereichen ohne Befund bestanden.
+* **Fund UAT-1.2.0-DE-001:** Das `settings`-Zeitplan-Untermenü aktualisiert `config.yaml`,
+  installiert den systemd-Timer aber nicht neu – der Timer behält die alte `OnCalendar`-Zeit,
+  ohne Warnhinweis. `doctor` erkennt diese Diskrepanz ebenfalls nicht (prüft nur
+  aktiv/aktiviert, nicht die Zeit-Übereinstimmung). Nicht release-blockierend (bestehender
+  Zeitplan funktioniert weiter), aber ein reales Verhaltensproblem.
+* Bestätigt: Der 1.1.0rc1-Fund UAT-DE-002 (unerwünschtes Catch-up-Snapshot durch den
+  `due`-Timer) tritt in 1.2.0rc1 nicht mehr auf.
+* Bestätigt: Der 1.1.0rc1-Fund UAT-DE-001 (Beispiel-Hostname `blackpanther` statt echtem
+  Hostnamen) ist behoben – `setup` setzt `host_name` korrekt über `gethostname()`.
+* Englischer Durchlauf noch offen (braucht eine zweite frische VM oder ein zurückgesetztes
+  Abbild derselben VM).
+
+## Sprint 71 – UAT-Anleitung für 1.2.0rc1
+
+### Added
+
+* `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`: vollständige, schrittweise
+  UAT-Anleitung für die fällige VM-Validierung (fokussiert auf Neuinstallation, nicht
+  Upgrade). Deckt den kompletten Ablauf ab und legt besonderen Fokus auf die seit 1.1.0
+  neuen Befehle (`settings`, `change-password`, `export-config`/`import-config`) sowie die
+  strukturierte `doctor`-Ausgabe. Deutsch/Englisch-Unterschiede (Bestätigungs-Buchstaben
+  `[j/N]` vs. `[y/N]`, Doctor-Statuslabels, Timer-Statustexte) explizit tabellarisch
+  aufgeführt. Enthält leere Acceptance-Record- und Findings-Vorlagen sowie eine
+  Entscheidungsregel, analog zu `docs/reports/FINAL_USER_ACCEPTANCE_TEST_1.1.0rc1.md`.
+* `docs/reports/RELEASE_CANDIDATE_1.2.0rc1.md`: Verweis auf die neue UAT-Anleitung ergänzt.
+
+## Sprint 70 – Version 1.2.0 Release Candidate 1
+
+### Changed
+
+* Package version advanced from `1.2.0.dev0` to `1.2.0rc1` for RC validation.
+* Feature freeze begins: from this point on, only bug fixes, documentation and translation
+  corrections are applied until the 1.2.0 release.
+* Local quality gate passed: `ruff check .`, `python -m compileall`, `pytest` (182 tests),
+  `python -m build`, `python -m twine check dist/*` – all green.
+* Wheel built: `linux_backup_manager-1.2.0rc1-py3-none-any.whl`, SHA-256
+  `0f012f29125f59104422c2d70d6f021f683b25489a39e9c3a47adac9daa9c9f9`.
+
+### Scope of 1.2.0
+
+Product features since 1.1.0 (Sprints 46–54): automatic repository cleanup and retention
+defaults, systemd timer diagnostics, desktop integration, `change-password`, interactive
+`settings` menu, structured `doctor` output, `restic --json` parsing, `export-config`/
+`import-config`. Process and documentation work (Sprints 55–69): license and security
+policy, full GitHub publication, and complete bilingual documentation. User tutorials and
+additional examples are deferred past 1.2.0 and do not block this release.
+
+### Pending before release
+
+* Managed fresh-install validation in an isolated VM (manual, not automatable in this
+  environment).
+* Manual UAT in German and English.
+* Merge to `main` after UAT passes.
+
+## Sprint 69 – Bilinguale Dokumentation abgeschlossen: FAQ, Konfiguration, systemd
+
+### Added
+
+* `docs/de/FAQ.md`, `docs/de/CONFIGURATION.md`, `docs/de/SYSTEMD.md`: vollständige deutsche
+  Übersetzungen – letzte Gruppe der bilingualen Dokumentation. Damit sind alle 8
+  vorgesehenen nutzerorientierten Docs zweisprachig verfügbar.
+* Sprachumschalter-Links in beiden Richtungen für alle drei Dokumente.
+* `README.md`- und `docs/de/README.md`-Dokumentationslisten vervollständigt (Platzhalter aus
+  Sprint 67/68 durch echte Links ersetzt).
+
+### Fixed
+
+* `docs/FAQ.md` enthielt veraltete Antworten: "Kann ich ein NAS verwenden?" behauptete
+  fälschlich "noch nicht", obwohl NAS-Unterstützung bereits vor 1.1.0 implementiert wurde;
+  die "Future Features"-Liste war komplett überholt (alle fünf Punkte bereits erledigt oder
+  in Arbeit). Vor der Übersetzung im englischen Original korrigiert, um den Fehler nicht in
+  beide Sprachen zu übernehmen.
+
+## Sprint 68 – Bilinguale Dokumentation: Installation, Restore, Recovery
+
+### Added
+
+* `docs/de/INSTALL.md`, `docs/de/RESTORE.md`, `docs/de/RECOVERY.md`: vollständige deutsche
+  Übersetzungen.
+* Sprachumschalter-Links in beiden Richtungen für alle drei Dokumente.
+* `README.md`-Dokumentationsliste um die drei deutschen Links ergänzt.
+
+### Fixed
+
+* `docs/de/README.md` verlinkte bereits auf noch nicht existierende
+  `docs/de/CONFIGURATION.md`/`FAQ.md`/`SYSTEMD.md` (vorausschauend in Sprint 67 gesetzt).
+  Bis zur Übersetzung dieser drei Dokumente zeigen die Links vorübergehend auf die
+  englischen Originale.
+
+## Sprint 67 – Bilinguale Dokumentation: README und User Guide
+
+### Added
+
+* `docs/de/README.md`: vollständige deutsche Übersetzung der README.
+* `docs/de/USER_GUIDE.md`: vollständige deutsche Übersetzung des Benutzerhandbuchs.
+* Gegenseitige Sprachumschalter-Links am Kopf von `README.md`/`docs/de/README.md` und
+  `docs/USER_GUIDE.md`/`docs/de/USER_GUIDE.md`.
+* `README.md`-Dokumentationsliste: Link zur deutschen USER_GUIDE ergänzt.
+
+### Changed
+
+* `docs/ROADMAP.md`: Fortschritt bei "Complete German and English documentation"
+  dokumentiert (2 von 8 vorgesehenen Dokumenten fertig); Architektur-/Prozess-Docs bleiben
+  bewusst englisch-only.
+* `CLAUDE.md`-Dokumentationsstruktur um `docs/de/*.md` ergänzt.
+
+## Sprint 66 – Fix: installer-Test hing an echtem `restic`-Binary
+
+### Fixed
+
+* `tests/test_installer.py::test_dry_run_does_not_create_files` konstruierte den
+  `Installer` ohne gemockten `runner` – dadurch rief `_preflight()` echte
+  `subprocess`-Aufrufe an `restic version` auf. Lief lokal nur durch, weil `restic`
+  installiert war; schlug auf dem GitHub-Actions-Runner (kein `restic` vorhanden) fehl.
+  Fund: erster echter CI-Lauf auf GitHub nach der Veröffentlichung (Sprint 65) zeigte den
+  Fehler auf `main`. Behoben durch Ergänzen von `runner=Mock(return_value=completed(stdout="3.12\n"))`,
+  passend zum in allen anderen Installer-Tests verwendeten Dependency-Injection-Muster.
+* Derselbe Bug bestand unverändert auch auf dem `main`-Branch (stammt aus Sprint 44 /
+  v1.1.0). Auf Nutzerentscheidung direkt dort gefixt (Commit `fix: mock restic in installer
+  dry-run test`, bewusste Abweichung vom Standard-"nur via PR aus develop"-Workflow, da reine
+  Testisolation ohne Verhaltensänderung) und zu GitHub gepusht. Beide CI-Läufe (`main` und
+  `develop`) sind jetzt grün.
+
+## Sprint 65 – Repository öffentlich auf GitHub veröffentlicht
+
+### Added
+
+* Öffentliches Repository unter https://github.com/marcelsaa/linux-backup-manager
+  angelegt (leer initialisiert, kein README/.gitignore/License von GitHub).
+* Gefilterte Kopie (frisch regeneriert auf Stand Sprint 64, inkl. Autor-E-Mail-Korrektur
+  und Ausschluss von `docs/reports/`/`CLAUDE.md`) gepusht: `main` (Default-Branch),
+  `develop`, Tags `v1.0.1`/`v1.1.0`/`v1.1.0rc2`.
+* Issues in den Repository-Einstellungen deaktiviert (`hasIssuesEnabled: false`).
+* Erster CI-Lauf auf GitHub Actions automatisch durch den Push ausgelöst.
+
+### Notes
+
+* Der GitHub-Push scheiterte zunächst, da das `gh`-Token nicht den `workflow`-Scope hatte
+  (nötig für `.github/workflows/ci.yml`); nach `gh auth refresh -h github.com -s workflow`
+  erfolgreich abgeschlossen.
+* Das eigentliche Arbeits-Repo (`/home/marcel/Projekte/linux-backup-manager`) war zu keinem
+  Zeitpunkt Ziel des Pushes und bleibt unverändert; die lokale gefilterte Kopie unter
+  `/home/marcel/Projekte/linux-backup-manager-public.git` bleibt als Vorlage für künftige
+  Aktualisierungen (z. B. den v1.2.0-Release) bestehen.
+
+## Sprint 64 – Versions- und Roadmap-Konsistenz
+
+### Changed
+
+* `pyproject.toml`: Version von `1.1.0` auf `1.2.0.dev0` gesetzt, passend zur seit Sprint 46
+  laufenden v1.2.0-Entwicklung. Folgt derselben Konvention wie der `1.1.0.dev0`-Bump direkt
+  nach dem 1.0.1-Release.
+* `docs/ROADMAP.md`: Checkbox "Begin Version 1.2 development after the Version 1.1.0
+  release" abgehakt – war seit Sprint 46 faktisch erfüllt, aber nie markiert.
+
+## Sprint 63 – README für externe Zielgruppe und History-Bereinigung vorbereitet
+
+### Changed
+
+* `README.md`: CI-/Lizenz-/Python-Badges ergänzt, Installationsabschnitt um konkreten
+  Releases-Link und Klon-URL erweitert, neue "Example Session" mit illustrativem
+  Terminal-Transkript (keine echten Screenshots, da CLI-Tool ohne Bildmaterial),
+  Dokumentationsliste in klickbare Links umgewandelt, neuer
+  "Contributing & Support"-Abschnitt (verweist auf `CONTRIBUTING.md`/`SECURITY.md`),
+  veralteten Feature-Freeze-Hinweis im "Project Status"-Abschnitt korrigiert.
+
+### Added (außerhalb des Arbeits-Repos)
+
+* Separate, gefilterte bare Kopie unter
+  `/home/marcel/Projekte/linux-backup-manager-public.git`, erzeugt via `git-filter-repo`:
+  `docs/reports/` und `CLAUDE.md` aus der gesamten Historie entfernt und verifiziert nicht
+  mehr als Objekte vorhanden; Autor-E-Mail der ersten vier Commits per `--mailmap` auf
+  `marcel.saager@gmx.de` vereinheitlicht; interner Tag `backup-v1.0.0-before-refactor`
+  entfernt; `refs/replace/*`- und `refs/codex/*`-Nebenreferenzen bereinigt;
+  `git gc --prune=now` durchgeführt. Das eigentliche Arbeits-Repo bleibt davon unberührt.
+  Funktionaler Sanity-Check (`compileall` + `pytest`, 182 Tests) in einem Checkout der
+  gefilterten Kopie erfolgreich.
+
+## Sprint 62 – CLAUDE.md-Veröffentlichung und Co-Authored-By entschieden
+
+### Decided
+
+* `CLAUDE.md` bleibt privat, analog zu `docs/reports/`. Enthält keine personenbezogenen
+  Daten (geprüft), ist aber ein internes Arbeitsanweisungs-Dokument für den KI-Assistenten
+  ohne Mehrwert für die Zielgruppe – passt zum Engagement-Modell (Sprint 60). Muss bei der
+  späteren History-Filterung ebenfalls ausgeschlossen werden.
+* `Co-Authored-By: Claude Sonnet` im Git-Verlauf bleibt unverändert stehen. Anders als der
+  Tailscale-Fund (Sprint 58) ist das kein Datenschutzrisiko, sondern eine zutreffende
+  Attribution; ein History-Rewrite dafür wäre eine sachlich unbegründete Verfälschung.
+* `docs/ROADMAP.md` entsprechend aktualisiert (beide Checkboxen im Abschnitt
+  "Repository-Inhalt" abgehakt).
+
+## Sprint 61 – Distributionskanal und Versionierung entschieden
+
+### Decided
+
+* Distributionskanal für die Veröffentlichung: **GitHub Releases** (Wheel + `installer.py` +
+  veröffentlichter SHA-256), **kein PyPI**. `installer.py` baut eine eigene verwaltete venv
+  mit Desktop-Integration, Upgrade-Erkennung und Rollback auf, was zu einem `pip
+  install`-Fluss nicht passt. Der freie PyPI-Name (Sprint 59) bleibt als spätere Option
+  offen.
+* Versionierung: Die bestehende Tag-Historie (`v1.0.1`, `v1.1.0`) wird beim späteren
+  History-Rewrite behalten, nicht verworfen. `v1.2.0` ist der erste Tag mit angehängten
+  GitHub-Release-Assets, nicht der erste Tag überhaupt. Der interne Tag
+  `backup-v1.0.0-before-refactor` wird nicht mit veröffentlicht.
+* `docs/ROADMAP.md` entsprechend aktualisiert (beide Checkboxen im Abschnitt
+  "Distribution" abgehakt).
+
+## Sprint 60 – Engagement-Modell für die Veröffentlichung
+
+### Added
+
+* Neue `CONTRIBUTING.md`: legt explizit fest, dass die Veröffentlichung eine reine Geste ist –
+  keine Support-Verpflichtung, keine Zusage zur Prüfung oder Annahme von Pull Requests, Fork
+  statt Feature-Wunsch als empfohlener Weg. Sicherheitsmeldungen bleiben über `SECURITY.md`
+  ausgenommen.
+
+### Decided
+
+* Engagement-Modell für die Veröffentlichung festgelegt: öffentlich sichtbar/forkbar, aber
+  Issues werden in den GitHub-Repository-Einstellungen deaktiviert (manueller Schritt nach
+  Repo-Erstellung), Pull Requests erzeugen keine Verpflichtung. Details in
+  `docs/ROADMAP.md`, Abschnitt "Engagement-Modell".
+* `.github/ISSUE_TEMPLATE/` aus Sprint 59 bleibt trotz geplanter Issue-Deaktivierung bestehen
+  (auf Wunsch des Nutzers), für den Fall einer künftigen Kursänderung.
+* Contribution-Richtlinien-Checkbox in `docs/ROADMAP.md` abgehakt.
+
+## Sprint 59 – PyPI-Namensprüfung und Issue-Templates
+
+### Added
+
+* `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md`: strukturierte
+  GitHub-Issue-Vorlagen für die geplante öffentliche Veröffentlichung. Der
+  Feature-Request-Vorlage liegt ein Scope-Check gemäß der Design-Philosophie
+  (`docs/ROADMAP.md`) bei.
+
+### Changed
+
+* `docs/ROADMAP.md`: Paketnamen-Verfügbarkeit geprüft (`linux-backup-manager` ist auf PyPI
+  nicht registriert, `404` bei `pypi.org/pypi/linux-backup-manager/json`) und Checkbox
+  abgehakt. Issue-Templates-Checkbox abgehakt.
+
+## Sprint 58 – CI-Workflow-Review und Git-Historie-Fund
+
+### Changed
+
+* `docs/ROADMAP.md`: Roadmap-Punkt "GitHub Actions / CI für öffentliches Repo prüfen"
+  abgehakt – `.github/workflows/ci.yml` enthält keine Secrets, setzt
+  `permissions: contents: read` und referenziert keine internen Pfade.
+
+### Found
+
+* Die ersten vier Commits (Projektstart, 25.06.2026) tragen als Autor-E-Mail die reale
+  Tailscale-MagicDNS-Adresse (`marcel@blackpanther.tail6983d3.ts.net`) statt der regulären
+  Adresse. Als neuer Punkt unter "Repository-Inhalt" in `docs/ROADMAP.md` vermerkt; Korrektur
+  per History-Rewrite ist Teil der Bereinigung unmittelbar vor der Veröffentlichung, nicht
+  Teil dieses Sprints.
+
+## Sprint 57 – Kuratierte Entwicklungsdokumentation
+
+### Added
+
+* Neue `docs/DEVELOPMENT.md`: öffentliche Zusammenfassung der Entwicklungsmethodik
+  (iterative Sprints, verpflichtendes Quality Gate, Release-Candidate-Prozess) ohne
+  personenbezogene Details oder Sprint-Einzelheiten.
+* `README.md`-Dokumentationsliste um "Development Process" ergänzt.
+
+### Decided
+
+* `docs/reports/` (Sprint- und Validierungsberichte) bleibt privat und wird vor der
+  GitHub-Veröffentlichung aus der Git-Historie gefiltert statt redigiert – enthält reale
+  Pfade und Hostnamen, die vor dem ersten öffentlichen Push entfernt werden müssen.
+* `docs/ROADMAP.md` entsprechend aktualisiert: Entscheidung zu Sprint-Berichten
+  dokumentiert; Entscheidung zu `CLAUDE.md`-Veröffentlichung bleibt separat offen.
+
+## Sprint 56 – Fehlende Befehlsdokumentation nachgezogen
+
+### Changed
+
+* `README.md`: Befehlsübersicht um `settings`, `export-config`, `import-config` und
+  `change-password` ergänzt (Sprints 49/51/54 waren dort nie dokumentiert).
+* `docs/USER_GUIDE.md`: Vier neue Abschnitte für dieselben Befehle ergänzt, inklusive
+  Command-Overview-Tabelle. Beschreibt Menüoptionen von `settings`, das sequenzielle
+  Vorgehen bei `change-password` (inkl. Verhalten bei Teilfehlern) sowie Validierungs-
+  und Backup-Verhalten von `export-config`/`import-config`.
+
+## Sprint 55 – Sicherheits-Meldeweg und Lizenz-Dokumentation
+
+### Added
+
+* Neue `SECURITY.md`: privater Meldeweg für Sicherheitslücken (E-Mail statt öffentlichem
+  Issue), da LBM Passwortdateien und Repository-Zugänge verwaltet.
+
+### Changed
+
+* `README.md`: Lizenzabschnitt um einen Hinweis zur Restic-Abhängigkeit ergänzt (Restic:
+  BSD-2-Clause, kompatibel mit GPL-3.0; keine Code-Verflechtung, da Restic als externes
+  Systemwerkzeug aufgerufen wird).
+* `docs/ROADMAP.md`: Checkboxen "Lizenzwahl bestätigen", "Restic-Lizenzkompatibilität
+  dokumentieren" und "`SECURITY.md` erstellen" im Abschnitt "GitHub-Veröffentlichung"
+  abgehakt.
+
+## Sprint 54 – Konfigurationsexport und -import
+
+### Added
+
+* Neuer Befehl `backup-manager export-config`: kopiert die aktuelle Konfigurationsdatei
+  an einen vom Nutzer gewählten Zielort. Überschreiben wird bestätigt, bevor es passiert.
+* Neuer Befehl `backup-manager import-config`: liest eine externe Konfigurationsdatei,
+  validiert sie vollständig (AppConfig + Pydantic), sichert die bestehende Konfiguration
+  als `.bak` und ersetzt sie atomar.
+* `ConfigExportService` und `ConfigImportService` in `lbm/services/config_transfer.py`;
+  Spracherkennung aus der vorhandenen Konfiguration mit Fallback auf Deutsch.
+* 12 neue i18n-Schlüssel unter `config_transfer:` in Deutsch und Englisch.
+* 8 neue Tests in `tests/test_config_transfer.py`.
+
+## Sprint 53 – JSON-Parsing für Backup-Ausgabe
+
+### Changed
+
+* `restic backup` wird jetzt mit `--json` aufgerufen. Die Ausgabe wird strukturiert via
+  `_parse_backup_json()` ausgewertet statt durch fragile Regex-Muster.
+* Neue Hilfsfunktionen `_format_bytes()` und `_format_duration()` formatieren Bytes und
+  Sekunden aus der JSON-Ausgabe in lesbare Strings.
+* `import re` aus `restic.py` entfernt.
+
+## Sprint 52 – Verbesserte Diagnose-Darstellung
+
+### Changed
+
+* `backup-manager doctor` gliedert die Ausgabe jetzt in sechs Abschnitte mit Überschriften:
+  Konfiguration, Programme, Sicherheit, Backup-Ziele, Repositories, Zeitplan.
+* Neue Zusammenfassungszeile am Ende zeigt die Anzahl von OK / Warnung(en) / Fehler /
+  Übersprungen auf einen Blick.
+* Gesamtstatus am Ende farbig hervorgehoben: grün (OK), gelb (Warnung), rot (Fehler).
+* Status-Symbole (✓ / ! / ✗ / -) farbig kodiert in der Ergebnisliste.
+* 7 neue i18n-Schlüssel unter `doctor:` in Deutsch und Englisch.
+
+## Sprint 51 – Interaktives Einstellungsmenü
+
+### Added
+
+* Neuer Befehl `backup-manager settings`: zeigt ein nummeriertes Menü zum gezielten Ändern
+  einzelner Einstellungen (Sprache, Backup-Pfade, Backup-Ziele, Zeitplan).
+* Nach jeder Änderung wird die Konfiguration atomar gespeichert (`.bak`-Backup) und das
+  Menü kehrt zurück, bis der Nutzer "Beenden" wählt.
+* 10 neue i18n-Schlüssel unter `settings:` in Deutsch und Englisch.
+
+## Sprint 50 – Refactoring: `_is_yes()` Utility
+
+### Changed
+
+* `_is_yes()`-Methode aus fünf Klassen (`RepositoryMaintenanceService`, `RestoreService`,
+  `RecoverySheetService`, `PasswordChangeService`, `SetupWizard`) in eine gemeinsame
+  Utility-Funktion `lbm.utils.prompts.is_yes()` extrahiert. Kein Verhaltensunterschied.
+
+## Sprint 49 – Passwort ändern
+
+### Added
+
+* Neuer Befehl `backup-manager change-password`: ändert das Repository-Passwort in allen
+  konfigurierten Repos sequenziell, ersetzt die Passwortdatei atomar und bietet danach die
+  Neuerstellung des Recovery Sheets an.
+* `ResticRepository.change_password(new_password_file)`: ruft `restic key passwd
+  --new-password-file` auf, kein interaktiver Input, kein `shell=True`.
+* Neuer `PasswordChangeService` in `services/password.py`.
+* Schlägt das zweite Repo fehl, werden die bereits geänderten Repos namentlich gemeldet und
+  die Passwortdatei bleibt unverändert.
+* 15 neue i18n-Schlüssel unter `password_change:` in Deutsch und Englisch.
+
+## Sprint 48 – Desktop-Integration
+
+### Added
+
+* Der Installer bietet am Ende jeder erfolgreichen Installation und jedes Upgrades optional an,
+  einen Desktop-Shortcut anzulegen:
+  * **Anwendungsmenüeintrag** (`~/.local/share/applications/linux-backup-manager.desktop`) –
+    erscheint im Systemmenü aller großen Desktop-Umgebungen (GNOME, KDE, XFCE u.a.).
+  * **Desktop-Symbol** (`~/Desktop/linux-backup-manager.desktop`) – nur wenn das Verzeichnis
+    existiert und der Nutzer zustimmt.
+* Die `.desktop`-Datei verwendet `Terminal=true` und `Exec=<Pfad-zum-Launcher>`, sodass der
+  Eintrag nach Upgrades ohne Anpassung weiterhin funktioniert.
+* Mit `--yes` wird der Anwendungsmenüeintrag automatisch erstellt; das Desktop-Symbol wird
+  in nicht-interaktiven Läufen nicht angelegt.
+* Falls `update-desktop-database` verfügbar ist, wird es nach dem Schreiben aufgerufen.
+* `Layout` erhält vier neue Properties: `applications_dir`, `desktop_entry`, `desktop`,
+  `desktop_icon`.
+
+## Sprint 47 – systemd-Timer-Diagnose und Backup-Alter
+
+### Added
+
+* `DoctorService` prüft nun den systemd-Timer-Status (`linux-backup-manager-daily.timer`):
+  aktiv/geplant (OK), installiert aber nicht aktiv (WARNUNG), nicht installiert (WARNUNG),
+  systemd fehlt (WARNUNG), Schedule nicht konfiguriert (ÜBERSPRUNGEN).
+* Letztes Backup wird in `doctor` und `status` mit Altersangabe angezeigt
+  (z.B. `28.06.2026 20:30:00 CEST (vor 2 Tagen)`).
+* `doctor` warnt, wenn das Backup gemessen am konfigurierten Intervall überfällig ist.
+* Neue i18n-Schlüssel: `common.age_days`, `common.age_hours`, `common.age_minutes`;
+  `doctor.timer*`, `doctor.last_backup_overdue` – in Deutsch und Englisch.
+
+## Sprint 46 – Automatisches Repository-Cleanup und Retention-Defaults
+
+### Added
+
+* `RetentionConfig` erhält Standardwerte: `keep_daily=14`, `keep_weekly=8`, `keep_monthly=12`,
+  `keep_yearly=3`. Neu erstellte Konfigurationen ohne expliziten `retention:`-Block verwenden
+  diese Werte automatisch.
+* `ResticRepository.cleanup()`: kombiniert `forget` + `prune` in einem Schritt, gibt `bool`
+  zurück.
+* `BackupService` ruft nach jedem erfolgreichen Backup automatisch Cleanup auf. Ein
+  Cleanup-Fehler gibt eine Warnung aus, beeinflusst aber nicht den Backup-Exit-Code.
+* Neue i18n-Schlüssel `backup.cleanup_start`, `backup.cleanup_done`, `backup.cleanup_failed`
+  in Deutsch und Englisch.
+
+---
+
 # v1.1.0 – 2026-06-30
 
 ## Version 1.1.0 Release Candidate 3

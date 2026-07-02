@@ -2,6 +2,7 @@ from lbm.core.config import AppConfig
 from lbm.services.language import LanguageService
 from lbm.services.repository import RepositoryProvider
 from lbm.ui.console import Console
+from lbm.utils.prompts import is_yes
 
 
 class RepositoryMaintenanceService:
@@ -23,7 +24,8 @@ class RepositoryMaintenanceService:
             return
 
         print(self._text("maintenance.create_at", path=restic.repository))
-        if not self._is_yes(input(self._text("maintenance.continue_prompt"))):
+        yes_short = self._text("common.yes_short")
+        if not is_yes(input(self._text("maintenance.continue_prompt")), yes_short):
             print(self._text("common.cancelled"))
             return
 
@@ -107,7 +109,8 @@ class RepositoryMaintenanceService:
         )
         print(dry_run if dry_run else self._text("maintenance.none_deleted"))
         print()
-        if not self._is_yes(input(self._text("maintenance.delete_snapshots"))):
+        yes_short = self._text("common.yes_short")
+        if not is_yes(input(self._text("maintenance.delete_snapshots")), yes_short):
             print(self._text("common.cancelled"))
             return
 
@@ -126,7 +129,7 @@ class RepositoryMaintenanceService:
             return
         print(self._text("maintenance.optimizing"))
         print()
-        if not self._is_yes(input(self._text("maintenance.start_prune"))):
+        if not is_yes(input(self._text("maintenance.start_prune")), self._text("common.yes_short")):
             print(self._text("common.cancelled"))
             return
         result = restic.prune()
@@ -135,9 +138,6 @@ class RepositoryMaintenanceService:
 
     def _line(self, key: str, value: object) -> None:
         print(f"{self._text(key):.<22} {value}")
-
-    def _is_yes(self, answer: str) -> bool:
-        return answer.strip().lower() in {"j", "y", self._text("common.yes_short")}
 
     def _text(self, key: str, **values: object) -> str:
         return self.language.translate(key, **values)

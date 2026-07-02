@@ -2,7 +2,16 @@
 
 # Project Roadmap
 
-**Last updated:** Version 1.1.0 released June 2026
+**Last updated:** Sprint 78 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
+Version 1.2.0rc2: **alle Release-Gates erfüllt** (Feature Freeze aktiv seit Sprint 70).
+Beide UAT-Sprachdurchläufe abgeschlossen (Deutsch gegen rc1, Englisch gegen rc2) –
+UAT-Entscheidung auf "Passed"; UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert;
+voller 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) in isolierter VM bestanden;
+`installer.py`-Managed-Fresh-Install-Validierung in isolierter VM bestanden. Kandidat
+technisch bereit für Merge nach `main`, wartet auf ausdrückliche Nutzerfreigabe. Ein
+nicht-blockierender Fund (UAT-1.2.0-EN-001, doctor-Sprachfallback bei kaputter Config) für
+einen späteren Sprint vorgemerkt.
+Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
 
@@ -229,7 +238,13 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Complete `status`, `doctor`, `health` and `setup` CLI migration
 * [x] Backup, restore, maintenance, recovery and schedule command migration
 * [x] Consistent translated CLI terminology and generated recovery sheets
-* [ ] Complete German and English documentation
+* [x] Complete German and English documentation – all 8 planned user-facing docs done under
+  `docs/de/`: `README.md`, `USER_GUIDE.md` *(Sprint 67)*, `INSTALL.md`, `RESTORE.md`,
+  `RECOVERY.md` *(Sprint 68)*, `FAQ.md`, `CONFIGURATION.md`, `SYSTEMD.md` *(Sprint 69)*.
+  Architecture/process docs (`ARCHITECTURE.md`, `QA_TESTPLAN.md`, `ROADMAP.md`,
+  `DEVELOPMENT.md`, `INTERNATIONALIZATION.md`) intentionally stay English-only. Also fixed
+  along the way: `docs/FAQ.md` had stale answers (NAS described as unsupported, though
+  implemented since before 1.1.0; a "Future Features" list that was entirely outdated).
 
 ---
 
@@ -238,8 +253,8 @@ backup and byte-identical restore. Regular restore validation remains an operati
 * [x] Initial read-only `backup-manager doctor` self-test command
 * [x] Combined configuration, password-permission, Restic, target and repository diagnostics
 * [x] Last successful backup timestamp
-* [ ] systemd timer diagnostics *(deferred to Version 1.2)*
-* [ ] Last-backup age and optional last-restore-test status *(deferred to Version 1.2)*
+* [x] systemd timer diagnostics *(Sprint 47)*
+* [x] Last-backup age in doctor and status *(Sprint 47)*
 
 ---
 
@@ -315,7 +330,9 @@ replacement Version 1.1.0rc2 passed Sprint 43 and is approved for migration from
 * [x] Build `1.1.0rc2` because Sprint 43 fixes require another validation cycle
 * [x] Accept `1.1.0rc3` after managed fresh-install and Version 1.0.1 upgrade UAT
 * [x] Release Version 1.1.0
-* [ ] Begin Version 1.2 development after the Version 1.1.0 release
+* [x] Begin Version 1.2 development after the Version 1.1.0 release – underway since
+  Sprint 46; `pyproject.toml` bumped to `1.2.0.dev0` to reflect this, matching the
+  `1.1.0.dev0` convention used after the 1.0.1 release *(Sprint 64)*
 
 ## Sprint 44 – Managed Installation and Upgrade
 
@@ -344,12 +361,12 @@ fresh install. Version 1.1.0rc3 is approved for migration from Version 1.0.1.**
 
 ## User Experience
 
-* [ ] Interactive configuration menus
-* [ ] Configuration import/export
-* [ ] Repository migration
-* [ ] Improved diagnostic presentation
-* [ ] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup
-* [ ] Automatic forget and prune after every successful backup (hidden from the user)
+* [x] Interactive configuration menus *(Sprint 51)*
+* [x] Configuration import/export *(Sprint 54)*
+* [ ] Repository migration *(auf v1.3 verschoben – kein natives Restic-Migrate-Tool)*
+* [x] Improved diagnostic presentation *(Sprint 52)*
+* [x] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup *(Sprint 46)*
+* [x] Automatic forget and prune after every successful backup (hidden from the user) *(Sprint 46)*
 
 ## Desktop Integration
 
@@ -376,9 +393,9 @@ remains valid after upgrades.
 
 **Future extension (optional):**
 
-* [ ] Desktop entry creation (`~/.local/share/applications/`)
-* [ ] Application menu entry
-* [ ] Desktop icon (`~/Desktop/`)
+* [x] Desktop entry creation (`~/.local/share/applications/`) *(Sprint 48)*
+* [x] Application menu entry *(Sprint 48)*
+* [x] Desktop icon (`~/Desktop/`) *(Sprint 48)*
 
 All entries shall be optional and individually selectable.
 
@@ -386,16 +403,49 @@ All entries shall be optional and individually selectable.
 
 ## Security
 
-* [ ] Change the repository password
-* [ ] Automatically update the password file after a password change
-* [ ] Regenerate the recovery sheet after a password change
+* [x] Change the repository password *(Sprint 49)*
+* [x] Automatically update the password file after a password change *(Sprint 49)*
+* [x] Regenerate the recovery sheet after a password change *(Sprint 49)*
 
 ---
 
 ## Documentation
 
-* [ ] User tutorials
-* [ ] Additional examples
+* [ ] User tutorials *(deferred past 1.2.0, does not block the release)*
+* [ ] Additional examples *(deferred past 1.2.0, does not block the release)*
+* [x] Complete German and English documentation for all user-facing docs *(Sprints 67–69)*
+
+## Release Candidate Policy
+
+* [x] Feature freeze begins with `1.2.0rc1` *(Sprint 70)*
+* [x] Apply only bug fixes, documentation and translation corrections from this point on
+* [x] Local quality gate passed (Ruff, compileall, pytest, build, twine check) – wheel
+  SHA-256: `0f012f29125f59104422c2d70d6f021f683b25489a39e9c3a47adac9daa9c9f9` *(Sprint 70)*
+* [x] Manual UAT in German (user-requested, executed via isolated VM) – 1 non-blocking
+  finding (UAT-1.2.0-DE-001) *(Sprint 72)*
+* [x] Manual UAT in English – **waived for `1.2.0rc1`**: test VM hardware instability made
+  it unsafe to run at the time; owner-approved one-time exception *(Sprint 73)*, later
+  caught up against `1.2.0rc2` on a new stable VM – see below *(Sprint 76)*
+* [x] Fix UAT-1.2.0-DE-001 (`settings` schedule change now reinstalls/removes the systemd
+  timer) – `1.2.0rc2`, wheel SHA-256:
+  `4b6ff1176e5516b314b556c3fafd52897cd514134611f8ecc16211201c422467` *(Sprint 74)*
+* [x] `installer.py --dry-run` for the 1.0.1 upgrade path run on the real production system
+  – detection and preflight checks passed, no side effects *(Sprint 75)*
+* [x] Manual UAT in English run against `1.2.0rc2` on a new libvirt/KVM VM (all 15 steps
+  passed); Step 7 also served as the end-to-end re-validation of the UAT-1.2.0-DE-001 fix
+  against a real systemd user instance, accepted by the owner as sufficient. One new
+  non-blocking finding, UAT-1.2.0-EN-001 (doctor's language fallback on an unloadable
+  config), accepted as known/deferred. UAT decision updated to `Passed` *(Sprint 76)*
+* [x] Full upgrade run (not just dry-run) for 1.2.0 in an isolated VM: real 1.0.1 legacy
+  installation upgraded to `1.2.0rc2` via `installer.py`; negative preflight, config/password
+  preservation, launcher/unit/timer cutover, post-upgrade backup/restore and idempotent
+  rerun all verified *(Sprint 77)*
+* [x] Managed fresh-install validation of `1.2.0rc2` via `installer.py` in an isolated VM:
+  dry-run and real run, launcher/versioned-venv cutover, setup, backup/restore, EOF
+  handling, doctor/health, cleanup, and idempotent rerun all verified — **last outstanding
+  gate item, now resolved** *(Sprint 78)*
+* [ ] Merge to `main` — technically ready, awaiting explicit owner sign-off
+* [ ] Release Version 1.2.0
 
 ---
 
@@ -416,6 +466,132 @@ All entries shall be optional and individually selectable.
 
 ---
 
+# GitHub-Veröffentlichung
+
+Mit dem nächsten stabilen Release (Version 1.2.0) soll das Repository öffentlich auf GitHub
+veröffentlicht werden. Vor der Veröffentlichung sind folgende Punkte zu klären:
+
+## Engagement-Modell (Entscheidung 2026-07-01)
+
+Die Veröffentlichung ist ausschließlich eine **Geste** – das Projekt wurde für den eigenen
+Bedarf entwickelt, und andere sollen den Code sehen und nutzen können. Es soll daraus
+**keinerlei laufender Aufwand** entstehen: keine Support-Verpflichtung, kein Zwang, PRs zu
+prüfen oder zu mergen, keine Erwartungshaltung von außen.
+
+Konkret bedeutet das:
+
+* **Öffentlich sichtbar** (klonbar, forkbar) – das ist der einzige Zweck der Veröffentlichung.
+* **Issues deaktiviert** in den GitHub-Repository-Einstellungen (Settings → Features → Issues
+  aus) – technisch keine Möglichkeit für Dritte, Bug-Reports oder Feature-Wünsche zu eröffnen.
+  Dies ist eine manuelle Einstellung im GitHub-Web-UI, die erst nach dem Erstellen des
+  Repositories dort vorgenommen werden kann – nicht Teil dieses lokalen Repos.
+* **Pull Requests** lassen sich technisch nicht sperren (Forken + PR ist Grundprinzip von
+  öffentlichem GitHub), erzeugen aber keine Verpflichtung – ein geöffneter PR kann ignoriert,
+  kommentarlos geschlossen oder irgendwann bearbeitet werden, ganz nach Belieben.
+* **Sicherheitsmeldungen** laufen unverändert privat über `SECURITY.md` (E-Mail), unabhängig
+  von Issues.
+* `.github/ISSUE_TEMPLATE/` (Sprint 59) bleibt bestehen, auch wenn Issues deaktiviert werden –
+  falls sich das später ändert, sind die Vorlagen bereits vorhanden. Kein Nutzen, aber auch
+  kein Schaden, solange Issues aus sind.
+* `CONTRIBUTING.md` dokumentiert diese Erwartungshaltung explizit für jeden, der das Repo
+  besucht oder forkt.
+
+**Lizenz und Rechtliches**
+
+* [x] Lizenzwahl bestätigen (GPL-3.0-only in `pyproject.toml`) *(Sprint 55)*
+* [x] Restic-Lizenzkompatibilität dokumentieren (Restic: BSD-2-Clause, kompatibel mit GPL-3.0 –
+  in README aufgenommen) *(Sprint 55)*
+
+**Distribution**
+
+* [x] Distributionskanal entscheiden – **GitHub Releases** (Wheel + `installer.py` +
+  veröffentlichter SHA-256 als Release-Assets), **kein PyPI**. Begründung: `installer.py`
+  baut eine eigene verwaltete venv mit Desktop-Integration, Upgrade-Erkennung ab 1.0.1 und
+  Rollback-Garantien auf – das passt nicht zu einem `pip install`-Fluss, der all das umgehen
+  würde. Der PyPI-Name bleibt als spätere Option offen, falls jemals Bedarf entsteht
+  *(Sprint 61)*
+* [x] Paketname `linux-backup-manager` auf PyPI auf Verfügbarkeit prüfen – verfügbar
+  (`https://pypi.org/pypi/linux-backup-manager/json` liefert `404`, Name ist nicht
+  registriert) *(Sprint 59)*
+* [x] Versionierung und Release-Tags auf GitHub entschieden – die bestehende Tag-Historie
+  (`v1.0.1`, `v1.1.0`) wird beim History-Rewrite **behalten, nicht verworfen**; `v1.2.0` ist
+  nicht der erste Tag überhaupt, sondern der erste Tag mit angehängten GitHub-Release-Assets
+  (Wheel, Installer, SHA-256). Der interne Tag `backup-v1.0.0-before-refactor` wird beim
+  History-Rewrite nicht mit veröffentlicht, da er ein reiner Vor-Refactor-Sicherungspunkt
+  ohne externen Nutzen ist *(Sprint 61)*
+
+**Repository-Inhalt**
+
+* [x] Sicherstellen, dass keine privaten Pfade, Hostnamen oder persönliche Daten im Git-Verlauf
+  enthalten sind – erledigt für eine **separate, gefilterte Kopie** unter
+  `/home/marcel/Projekte/linux-backup-manager-public.git` (bare Repo, via `git-filter-repo`).
+  Das eigentliche Arbeits-Repo bleibt unverändert. `docs/reports/` und `CLAUDE.md` sind aus der
+  gesamten Historie entfernt und verifiziert nicht mehr als Objekte vorhanden (`git gc
+  --prune=now` durchgeführt) *(Sprint 63)*
+* [x] `CLAUDE.md` bei der History-Filterung ausgeschlossen – erledigt in derselben Filterung
+  *(Sprint 63)*
+* [x] Autor-E-Mail der ersten vier Commits korrigiert – per `--mailmap` in derselben Filterung
+  auf `Marcel <marcel.saager@gmx.de>` vereinheitlicht, verifiziert (`git log --all --format=%ae`
+  zeigt nur noch die reguläre Adresse) *(Sprint 63)*
+* [x] Entscheiden, ob interne Sprint-Berichte (`docs/reports/`) mitveröffentlicht werden –
+  **Nein**, bleiben privat und werden vor der Veröffentlichung aus der Git-Historie gefiltert.
+  Stattdessen fasst `docs/DEVELOPMENT.md` die Entwicklungsmethodik ohne personenbezogene
+  Details zusammen *(Sprint 57)*
+* [x] Entscheiden, ob `CLAUDE.md` mitveröffentlicht wird – **Nein**, bleibt privat, analog zu
+  `docs/reports/`. Enthält keine personenbezogenen Daten (geprüft), aber interne
+  Arbeitsanweisungen für den KI-Assistenten sind kein Nutzerdokument und bieten für die
+  Zielgruppe keinen Mehrwert; passt zum Engagement-Modell (keine Erklärungspflicht
+  gegenüber Dritten) *(Sprint 62)*
+* [x] Git-Verlauf enthält `Co-Authored-By: Claude Sonnet 4.6` – **bleibt unverändert
+  stehen**. Anders als der Tailscale-Fund ist das kein Datenschutzrisiko, sondern eine
+  zutreffende Attribution; ein History-Rewrite dafür wäre eine nachträgliche Verfälschung
+  ohne Datenschutz- oder Sicherheitsgrund *(Sprint 62)*
+
+**Sicherheit**
+
+* [x] `SECURITY.md` erstellen: Meldeweg für Sicherheitslücken (private E-Mail statt öffentlichem
+  Issue), da LBM Passwortdateien und Repository-Zugänge verwaltet *(Sprint 55)*
+
+**Community**
+
+* [x] `README.md` für eine externe Zielgruppe überarbeiten – CI-/Lizenz-/Python-Badges,
+  konkreter Installationslink zur Releases-Seite, Klon-URL, illustrative
+  "Example Session" (keine echten Screenshots, da CLI-Tool ohne Bildmaterial),
+  klickbare Dokumentationsliste, "Contributing & Support"-Abschnitt, aktualisierter
+  Project-Status-Text (Feature-Freeze-Hinweis war veraltet) *(Sprint 63)*
+* [x] GitHub Actions / CI für öffentliches Repo prüfen – `.github/workflows/ci.yml` enthält
+  keine Secrets, setzt `permissions: contents: read` und referenziert keine internen Pfade;
+  unverändert veröffentlichungstauglich *(Sprint 58)*
+* [x] Contribution-Richtlinien klären (Solo-Projekt, Pull Requests willkommen oder nicht?) –
+  Entschieden: Projekt wird als Geste veröffentlicht, keine aktive Pflege-Erwartung; siehe
+  "Engagement-Modell" oben und `CONTRIBUTING.md` *(Sprint 60)*
+* [x] Issues in den GitHub-Repository-Einstellungen deaktivieren – erledigt, verifiziert
+  via `gh repo view` (`hasIssuesEnabled: false`) *(Sprint 65)*
+* [x] Issue-Templates für Bug-Reports und Feature-Requests anlegen (optional) –
+  `.github/ISSUE_TEMPLATE/bug_report.md` und `feature_request.md` *(Sprint 59)*
+
+## Veröffentlichung abgeschlossen (2026-07-01, Sprint 65)
+
+Das Repository ist live: **https://github.com/marcelsaa/linux-backup-manager**
+
+- [x] Öffentliches, leeres Repository unter `github.com/marcelsaa/linux-backup-manager`
+  angelegt.
+- [x] Gefilterte Kopie (frisch regeneriert, Stand nach Sprint 64) gepusht: `main` (Default-
+  Branch), `develop`, Tags `v1.0.1`/`v1.1.0`/`v1.1.0rc2`.
+- [x] Issues in den Repository-Einstellungen deaktiviert (`hasIssuesEnabled: false`,
+  verifiziert via `gh repo view`).
+- [x] CI-Workflow läuft automatisch auf GitHub Actions (erster Lauf ausgelöst durch den
+  Push nach `main`).
+- [ ] Optional: Release `v1.2.0` mit Wheel + `installer.py` + SHA-256 als Assets anlegen,
+  sobald Version 1.2.0 fertig ist (siehe Abschnitt "Distribution" oben).
+
+Die lokale gefilterte Kopie unter `/home/marcel/Projekte/linux-backup-manager-public.git`
+bleibt als Vorlage für künftige Aktualisierungen bestehen (z. B. für den v1.2.0-Release):
+bei Bedarf frisch aus dem Arbeits-Repo neu erzeugen (siehe `docs/reports/SPRINT_63.md`) und
+erneut pushen.
+
+---
+
 # Long-Term Goals
 
 The long-term objective is to provide a dependable backup solution that can be installed and
@@ -430,4 +606,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc3 development · Stable Version 1.0.1
+Stable Version 1.1.0 · v1.2.0rc2 bereit für Merge (Sprint 78 abgeschlossen) ·
+Öffentlich auf GitHub: marcelsaa/linux-backup-manager
