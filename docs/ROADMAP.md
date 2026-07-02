@@ -2,13 +2,14 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 79 abgeschlossen (2026-07-02); **Version 1.2.0 released 2026-07-02**
-(previously: Version 1.1.0 released June 2026). Alle Release-Gates erfüllt: beide
-UAT-Sprachdurchläufe (Deutsch gegen rc1, Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und
-end-to-end nachverifiziert, voller 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und
-`installer.py`-Managed-Fresh-Install-Validierung, jeweils in isolierter VM bestanden. Ein
-nicht-blockierender Fund (UAT-1.2.0-EN-001, doctor-Sprachfallback bei kaputter Config) für
-einen späteren Sprint vorgemerkt.
+**Last updated:** Sprint 80 abgeschlossen (2026-07-02); **Version 1.2.0 released 2026-07-02
+and live on GitHub** (`main`, `develop`, tag `v1.2.0`; previously: Version 1.1.0 released
+June 2026). Alle Release-Gates erfüllt: beide UAT-Sprachdurchläufe (Deutsch gegen rc1,
+Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert, voller
+1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und `installer.py`-Managed-Fresh-Install-
+Validierung, jeweils in isolierter VM bestanden. Ein nicht-blockierender Fund
+(UAT-1.2.0-EN-001, doctor-Sprachfallback bei kaputter Config) für einen späteren Sprint
+vorgemerkt.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -608,5 +609,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.2.0 (Sprint 79 abgeschlossen) ·
+Stable Version 1.2.0, live auf GitHub (Sprint 80 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager

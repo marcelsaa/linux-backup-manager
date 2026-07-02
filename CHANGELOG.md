@@ -8,6 +8,13 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # v1.2.0 – 2026-07-02
 
+## Sprint 80 – Zu GitHub gepusht
+
+### Released
+
+* `main`, `develop` und Tag `v1.2.0` zu `github.com/marcelsaa/linux-backup-manager` gepusht.
+* Beide durch den Push ausgelösten CI-Läufe erfolgreich.
+
 ## Sprint 79 – Version 1.2.0 final freigegeben
 
 ### Released
