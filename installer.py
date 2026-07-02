@@ -608,12 +608,20 @@ print('LBM_REPOSITORIES=' + hashlib.sha256(payload).hexdigest())
         print(f"Desktop shortcut created: {self.layout.desktop_icon}")
 
     def _desktop_content(self) -> str:
+        # backup-manager without arguments runs the quick `status` command and exits
+        # immediately; without a pause the terminal window closes before it can be read.
+        # `read -p` is a bashism and fails under dash (the default /bin/sh on Debian/
+        # Ubuntu), so the prompt is printed separately with POSIX-compatible printf.
+        exec_line = (
+            f"sh -c \"'{self.layout.launcher}'; echo; "
+            "printf '%s' 'Press Enter to close...'; read -r _\""
+        )
         return (
             "[Desktop Entry]\n"
             "Type=Application\n"
             "Name=Linux Backup Manager\n"
             "Comment=Manage your Restic backups\n"
-            f"Exec={self.layout.launcher}\n"
+            f"Exec={exec_line}\n"
             "Terminal=true\n"
             "Categories=System;Utility;\n"
         )

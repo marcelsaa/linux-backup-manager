@@ -333,9 +333,19 @@ def test_desktop_content_uses_launcher_path(tmp_path: Path) -> None:
 
     content = installer._desktop_content()
 
-    assert f"Exec={layout.launcher}" in content
+    assert str(layout.launcher) in content
     assert "Terminal=true" in content
     assert "Type=Application" in content
+
+
+def test_desktop_content_keeps_terminal_open_after_exit(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    installer = Installer(layout, artifact(tmp_path), Path("python3"))
+
+    content = installer._desktop_content()
+
+    assert "read -r" in content
+    assert "read -p" not in content  # bashism, fails under dash
 
 
 def test_failed_upgrade_restores_exact_operational_state(tmp_path: Path) -> None:
