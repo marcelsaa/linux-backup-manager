@@ -8,6 +8,20 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased – v1.2.0
 
+## Sprint 74 – UAT-1.2.0-DE-001 behoben (1.2.0rc2)
+
+### Fixed
+
+* `settings`-Zeitplan-Untermenü (`configure_settings()` in `src/lbm/setup/wizard.py`)
+  installiert den systemd-Timer jetzt korrekt neu, wenn der Zeitplan geändert wird
+  (`SystemdScheduler.install()`), bzw. entfernt ihn, wenn die Planung im Menü deaktiviert
+  wird (`SystemdScheduler.remove()`). Vorher wurde nur `config.yaml` aktualisiert, der Timer
+  behielt die alte Zeit bei. Behebt UAT-1.2.0-DE-001.
+* Neue Tests in `tests/test_setup_wizard.py`: Reinstall bei aktiviertem Zeitplan, Removal bei
+  Deaktivierung, kein Scheduler-Aufruf bei anderen Menüpunkten (185 Tests, vorher 182).
+* Version auf `1.2.0rc2` angehoben; neues Wheel gebaut (SHA-256
+  `4b6ff1176e5516b314b556c3fafd52897cd514134611f8ecc16211201c422467`).
+
 ## Sprint 73 – Englischer UAT-Durchlauf: nicht sicher durchführbar
 
 ### UAT

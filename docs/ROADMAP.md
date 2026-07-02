@@ -2,10 +2,11 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 73 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
-Version 1.2.0rc1 in Vorbereitung (Feature Freeze aktiv). Englischer UAT-Durchlauf
+**Last updated:** Sprint 74 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
+Version 1.2.0rc2 in Vorbereitung (Feature Freeze aktiv). Englischer UAT-Durchlauf
 nicht sicher durchführbar (VM-Hardware-Instabilität) – als Owner-Ausnahme dokumentiert,
-manuelle Nachprüfung nach Release geplant.
+manuelle Nachprüfung nach Release geplant. UAT-1.2.0-DE-001 behoben, Re-Validierungsumfang
+und 1.0.1→1.2.0-Upgrade-Pfad noch offen.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -422,7 +423,13 @@ All entries shall be optional and individually selectable.
 * [x] Manual UAT in English – **waived for this candidate**: test VM hardware instability
   made it unsafe to run; owner-approved one-time exception, manual verification on the real
   system planned after release *(Sprint 73)*
-* [ ] Fix UAT-1.2.0-DE-001 (`settings` schedule change must reinstall the systemd timer)
+* [x] Fix UAT-1.2.0-DE-001 (`settings` schedule change now reinstalls/removes the systemd
+  timer) – `1.2.0rc2`, wheel SHA-256:
+  `4b6ff1176e5516b314b556c3fafd52897cd514134611f8ecc16211201c422467` *(Sprint 74)*
+* [ ] Decide re-validation scope for the rc2 fix (full UAT re-run vs. targeted check vs.
+  deferred to owner) once the test VM is stable again
+* [ ] Validate the 1.0.1 → 1.2.0 upgrade path (newly identified gap, Sprint 74) before the
+  real production upgrade – see `docs/reports/RELEASE_CANDIDATE_1.2.0rc2.md`
 * [ ] Merge to `main` after remaining gate items pass
 * [ ] Release Version 1.2.0
 

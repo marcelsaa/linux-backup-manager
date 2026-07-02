@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, patch
 
 import pytest
 import yaml
@@ -478,8 +478,54 @@ def test_settings_schedule_change_saves_config(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
     # choice 4 = schedule: keep enabled, set 03:00, interval 7 days, then exit
-    with patch("builtins.input", side_effect=["4", "j", "03:00", "7", "5"]):
+    with (
+        patch("builtins.input", side_effect=["4", "j", "03:00", "7", "5"]),
+        patch("lbm.setup.wizard.SystemdScheduler"),
+    ):
         SetupWizard(config_file).configure_settings()
     saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
     assert saved["schedule"]["daily_time"] == "03:00"
     assert saved["schedule"]["interval_days"] == 7
+
+
+def test_settings_schedule_change_reinstalls_timer(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    with (
+        patch("builtins.input", side_effect=["4", "j", "03:00", "7", "5"]),
+        patch("lbm.setup.wizard.SystemdScheduler") as scheduler_cls,
+    ):
+        scheduler = scheduler_cls.return_value
+        SetupWizard(config_file).configure_settings()
+    scheduler_cls.assert_called_once_with(config_file, ANY, language="de")
+    assert scheduler_cls.call_args.args[1].daily_time == "03:00"
+    scheduler.install.assert_called_once()
+    scheduler.remove.assert_not_called()
+
+
+def test_settings_schedule_disable_removes_timer(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice 4 = schedule: decline "enabled" question, then exit
+    with (
+        patch("builtins.input", side_effect=["4", "n", "5"]),
+        patch("lbm.setup.wizard.SystemdScheduler") as scheduler_cls,
+    ):
+        scheduler = scheduler_cls.return_value
+        SetupWizard(config_file).configure_settings()
+    saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    assert saved["schedule"]["enabled"] is False
+    scheduler.remove.assert_called_once()
+    scheduler.install.assert_not_called()
+
+
+def test_settings_non_schedule_change_does_not_touch_timer(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice 1 = language, then exit
+    with (
+        patch("builtins.input", side_effect=["1", "en", "5"]),
+        patch("lbm.setup.wizard.SystemdScheduler") as scheduler_cls,
+    ):
+        SetupWizard(config_file).configure_settings()
+    scheduler_cls.assert_not_called()

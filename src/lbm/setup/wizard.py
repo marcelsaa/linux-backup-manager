@@ -515,6 +515,17 @@ class SetupWizard:
             language=self.config.system.language,
         ).install()
 
+    def _apply_schedule_change(self, config: AppConfig) -> None:
+        scheduler = SystemdScheduler(
+            self.config_file,
+            config.schedule,
+            language=config.system.language,
+        )
+        if config.schedule.enabled:
+            scheduler.install()
+        else:
+            scheduler.remove()
+
     def configure_settings(self) -> bool:
         self._detect_language()
         if not self.config_file.is_file():
@@ -575,11 +586,13 @@ class SetupWizard:
                 self._configure_schedule(data)
 
             try:
-                AppConfig.model_validate(data)
+                validated = AppConfig.model_validate(data)
                 backup_file = self.config_file.with_name(f"{self.config_file.name}.bak")
                 copy2(self.config_file, backup_file)
                 self._write_config(data)
                 Console.success(self._text("settings.saved"))
+                if key == "schedule":
+                    self._apply_schedule_change(validated)
             except (OSError, ValueError, yaml.YAMLError) as error:
                 Console.error(self._text("setup.config_save_failed", error=error))
 
