@@ -2,13 +2,11 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 78 abgeschlossen (2026-07-02); Version 1.1.0 released June 2026.
-Version 1.2.0rc2: **alle Release-Gates erfüllt** (Feature Freeze aktiv seit Sprint 70).
-Beide UAT-Sprachdurchläufe abgeschlossen (Deutsch gegen rc1, Englisch gegen rc2) –
-UAT-Entscheidung auf "Passed"; UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert;
-voller 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) in isolierter VM bestanden;
-`installer.py`-Managed-Fresh-Install-Validierung in isolierter VM bestanden. Kandidat
-technisch bereit für Merge nach `main`, wartet auf ausdrückliche Nutzerfreigabe. Ein
+**Last updated:** Sprint 79 abgeschlossen (2026-07-02); **Version 1.2.0 released 2026-07-02**
+(previously: Version 1.1.0 released June 2026). Alle Release-Gates erfüllt: beide
+UAT-Sprachdurchläufe (Deutsch gegen rc1, Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und
+end-to-end nachverifiziert, voller 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und
+`installer.py`-Managed-Fresh-Install-Validierung, jeweils in isolierter VM bestanden. Ein
 nicht-blockierender Fund (UAT-1.2.0-EN-001, doctor-Sprachfallback bei kaputter Config) für
 einen späteren Sprint vorgemerkt.
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
@@ -444,8 +442,12 @@ All entries shall be optional and individually selectable.
   dry-run and real run, launcher/versioned-venv cutover, setup, backup/restore, EOF
   handling, doctor/health, cleanup, and idempotent rerun all verified — **last outstanding
   gate item, now resolved** *(Sprint 78)*
-* [ ] Merge to `main` — technically ready, awaiting explicit owner sign-off
-* [ ] Release Version 1.2.0
+* [x] Merge to `main` after explicit owner sign-off *(Sprint 78, second finalization merge
+  in Sprint 79)*
+* [x] Release Version 1.2.0 — version bumped from `1.2.0rc2` to final `1.2.0`, user-facing
+  documentation audited for the new stable version (README, INSTALL, USER_GUIDE,
+  ARCHITECTURE, CONFIGURATION, QA_TESTPLAN, FAQ, RESTORE, RECOVERY, DEVELOPMENT,
+  INTERNATIONALIZATION and their `docs/de/` counterparts), tagged `v1.2.0` *(Sprint 79)*
 
 ---
 
@@ -606,5 +608,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.1.0 · v1.2.0rc2 bereit für Merge (Sprint 78 abgeschlossen) ·
+Stable Version 1.2.0 (Sprint 79 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager

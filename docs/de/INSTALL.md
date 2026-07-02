@@ -4,7 +4,7 @@
 
 **[English version](../INSTALL.md)**
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ---
 
@@ -68,7 +68,7 @@ Linux-Distribution installieren.
 SHA-256-Hash verwenden. Zuerst die schreibfreie Erkennung und den Preflight-Check ausführen:
 
 ```bash
-python3 installer.py linux_backup_manager-1.1.0-py3-none-any.whl \
+python3 installer.py linux_backup_manager-1.2.0-py3-none-any.whl \
   --sha256 <VERÖFFENTLICHTER_SHA256> --dry-run
 ```
 
@@ -128,7 +128,7 @@ backup-manager --version
 Erwartete Ausgabe:
 
 ```text
-backup-manager 1.1.0
+backup-manager 1.2.0
 ```
 
 ---
@@ -220,4 +220,4 @@ Erklärung aller verfügbaren Befehle und Konfigurationsoptionen.
 
 Linux Backup Manager Dokumentation
 
-Version 1.1.0
+Version 1.2.0

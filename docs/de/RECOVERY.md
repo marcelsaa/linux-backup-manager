@@ -2,7 +2,7 @@
 
 **[English version](../RECOVERY.md)**
 
-**Version:** 1.1.0-rc1
+**Version:** 1.2.0
 
 ---
 
@@ -178,4 +178,4 @@ geschützten Ort kopieren, getrennt vom Computer und Repository.
 
 Linux Backup Manager Dokumentation
 
-Release Candidate 1.1.0-rc1
+Version 1.2.0

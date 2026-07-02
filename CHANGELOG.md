@@ -6,7 +6,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased – v1.2.0
+# v1.2.0 – 2026-07-02
+
+## Sprint 79 – Version 1.2.0 final freigegeben
+
+### Released
+
+* Version von `1.2.0rc2` auf finales `1.2.0` angehoben (`pyproject.toml`).
+* Nutzerorientierte und Architektur-Dokumentation auf die neue stabile Version aktualisiert:
+  `README.md`, `docs/INSTALL.md`, `docs/USER_GUIDE.md`, `docs/ARCHITECTURE.md`,
+  `docs/CONFIGURATION.md`, `docs/QA_TESTPLAN.md`, `docs/FAQ.md`, `docs/RESTORE.md`,
+  `docs/RECOVERY.md`, `docs/DEVELOPMENT.md`, `docs/INTERNATIONALIZATION.md` sowie deren
+  `docs/de/`-Pendants. `docs/ARCHITECTURE.md` ergänzt außerdem die seit 1.1.0 hinzugekommenen
+  Services (`PasswordChangeService`, `ConfigExportService`, `ConfigImportService`,
+  `settings`-Menü) im Architekturdiagramm.
+* `develop` nach `main` gemergt und mit `v1.2.0` getaggt.
 
 ## Sprint 78 – Managed-Fresh-Install-Validierung über installer.py bestanden
 

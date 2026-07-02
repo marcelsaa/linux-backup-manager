@@ -2,7 +2,7 @@
 
 **[Deutsche Version](de/RECOVERY.md)**
 
-**Version:** 1.1.0-rc1
+**Version:** 1.2.0
 
 ---
 
@@ -171,4 +171,4 @@ separate from the computer and repository.
 
 Linux Backup Manager Documentation
 
-Release Candidate 1.1.0-rc1
+Version 1.2.0

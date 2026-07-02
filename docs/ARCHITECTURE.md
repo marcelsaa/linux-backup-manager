@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 
 ---
 
@@ -35,9 +35,13 @@ Services
  │
  ├── StatusService
  ├── HealthService
+ ├── DoctorService
  ├── RecoveryInfoService
  ├── RecoverySheetService
- ├── SetupService
+ ├── SetupService (setup, settings)
+ ├── PasswordChangeService
+ ├── ConfigExportService
+ ├── ConfigImportService
  ├── BackupService
  ├── RestoreService
  ├── SystemdScheduler
@@ -92,12 +96,17 @@ Responsibilities:
 * `LanguageService`: YAML message-catalog loading, formatting and fallback resolution
 * `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
 * `RecoverySheetService`: atomic password-free recovery-document generation
-* `SetupService`: first-run setup
+* `SetupService`: first-run setup, delegates to `SetupWizard` for both `setup` and the
+  interactive `settings` menu (language, backup paths, targets, schedule)
+* `PasswordChangeService`: atomic repository password rotation across all configured targets
+* `ConfigExportService` / `ConfigImportService`: validated configuration transfer to and from
+  an external file, with automatic `config.yaml.bak` backup on import
 * `BackupService`: backup workflow
 * `RestoreService`: guided restore workflow
 * `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
 * `RepositoryProvider`: resolve all configured targets and create Restic repository clients
-* `SystemdScheduler`: install daily and startup-check user timers
+* `SystemdScheduler`: install daily and startup-check user timers; reinstalled or removed
+  automatically when the schedule changes via the `settings` menu
 
 Successful backups are recorded by `BackupStateStore`. A daily timer checks the user-selected
 interval at the configured time. The startup timer invokes `backup-if-due`, which only runs when
@@ -236,4 +245,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Version 1.1.0
+Version 1.2.0
