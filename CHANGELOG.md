@@ -6,6 +6,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
+# Unreleased
+
+## Sprint 81 – Desktop-Verknüpfung schließt sich sofort wieder (Fix)
+
+### Fixed
+
+* Die von `installer.py` erzeugte Desktop-/Menü-Verknüpfung öffnete ein Terminal, das sich
+  sofort wieder schloss, da `backup-manager` ohne Argumente (`status`) fast augenblicklich
+  beendet und nichts das Terminal offen hielt. Der `Exec`-Eintrag pausiert jetzt nach der
+  Ausführung mit einem "Press Enter to close..."-Prompt.
+* Der erste Fix-Versuch (`read -p`) schlug unter `dash` (Standard-`/bin/sh` auf Debian/
+  Ubuntu) fehl, da `-p` ein Bash-ismus ist; korrigiert auf ein POSIX-kompatibles
+  `printf`+`read -r`.
+* Testfall ergänzt, der `read -p` explizit ausschließt (185 → 186 Tests).
+
+---
+
 # v1.2.0 – 2026-07-02
 
 ## Sprint 80 – Zu GitHub gepusht
