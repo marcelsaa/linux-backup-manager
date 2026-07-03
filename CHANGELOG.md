@@ -8,6 +8,27 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # v1.3.0 – 2026-07-04
 
+## Sprint 90 – Zu GitHub gepusht
+
+### Released
+
+* `main`, `develop` und Tag `v1.3.0` live auf `github.com/marcelsaa/linux-backup-manager`.
+  Gefilterte Kopie frisch regeneriert (`docs/reports`/`CLAUDE.md` ausgeschlossen,
+  Autor-Identität vereinheitlicht), Sanity-Check bestanden (248 Tests), beide Branches als
+  sauberer Fast-Forward gepusht. Details: `docs/reports/SPRINT_90.md`.
+
+## Sprint 89 – Version 1.3.0 final freigegeben
+
+### Released
+
+* Versions-Bump `1.3.0rc1` → `1.3.0`. Verbliebene Doku-Stellen aktualisiert (`README.md`,
+  `docs/de/README.md`; Upgrade-Pfad-Beschreibung in `INSTALL.md`/`docs/de/INSTALL.md`/
+  `ARCHITECTURE.md` von "Version 1.0.1" auf "jede zuvor verwaltete Installation"
+  verallgemeinert, passend zum Sprint-88-Fix). Finales Wheel/Sdist gebaut und mit
+  `twine check` validiert (Wheel SHA-256
+  `ec1c84dfea3408b9c6ffcfe8d7093a7b316359d8ff9a885006418b24909c6e94`), `develop` nach `main`
+  gemergt und mit `v1.3.0` getaggt. Details: `docs/reports/SPRINT_89.md`.
+
 ## Sprint 88 – Fix: installer.py-Upgrade-Erkennung war auf Version 1.0.1 begrenzt
 
 ### Fixed
