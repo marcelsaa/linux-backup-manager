@@ -108,7 +108,9 @@ Responsibilities:
 * `ConfigExportService` / `ConfigImportService`: validated configuration transfer to and from
   an external file, with automatic `config.yaml.bak` backup on import
 * `BackupService`: backup workflow
-* `RestoreService`: guided restore workflow
+* `RestoreService`: guided restore workflow — read-only FUSE-mount browsing (`mount`, the
+  default from the main menu) and full-snapshot restore to a directory (`restore`, an
+  Expert Function)
 * `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
 * `RepositoryProvider`: resolve all configured targets and create Restic repository clients
 * `SystemdScheduler`: install daily and startup-check user timers; reinstalled or removed

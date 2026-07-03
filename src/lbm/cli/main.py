@@ -88,6 +88,7 @@ class CommandLineInterface:
             "backup-scheduled": self.application.backup_scheduled,
             "snapshots": self.application.snapshots,
             "restore": self.application.restore,
+            "mount": self.application.mount,
             "stats": self.application.stats,
             "check": self.application.check,
             "forget": self.application.forget,

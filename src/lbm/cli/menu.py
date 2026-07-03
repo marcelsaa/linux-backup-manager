@@ -21,7 +21,7 @@ class MainMenu:
             "menu.title",
             [
                 ("menu.main.backup", self.application.backup),
-                ("menu.main.restore", self.application.restore),
+                ("menu.main.restore", self.application.mount),
                 ("menu.main.status", self.application.status),
                 ("menu.main.settings", self.application.settings),
                 ("menu.main.administration", self._administration_menu),
@@ -49,6 +49,7 @@ class MainMenu:
             "menu.expert.title",
             [
                 ("menu.expert.init", self.application.init_repository),
+                ("menu.expert.full_restore", self.application.restore),
                 ("menu.expert.stats", self.application.stats),
                 ("menu.expert.forget", self.application.forget),
                 ("menu.expert.prune", self.application.prune),

@@ -37,6 +37,8 @@ cli:
       description: "Display available snapshots"
     restore:
       description: "Restore files from a snapshot"
+    mount:
+      description: "Mount a snapshot for browsing (read-only)"
     stats:
       description: "Show repository statistics"
     check:
@@ -290,6 +292,11 @@ restore:
   success: "Restore successful."
   failed: "Restore failed:"
   target_prompt: "Restore target [{default}]: "
+  mount_ready: "Snapshot mounted at: {path}"
+  mount_no_file_manager: "No file manager found. Please open the path above manually."
+  mount_prompt: "Press Enter when you are finished, to unmount: "
+  mount_failed: "Mount failed: {error}"
+  mount_timeout: "Timed out waiting for the snapshot to be mounted."
 maintenance:
   repository_exists: "Repository already exists."
   create_at: "Repository will be created at:\n{path}"
@@ -443,6 +450,7 @@ menu:
   expert:
     title: "Expert functions"
     init: "Initialize repository"
+    full_restore: "Restore a full snapshot"
     stats: "Show snapshot statistics"
     forget: "Remove old snapshots"
     prune: "Clean up repository"

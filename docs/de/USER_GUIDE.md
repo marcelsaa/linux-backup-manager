@@ -42,7 +42,8 @@ erfolgreich abgeschlossen wurde.
 | `schedule-status` | Status des automatischen Backup-Timers anzeigen      |
 | `schedule-remove` | Automatische Backup-Timer deaktivieren und entfernen  |
 | `snapshots` | Verfügbare Snapshots anzeigen                              |
-| `restore`   | Dateien aus einem Snapshot wiederherstellen                 |
+| `restore`   | Vollständigen Snapshot in ein Verzeichnis wiederherstellen (Expertenfunktion) |
+| `mount`     | Snapshot schreibgeschützt einhängen und im Dateimanager durchsuchen (Standard für "Dateien wiederherstellen") |
 | `stats`     | Repository-Statistiken anzeigen                            |
 | `check`     | Repository-Integrität prüfen                               |
 | `forget`    | Alte Snapshots gemäß der Aufbewahrungsrichtlinie entfernen |
@@ -79,6 +80,7 @@ backup-manager menu
   * Repository-Informationen
   * Expertenfunktionen
     * Repository initialisieren
+    * Vollständigen Snapshot wiederherstellen
     * Snapshot-Statistiken anzeigen
     * Alte Snapshots entfernen
     * Repository bereinigen
@@ -93,6 +95,10 @@ Jeder Menüpunkt ruft denselben Befehl auf, der an anderer Stelle in diesem Hand
 ist – das Menü ist eine Komfortschicht, keine eigenständige Implementierung.
 `backup-manager --non-interactive` (ohne Befehl) führt stattdessen `status` aus, da das Menü
 interaktive Eingaben benötigt.
+
+"Dateien wiederherstellen" im Hauptmenü ruft `mount` auf (einzelne Dateien durchsuchen und
+kopieren), nicht den vollständigen `restore`-Befehl – siehe die Abschnitte `mount` und
+`restore` weiter unten für den Unterschied.
 
 ---
 
@@ -407,11 +413,52 @@ Snapshots stellen Wiederherstellungspunkte dar, die später wiederhergestellt we
 
 ---
 
+# mount
+
+## Zweck
+
+Hängt einen ausgewählten Snapshot schreibgeschützt per FUSE ein und öffnet ihn im
+Standard-Dateimanager, sodass einzelne Dateien durchsucht und herauskopiert werden können,
+ohne den gesamten Snapshot vorher wiederherzustellen zu müssen. Das ist es, was der
+Hauptmenüpunkt "Dateien wiederherstellen" ausführt, und der empfohlene Weg, um wenige
+einzelne Dateien zurückzuholen.
+
+## Befehl
+
+```bash
+backup-manager mount
+```
+
+## Ablauf
+
+1. Snapshot aus der Liste auswählen, genau wie bei `restore`.
+2. Der Snapshot wird schreibgeschützt an einem temporären Ort eingehängt, der Dateimanager
+   öffnet sich automatisch am Snapshot-Wurzelverzeichnis (fällt auf eine Pfadausgabe zurück,
+   falls kein Dateimanager gefunden wird).
+3. Snapshot wie einen normalen Ordner durchsuchen und benötigte Dateien herauskopieren.
+4. Enter im Terminal drücken, wenn fertig – der Snapshot wird automatisch ausgehängt.
+
+Es werden keine Restic-Befehle oder Repository-Interna angezeigt. Der Mount ist immer
+schreibgeschützt und wird auch bei einem Abbruch (`Strg+C`) ausgehängt.
+
+## Voraussetzungen
+
+Zum Einhängen wird FUSE (`fusermount` oder `umount`) benötigt; das automatische Öffnen des
+Dateimanagers benötigt `xdg-open`. Beides ist auf Desktop-Linux-Installationen üblich; fehlt
+eines davon, meldet `mount` das klar, statt stillschweigend zu scheitern.
+
+---
+
 # restore
 
 ## Zweck
 
-Dateien aus einem ausgewählten Snapshot wiederherstellen.
+Stellt einen vollständigen Snapshot in ein Verzeichnis wieder her. Das ist das
+Vollständig-Wiederherstellungs-Gegenstück zu `mount` – geeignet, um alles auf einmal
+zurückzubekommen (z. B. nach einer vollständigen Notfallwiederherstellung, siehe
+`docs/RECOVERY.md`), nicht um nach einzelnen Dateien zu suchen. Erreichbar über das
+Hauptmenü unter Administration → Expertenfunktionen → "Vollständigen Snapshot
+wiederherstellen".
 
 ## Befehl
 

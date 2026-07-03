@@ -39,7 +39,8 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `schedule-status` | Display automatic-backup timer status             |
 | `schedule-remove` | Disable and remove automatic-backup timers         |
 | `snapshots` | Display available snapshots                            |
-| `restore`   | Restore files from a snapshot                          |
+| `restore`   | Restore a full snapshot to a directory (Expert Function) |
+| `mount`     | Mount a snapshot read-only and browse it in a file manager (default "Restore files" action) |
 | `stats`     | Show repository statistics                             |
 | `check`     | Verify repository integrity                            |
 | `forget`    | Remove old snapshots according to the retention policy |
@@ -76,6 +77,7 @@ backup-manager menu
   * Repository information
   * Expert functions
     * Initialize repository
+    * Restore a full snapshot
     * Show snapshot statistics
     * Remove old snapshots
     * Clean up repository
@@ -89,6 +91,10 @@ backup-manager menu
 Every menu entry runs the same command described elsewhere in this guide; the menu is a
 convenience layer, not a separate implementation. `backup-manager --non-interactive` (with no
 command) runs `status` instead of opening the menu, since the menu requires interactive input.
+
+"Restore files" in the main menu runs `mount` (browse and copy individual files), not the
+full-snapshot `restore` command — see the `mount` and `restore` sections below for the
+difference.
 
 ---
 
@@ -389,11 +395,50 @@ Snapshots represent restore points that can later be restored.
 
 ---
 
+# mount
+
+## Purpose
+
+Mounts a selected snapshot read-only via FUSE and opens it in the default file manager, so
+individual files can be browsed and copied out without restoring the entire snapshot first.
+This is what the main menu's "Restore files" entry runs, and the recommended way to recover a
+small number of files.
+
+## Command
+
+```bash
+backup-manager mount
+```
+
+## Steps
+
+1. Select a snapshot from the list, exactly as in `restore`.
+2. The snapshot is mounted read-only at a temporary location and the file manager opens
+   automatically at the snapshot's root (falls back to printing the path if no file manager
+   is found).
+3. Browse the snapshot like a normal folder and copy out whatever files are needed.
+4. Press Enter in the terminal when finished; the snapshot is unmounted automatically.
+
+No Restic commands or repository internals are shown. The mount is always read-only, and it
+is unmounted even if the process is interrupted (`Ctrl+C`).
+
+## Requirements
+
+Mounting requires FUSE (`fusermount` or `umount`) to be available on the system; opening the
+file manager automatically requires `xdg-open`. Both are common on desktop Linux
+installations; if either is missing, `mount` reports a clear message instead of failing
+silently.
+
+---
+
 # restore
 
 ## Purpose
 
-Restore files from a selected snapshot.
+Restores an entire snapshot into a directory. This is the full, bulk-recovery counterpart to
+`mount` — use it to recover everything at once (for example after a full disaster recovery,
+see `docs/RECOVERY.md`), not to look for a handful of files. Reachable from the main menu via
+Administration → Expert Functions → "Restore a full snapshot".
 
 ## Command
 

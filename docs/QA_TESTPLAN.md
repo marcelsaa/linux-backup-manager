@@ -157,6 +157,23 @@ Verify that:
 * the restore process completes successfully.
 * restored files can be opened and used.
 
+## Mount Restore Tests
+
+Run:
+
+```bash
+backup-manager mount
+```
+
+Verify that:
+
+* snapshot selection works, identically to `restore`.
+* the snapshot is mounted read-only and a file manager opens automatically (or the mount
+  path is printed if no file manager is available).
+* a file browsed inside the mount matches the original content exactly.
+* pressing Enter unmounts cleanly (`mount | grep restic` shows nothing afterward).
+* interrupting with `Ctrl+C` while mounted still unmounts cleanly.
+
 ---
 
 # Retention Tests

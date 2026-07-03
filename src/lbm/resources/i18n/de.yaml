@@ -37,6 +37,8 @@ cli:
       description: "Verfügbare Snapshots anzeigen"
     restore:
       description: "Dateien aus einem Snapshot wiederherstellen"
+    mount:
+      description: "Snapshot zum Durchsuchen einhängen (schreibgeschützt)"
     stats:
       description: "Repository-Statistiken anzeigen"
     check:
@@ -290,6 +292,11 @@ restore:
   success: "Restore erfolgreich."
   failed: "Restore fehlgeschlagen:"
   target_prompt: "Restore-Ziel [{default}]: "
+  mount_ready: "Snapshot eingehängt unter: {path}"
+  mount_no_file_manager: "Kein Dateimanager gefunden. Bitte öffnen Sie den obigen Pfad manuell."
+  mount_prompt: "Drücken Sie Enter, wenn Sie fertig sind, um den Mount wieder zu lösen: "
+  mount_failed: "Einhängen fehlgeschlagen: {error}"
+  mount_timeout: "Zeitüberschreitung beim Einhängen des Snapshots."
 maintenance:
   repository_exists: "Repository ist bereits vorhanden."
   create_at: "Repository wird angelegt unter:\n{path}"
@@ -443,6 +450,7 @@ menu:
   expert:
     title: "Expertenfunktionen"
     init: "Repository initialisieren"
+    full_restore: "Vollständigen Snapshot wiederherstellen"
     stats: "Snapshot-Statistiken anzeigen"
     forget: "Alte Snapshots entfernen"
     prune: "Repository bereinigen"

@@ -17,6 +17,7 @@ COMMANDS: tuple[str, ...] = (
     "backup-scheduled",
     "snapshots",
     "restore",
+    "mount",
     "stats",
     "check",
     "forget",

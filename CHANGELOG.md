@@ -8,6 +8,32 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 85 – Restore per FUSE-Mount (Version 1.3, Restore Experience)
+
+### Added
+
+* Neuer Befehl `backup-manager mount`: hängt einen ausgewählten Snapshot schreibgeschützt
+  per `restic mount` ein und öffnet ihn automatisch im Standard-Dateimanager (`xdg-open`).
+  Kein voller Kopiervorgang mehr nötig, um einzelne Dateien zurückzuholen. Aushängen erfolgt
+  explizit per Enter-Taste (Schließen des Dateimanagers lässt sich nicht plattform-
+  übergreifend erkennen) und garantiert auch bei `Strg+C`/EOF via `try`/`finally`.
+* `Application.mount()` ist jetzt die Standardaktion für "Dateien wiederherstellen" im
+  Hauptmenü. Der bisherige vollständige `restore`-Befehl (kompletter Snapshot in ein
+  Verzeichnis) bleibt unverändert erhalten – wichtig für die in `docs/RECOVERY.md`
+  dokumentierte Notfallwiederherstellung – und ist jetzt über Administration →
+  Expertenfunktionen → "Vollständigen Snapshot wiederherstellen" erreichbar.
+* `ResticRepository.start_mount()` (neu, `src/lbm/backup/restic.py`) sowie zwei neue
+  generische Hilfsfunktionen `unmount()`/`open_in_file_manager()` in `src/lbm/utils/system.py`.
+* `RestoreService`s Snapshot-Auswahl in `_select_snapshot()` extrahiert und von `run()`
+  (Vollständig-Restore) und `run_mount()` (neuer Mount-Flow) gemeinsam genutzt – verhaltens-
+  gleicher Refactor, bestehende Tests unverändert grün.
+* Vollständig zweisprachig, neue i18n-Schlüssel `restore.mount_*`, `menu.expert.full_restore`,
+  `cli.commands.mount.description`.
+* Manuell gegen ein echtes Restic-Repository verifiziert (echter `restic mount`, echtes FUSE,
+  Dateiinhalt während des Mounts gelesen, sauberes Aushängen bestätigt) – nicht nur gemockte
+  Tests.
+* 14 neue Tests (224 → 238 Tests).
+
 ## Sprint 84 – Geführtes Hauptmenü (Version 1.3, Interaction Model)
 
 ### Added

@@ -25,3 +25,25 @@ def command_version(command, args):
 
 def path_exists(path):
     return Path(path).expanduser().exists()
+
+def unmount(path: Path) -> bool:
+    command = "fusermount" if command_exists("fusermount") else "umount"
+    args = [command, "-u", str(path)] if command == "fusermount" else [command, str(path)]
+    try:
+        result = subprocess.run(args, capture_output=True, text=True, timeout=10, check=False)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0
+
+def open_in_file_manager(path: Path) -> bool:
+    if not command_exists("xdg-open"):
+        return False
+    try:
+        subprocess.Popen(
+            ["xdg-open", str(path)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        return False
+    return True
