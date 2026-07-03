@@ -4,9 +4,11 @@ from lbm.services.language import LanguageService
 from lbm.ui.console import Console
 
 COMMANDS: tuple[str, ...] = (
+    "menu",
     "status",
     "health",
     "doctor",
+    "logs",
     "recovery-info",
     "recovery-sheet",
     "init",

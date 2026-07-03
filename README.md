@@ -201,6 +201,7 @@ Summary: 4 OK, 0 warnings, 0 errors
 
 | Command                    | Description                           |
 | -------------------------- | ------------------------------------- |
+| `backup-manager` / `backup-manager menu` | Open the guided main menu (default with no arguments) |
 | `backup-manager setup`     | Interactive setup wizard              |
 | `backup-manager settings`  | Change individual settings interactively |
 | `backup-manager export-config` | Copy the current configuration file to another location |
@@ -208,6 +209,7 @@ Summary: 4 OK, 0 warnings, 0 errors
 | `backup-manager status`    | Display system information            |
 | `backup-manager health`    | Run health checks                     |
 | `backup-manager doctor`    | Run read-only support diagnostics     |
+| `backup-manager logs`      | View the log file (path and recent entries) |
 | `backup-manager recovery-info` | Display password-safe recovery information |
 | `backup-manager recovery-sheet` | Create a password-free recovery document |
 | `backup-manager change-password` | Change the repository password  |

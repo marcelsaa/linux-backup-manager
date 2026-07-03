@@ -13,6 +13,8 @@ cli:
     heading_de: "Befehle (Deutsch):"
     heading_en: "Commands (English):"
   commands:
+    menu:
+      description: "Open the guided main menu (default with no arguments)"
     status:
       description: "Display current configuration and system status"
     health:
@@ -59,6 +61,8 @@ cli:
       description: "Copy the current configuration file to another location"
     import-config:
       description: "Validate and adopt an external configuration file"
+    logs:
+      description: "View the log file (path and recent entries)"
 common:
   ok: "OK"
   error: "ERROR"
@@ -416,3 +420,41 @@ recovery_sheet:
     usb_label: "USB filesystem label: {value}"
     usb_repository: "USB repository path: {value}"
     nas_repository: "NAS repository: {value}"
+menu:
+  title: "Linux Backup Manager"
+  prompt: "Choice: "
+  invalid_choice: "Invalid choice."
+  main:
+    backup: "Run backup"
+    restore: "Restore files"
+    status: "Status"
+    settings: "Settings"
+    administration: "Administration"
+    exit: "Exit"
+  administration:
+    title: "Administration"
+    doctor: "Doctor (detailed diagnostics)"
+    check: "Verify repository"
+    logs: "View log files"
+    history: "Backup history"
+    repository_info: "Repository information"
+    expert: "Expert functions"
+    back: "Back to main menu"
+  expert:
+    title: "Expert functions"
+    init: "Initialize repository"
+    stats: "Show snapshot statistics"
+    forget: "Remove old snapshots"
+    prune: "Clean up repository"
+    change_password: "Change password"
+    recovery_sheet: "Create recovery document"
+    export_config: "Export configuration"
+    import_config: "Import configuration"
+    schedule_install: "Install schedule"
+    schedule_status: "Show schedule status"
+    schedule_remove: "Remove schedule"
+    back: "Back to administration"
+logs:
+  path: "Log file: {path}"
+  empty: "No log entries yet."
+  tail_hint: "Last {count} line(s):"

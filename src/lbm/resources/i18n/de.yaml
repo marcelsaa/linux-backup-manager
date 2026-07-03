@@ -13,6 +13,8 @@ cli:
     heading_de: "Befehle (Deutsch):"
     heading_en: "Commands (English):"
   commands:
+    menu:
+      description: "Geführtes Hauptmenü öffnen (Standard ohne Argumente)"
     status:
       description: "Aktuelle Konfiguration und Systemstatus anzeigen"
     health:
@@ -59,6 +61,8 @@ cli:
       description: "Aktuelle Konfigurationsdatei an einen anderen Ort kopieren"
     import-config:
       description: "Externe Konfigurationsdatei validieren und übernehmen"
+    logs:
+      description: "Log-Datei anzeigen (Pfad und letzte Einträge)"
 common:
   ok: "OK"
   error: "FEHLER"
@@ -416,3 +420,41 @@ recovery_sheet:
     usb_label: "USB-Dateisystemlabel: {value}"
     usb_repository: "USB-Repository-Pfad: {value}"
     nas_repository: "NAS-Repository: {value}"
+menu:
+  title: "Linux Backup Manager"
+  prompt: "Auswahl: "
+  invalid_choice: "Ungültige Auswahl."
+  main:
+    backup: "Backup starten"
+    restore: "Dateien wiederherstellen"
+    status: "Status"
+    settings: "Einstellungen"
+    administration: "Administration"
+    exit: "Beenden"
+  administration:
+    title: "Administration"
+    doctor: "Doctor (ausführliche Diagnose)"
+    check: "Repository prüfen"
+    logs: "Log-Dateien anzeigen"
+    history: "Backup-Verlauf"
+    repository_info: "Repository-Informationen"
+    expert: "Expertenfunktionen"
+    back: "Zurück zum Hauptmenü"
+  expert:
+    title: "Expertenfunktionen"
+    init: "Repository initialisieren"
+    stats: "Snapshot-Statistiken anzeigen"
+    forget: "Alte Snapshots entfernen"
+    prune: "Repository bereinigen"
+    change_password: "Passwort ändern"
+    recovery_sheet: "Recovery-Dokument erstellen"
+    export_config: "Konfiguration exportieren"
+    import_config: "Konfiguration importieren"
+    schedule_install: "Zeitplan installieren"
+    schedule_status: "Zeitplan-Status anzeigen"
+    schedule_remove: "Zeitplan entfernen"
+    back: "Zurück zur Administration"
+logs:
+  path: "Log-Datei: {path}"
+  empty: "Noch keine Log-Einträge vorhanden."
+  tail_hint: "Letzte {count} Zeile(n):"

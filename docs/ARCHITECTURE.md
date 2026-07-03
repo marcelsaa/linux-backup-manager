@@ -26,6 +26,7 @@ Deployment
 CLI
  │
  ├── ErrorHandler
+ ├── MainMenu (guided main menu, default with no command)
  │
  ▼
 Application
@@ -36,6 +37,7 @@ Services
  ├── StatusService
  ├── HealthService
  ├── DoctorService
+ ├── LogViewerService
  ├── RecoveryInfoService
  ├── RecoverySheetService
  ├── SetupService (setup, settings)
@@ -67,6 +69,9 @@ Responsibilities:
 * Argument validation
 * Application startup
 * Central rendering of expected application errors
+* `MainMenu` (`lbm/cli/menu.py`): guided, numbered-choice main menu — the default when
+  `backup-manager` is run with no command (or explicitly via `menu`); drives the same
+  `Application` methods every standalone command uses, so it adds no separate business logic
 
 ---
 
@@ -93,6 +98,7 @@ Responsibilities:
 * `StatusService`: system and configuration status
 * `HealthService`: health-check workflow
 * `DoctorService`: aggregated read-only support diagnostics and exit status
+* `LogViewerService`: shows the application log file's path and most recent entries
 * `LanguageService`: YAML message-catalog loading, formatting and fallback resolution
 * `RecoveryInfoService`: password-safe recovery metadata and emergency guidance
 * `RecoverySheetService`: atomic password-free recovery-document generation

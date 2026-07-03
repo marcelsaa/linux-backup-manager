@@ -22,6 +22,7 @@ Before using any command except `setup`, make sure the initial setup has been co
 
 | Command     | Purpose                                                |
 | ----------- | ------------------------------------------------------ |
+| `menu`      | Open the guided main menu (default with no arguments)  |
 | `setup`     | Configure Linux Backup Manager                         |
 | `settings`  | Change individual settings interactively               |
 | `export-config` | Copy the current configuration file to another location |
@@ -29,6 +30,7 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `status`    | Display current configuration and system status        |
 | `health`    | Perform system health checks                           |
 | `doctor`    | Run comprehensive read-only diagnostics                |
+| `logs`      | View the log file (path and recent entries)            |
 | `recovery-info` | Display password-safe recovery information         |
 | `recovery-sheet` | Create a password-free recovery document           |
 | `change-password` | Change the repository password                   |
@@ -42,6 +44,51 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `check`     | Verify repository integrity                            |
 | `forget`    | Remove old snapshots according to the retention policy |
 | `prune`     | Remove unreferenced repository data                    |
+
+---
+
+# menu
+
+## Purpose
+
+Opens the guided main menu — the default entry point when `backup-manager` is run without a
+command (for example from the application-menu shortcut). The menu stays open until you choose
+to exit, so multiple actions can be performed in one session.
+
+## Command
+
+```bash
+backup-manager
+backup-manager menu
+```
+
+## Structure
+
+* Run backup
+* Restore files
+* Status
+* Settings
+* Administration
+  * Doctor (detailed diagnostics)
+  * Verify repository
+  * View log files
+  * Backup history
+  * Repository information
+  * Expert functions
+    * Initialize repository
+    * Show snapshot statistics
+    * Remove old snapshots
+    * Clean up repository
+    * Change password
+    * Create recovery document
+    * Export configuration
+    * Import configuration
+    * Install / show / remove schedule
+* Exit
+
+Every menu entry runs the same command described elsewhere in this guide; the menu is a
+convenience layer, not a separate implementation. `backup-manager --non-interactive` (with no
+command) runs `status` instead of opening the menu, since the menu requires interactive input.
 
 ---
 
@@ -223,6 +270,24 @@ status 1. Successful checks and warnings exit with status 0.
 
 `doctor` performs no repairs. It does not initialize repositories, create backups, change the
 configuration or alter automatic-backup timers.
+
+---
+
+# logs
+
+## Purpose
+
+Shows the location of the application log file and its most recent entries, for troubleshooting
+without needing to locate the file manually.
+
+## Command
+
+```bash
+backup-manager logs
+```
+
+Prints the log file path (`~/.local/state/lbm/backup-manager.log`) followed by up to the last 40
+lines. If the file does not exist yet or is empty, a message says so instead.
 
 ---
 

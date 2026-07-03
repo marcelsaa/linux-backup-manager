@@ -25,6 +25,7 @@ erfolgreich abgeschlossen wurde.
 
 | Befehl      | Zweck                                                   |
 | ----------- | -------------------------------------------------------- |
+| `menu`      | Geführtes Hauptmenü öffnen (Standard ohne Argumente)      |
 | `setup`     | Linux Backup Manager konfigurieren                        |
 | `settings`  | Einzelne Einstellungen interaktiv ändern                   |
 | `export-config` | Aktuelle Konfigurationsdatei an einen anderen Ort kopieren |
@@ -32,6 +33,7 @@ erfolgreich abgeschlossen wurde.
 | `status`    | Aktuelle Konfiguration und Systemstatus anzeigen            |
 | `health`    | System-Health-Checks durchführen                          |
 | `doctor`    | Umfassende Read-only-Diagnose ausführen                   |
+| `logs`      | Log-Datei anzeigen (Pfad und letzte Einträge)             |
 | `recovery-info` | Passwortsichere Recovery-Informationen anzeigen        |
 | `recovery-sheet` | Passwortfreies Recovery-Dokument erstellen            |
 | `change-password` | Repository-Passwort ändern                          |
@@ -45,6 +47,52 @@ erfolgreich abgeschlossen wurde.
 | `check`     | Repository-Integrität prüfen                               |
 | `forget`    | Alte Snapshots gemäß der Aufbewahrungsrichtlinie entfernen |
 | `prune`     | Unreferenzierte Repository-Daten entfernen                 |
+
+---
+
+# menu
+
+## Zweck
+
+Öffnet das geführte Hauptmenü – der Standard-Einstiegspunkt, wenn `backup-manager` ohne Befehl
+aufgerufen wird (z. B. über die Anwendungsmenü-Verknüpfung). Das Menü bleibt geöffnet, bis
+"Beenden" gewählt wird, sodass mehrere Aktionen in einer Sitzung ausgeführt werden können.
+
+## Befehl
+
+```bash
+backup-manager
+backup-manager menu
+```
+
+## Aufbau
+
+* Backup starten
+* Dateien wiederherstellen
+* Status
+* Einstellungen
+* Administration
+  * Doctor (ausführliche Diagnose)
+  * Repository prüfen
+  * Log-Dateien anzeigen
+  * Backup-Verlauf
+  * Repository-Informationen
+  * Expertenfunktionen
+    * Repository initialisieren
+    * Snapshot-Statistiken anzeigen
+    * Alte Snapshots entfernen
+    * Repository bereinigen
+    * Passwort ändern
+    * Recovery-Dokument erstellen
+    * Konfiguration exportieren
+    * Konfiguration importieren
+    * Zeitplan installieren / anzeigen / entfernen
+* Beenden
+
+Jeder Menüpunkt ruft denselben Befehl auf, der an anderer Stelle in diesem Handbuch beschrieben
+ist – das Menü ist eine Komfortschicht, keine eigenständige Implementierung.
+`backup-manager --non-interactive` (ohne Befehl) führt stattdessen `status` aus, da das Menü
+interaktive Eingaben benötigt.
 
 ---
 
@@ -236,6 +284,25 @@ Warnungen beenden mit Status 0.
 
 `doctor` führt keine Reparaturen durch. Es initialisiert keine Repositories, erstellt keine
 Backups, ändert die Konfiguration nicht und verändert keine automatischen Backup-Timer.
+
+---
+
+# logs
+
+## Zweck
+
+Zeigt den Speicherort der Anwendungs-Logdatei und deren letzte Einträge an, zur
+Fehlersuche ohne die Datei manuell suchen zu müssen.
+
+## Befehl
+
+```bash
+backup-manager logs
+```
+
+Gibt den Pfad der Logdatei aus (`~/.local/state/lbm/backup-manager.log`), gefolgt von bis zu
+40 letzten Zeilen. Existiert die Datei noch nicht oder ist sie leer, wird stattdessen ein
+entsprechender Hinweis ausgegeben.
 
 ---
 
