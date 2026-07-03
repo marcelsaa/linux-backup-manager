@@ -292,5 +292,5 @@ def test_due_message_and_cli_help_are_english(
 
     output = capsys.readouterr().out
     assert "Backup is not due yet" in output
-    assert "command to execute" in output
+    assert "Commands (English):" in output
     assert "Do not perform interactive changes" in output

@@ -1,9 +1,11 @@
 import argparse
 import logging
 import os
+import sys
 from pathlib import Path
 
 from lbm import __version__
+from lbm.cli import help_renderer
 from lbm.cli.error_handler import ErrorHandler
 from lbm.core.application import Application
 from lbm.core.config import ConfigLoader
@@ -24,37 +26,21 @@ class CommandLineInterface:
         parser = argparse.ArgumentParser(
             prog="backup-manager",
             description=language.translate("cli.description"),
+            add_help=False,
+        )
+
+        parser.add_argument(
+            "-h",
+            "--help",
+            action="store_true",
+            help=language.translate("cli.options.help"),
         )
 
         parser.add_argument(
             "command",
             nargs="?",
             default="status",
-            choices=[
-                "status",
-                "health",
-                "doctor",
-                "recovery-info",
-                "recovery-sheet",
-                "init",
-                "backup",
-                "backup-if-due",
-                "backup-scheduled",
-                "snapshots",
-                "restore",
-                "stats",
-                "check",
-                "forget",
-                "prune",
-                "setup",
-                "schedule-install",
-                "schedule-status",
-                "schedule-remove",
-                "change-password",
-                "settings",
-                "export-config",
-                "import-config",
-            ],
+            choices=help_renderer.COMMANDS,
             help=language.translate("cli.command_help"),
         )
 
@@ -69,6 +55,10 @@ class CommandLineInterface:
             action="version",
             version=f"%(prog)s {__version__}",
         )
+
+        if {"-h", "--help"} & set(sys.argv[1:]):
+            help_renderer.print_help(parser)
+            raise SystemExit(0)
 
         args = parser.parse_args()
 
