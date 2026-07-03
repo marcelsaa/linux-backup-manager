@@ -690,5 +690,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.2.0, live auf GitHub (Sprint 80 abgeschlossen) ·
+Stable Version 1.3.0, live auf GitHub (Sprint 90 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager
