@@ -456,10 +456,20 @@ All entries shall be optional and individually selectable.
 
 ## Restore Experience
 
-* [ ] Snapshot restoration via read-only FUSE mount
-* [ ] Automatic file manager launch after mounting a snapshot
-* [ ] Clean unmount workflow after file selection
-* [ ] No Restic commands visible to the user
+* [x] Snapshot restoration via read-only FUSE mount — new `mount` command / main-menu
+  default for "Restore files" (`restic mount`, browsing `<mountpoint>/ids/<snapshot-id>`)
+  *(Sprint 85)*
+* [x] Automatic file manager launch after mounting a snapshot — `xdg-open`, degrades to a
+  printed path if no file manager is available *(Sprint 85)*
+* [x] Clean unmount workflow after file selection — explicit "press Enter when finished"
+  prompt (closing the file manager window cannot be reliably detected across desktop
+  environments), unmount always runs via `try`/`finally` even on `Ctrl+C`/EOF *(Sprint 85)*
+* [x] No Restic commands visible to the user *(Sprint 85)*
+* [x] The previous full-snapshot restore (copy an entire snapshot to a directory) is not
+  removed — it remains available unchanged as `backup-manager restore`, now reachable from
+  the main menu via Administration → Expert Functions → "Restore a full snapshot", since it
+  is still the right tool for full disaster recovery (see `docs/RECOVERY.md`, which
+  documents `backup-manager restore` as the emergency-recovery step) *(Sprint 85)*
 
 ## Interaction Model
 

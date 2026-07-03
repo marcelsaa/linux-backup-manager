@@ -122,6 +122,9 @@ class Application:
     def restore(self) -> bool:
         return RestoreService(self._load_config()).run()
 
+    def mount(self) -> bool:
+        return RestoreService(self._load_config()).run_mount()
+
     def stats(self) -> None:
         self._maintenance().stats()
 

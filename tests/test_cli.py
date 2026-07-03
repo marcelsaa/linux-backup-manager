@@ -108,6 +108,17 @@ def test_logs_command_is_forwarded_to_application() -> None:
     application.view_logs.assert_called_once_with()
 
 
+def test_mount_command_is_forwarded_to_application() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "mount"]):
+        cli.run()
+
+    application.mount.assert_called_once_with()
+
+
 def test_configured_language_falls_back_to_detected_language_for_broken_config(
     tmp_path: Path, monkeypatch
 ) -> None:

@@ -42,15 +42,54 @@ backup-manager check
 
 ---
 
-# Restore starten
+# Wiederherstellungsart wählen
 
-Restore-Assistenten starten.
+Linux Backup Manager bietet zwei Wege, Dateien zurückzubekommen, beide starten mit derselben
+Snapshot-Auswahl:
+
+* **`mount`** – hängt einen Snapshot schreibgeschützt ein und öffnet ihn im Dateimanager,
+  sodass einzelne Dateien nach Bedarf durchsucht und herauskopiert werden können. Es wird
+  nichts kopiert, bis man es selbst tut. Das ist es, was der Hauptmenüpunkt "Dateien
+  wiederherstellen" ausführt – die richtige Wahl, wenn nur einige wenige Dateien
+  zurückgeholt werden müssen.
+* **`restore`** – kopiert einen kompletten Snapshot in einem Schritt in ein Verzeichnis. Die
+  richtige Wahl für eine vollständige Notfallwiederherstellung (siehe `docs/RECOVERY.md`),
+  nicht um nach einzelnen Dateien zu suchen. Erreichbar über das Hauptmenü unter
+  Administration → Expertenfunktionen → "Vollständigen Snapshot wiederherstellen".
+
+Der Rest dieser Anleitung behandelt zuerst `mount`, da es der empfohlene Standard ist,
+danach `restore`.
+
+---
+
+# Snapshot einhängen (`mount`)
+
+Direkt starten, oder über den Hauptmenüpunkt "Dateien wiederherstellen":
 
 ```bash
-backup-manager restore
+backup-manager mount
 ```
 
-Der Restore-Befehl führt durch den vollständigen Wiederherstellungsvorgang.
+1. Den zu durchsuchenden Snapshot aus der Liste der verfügbaren Snapshots auswählen (siehe
+   "Snapshot auswählen" unten).
+2. Der Snapshot wird schreibgeschützt an einem temporären Ort eingehängt. Der Standard-
+   Dateimanager öffnet sich automatisch am Snapshot-Wurzelverzeichnis. Wird kein
+   Dateimanager gefunden, wird stattdessen der Mount-Pfad ausgegeben, um ihn manuell zu
+   öffnen.
+3. Den Snapshot wie einen normalen Ordner durchsuchen und benötigte Dateien herauskopieren.
+4. Enter im Terminal drücken, wenn fertig. Der Snapshot wird automatisch ausgehängt – auch
+   wenn der Vorgang mit `Strg+C` abgebrochen wird.
+
+Zu keinem Zeitpunkt werden Restic-Befehle oder Repository-Interna angezeigt.
+
+**Voraussetzungen:** Zum Einhängen wird FUSE (`fusermount` oder `umount`) auf dem System
+benötigt; das automatische Öffnen des Dateimanagers benötigt `xdg-open`. Beides ist auf
+Desktop-Linux-Installationen üblich.
+
+**Hinweis:** Das Schließen des Dateimanager-Fensters löst *nicht* automatisch das Aushängen
+aus – die meisten Dateimanager laufen als ein einziger Hintergrundprozess, es gibt also
+keine verlässliche Möglichkeit zu erkennen, dass genau ein bestimmtes Fenster geschlossen
+wurde. Stattdessen bei Bedarf im Terminal Enter drücken.
 
 ---
 
@@ -58,13 +97,23 @@ Der Restore-Befehl führt durch den vollständigen Wiederherstellungsvorgang.
 
 Ein Snapshot stellt den Zustand der Dateien zu einem bestimmten Zeitpunkt dar.
 
-Der Restore-Assistent zeigt alle verfügbaren Snapshots an.
-
-Den Snapshot auswählen, der wiederhergestellt werden soll.
+Sowohl `mount` als auch `restore` zeigen alle verfügbaren Snapshots an und fragen, welcher
+verwendet werden soll.
 
 ---
 
-# Restore-Ziel wählen
+# Vollständigen Snapshot wiederherstellen (`restore`)
+
+Direkt starten, oder über Administration → Expertenfunktionen → "Vollständigen Snapshot
+wiederherstellen":
+
+```bash
+backup-manager restore
+```
+
+Der Restore-Befehl führt durch den vollständigen Wiederherstellungsvorgang.
+
+## Restore-Ziel wählen
 
 Aus Sicherheitsgründen sollten Dateien immer in ein separates Verzeichnis
 wiederhergestellt werden.
@@ -85,7 +134,8 @@ Das verhindert ein versehentliches Überschreiben bestehender Daten.
 
 # Wiederhergestellte Dateien überprüfen
 
-Nach Abschluss des Restores:
+Nach Abschluss des Restores (oder nach dem Herauskopieren von Dateien aus einem
+eingehängten Snapshot):
 
 * Prüfen, dass alle erwarteten Dateien vorhanden sind.
 * Wichtige Dokumente öffnen.
@@ -143,6 +193,16 @@ backup-manager check
 
 Werden Fehler gemeldet, das Repository reparieren, bevor ein weiterer Restore-Versuch
 unternommen wird.
+
+---
+
+## `mount` meldet ein Mount- oder Dateimanager-Problem
+
+* "Einhängen fehlgeschlagen" bedeutet meist, dass FUSE nicht verfügbar ist oder das falsche
+  Passwort konfiguriert ist – Details stehen in der ausgegebenen Fehlermeldung.
+* "Kein Dateimanager gefunden" bedeutet, dass `xdg-open` nicht installiert oder kein
+  Standard-Dateimanager konfiguriert ist; der Mount ist trotzdem erfolgreich, der
+  ausgegebene Pfad kann manuell geöffnet werden.
 
 ---
 

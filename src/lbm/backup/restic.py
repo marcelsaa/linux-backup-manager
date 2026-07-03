@@ -269,7 +269,28 @@ class ResticRepository:
             duration="",
             message=result.stderr.strip(),
         )
-    
+
+    def start_mount(self, mountpoint: Path) -> subprocess.Popen[str]:
+        # restic mount blocks in the foreground until the caller unmounts it, so it must be
+        # started with Popen rather than the blocking _run() used by every other command.
+        try:
+            return subprocess.Popen(
+                ["restic", "mount", str(mountpoint)],
+                env={
+                    **os.environ,
+                    "RESTIC_REPOSITORY": str(self.repository),
+                    "RESTIC_PASSWORD_FILE": str(self.password_file),
+                },
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        except FileNotFoundError as error:
+            raise ExternalCommandError(
+                "Restic konnte nicht gestartet werden.",
+                hint="Bitte installieren Sie Restic und prüfen Sie den PATH.",
+            ) from error
+
     def stats(self) -> RepositoryStats:
         snapshots = self.snapshots()
 

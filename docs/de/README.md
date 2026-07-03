@@ -227,7 +227,8 @@ Zusammenfassung: 4 OK, 0 Warnungen, 0 Fehler
 | `backup-manager schedule-status` | Status des systemd-Timers anzeigen             |
 | `backup-manager schedule-remove` | Automatische Backups deaktivieren              |
 | `backup-manager snapshots` | Verfügbare Snapshots auflisten                       |
-| `backup-manager restore`   | Daten aus einem Snapshot wiederherstellen             |
+| `backup-manager mount`     | Snapshot schreibgeschützt einhängen und im Dateimanager durchsuchen (Standard-Wiederherstellung) |
+| `backup-manager restore`   | Vollständigen Snapshot in ein Verzeichnis wiederherstellen (Expertenfunktion) |
 | `backup-manager stats`     | Repository-Statistiken anzeigen                      |
 | `backup-manager check`     | Repository-Integrität prüfen                         |
 | `backup-manager forget`    | Konfigurierte Aufbewahrungsrichtlinie anwenden       |

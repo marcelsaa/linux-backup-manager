@@ -1,7 +1,10 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+
 from lbm.backup.restic import RepositoryStatus, ResticRepository
+from lbm.core.errors import ExternalCommandError
 
 
 def test_backup_uses_argument_list_without_shell() -> None:
@@ -292,6 +295,36 @@ def test_restore_does_not_reclassify_lchown_error_as_success() -> None:
 
     assert result.ok is False
     assert result.message == fake_result.stderr
+
+def test_start_mount_uses_argument_list_without_shell() -> None:
+    repository = ResticRepository(
+        repository=Path("/tmp/repo"),
+        password_file=Path("/tmp/password"),
+    )
+    fake_process = Mock()
+
+    with patch("lbm.backup.restic.subprocess.Popen", return_value=fake_process) as popen_mock:
+        result = repository.start_mount(Path("/tmp/mount; rm -rf root"))
+
+    args, kwargs = popen_mock.call_args
+    assert result is fake_process
+    assert isinstance(args[0], list)
+    assert kwargs.get("shell") is None
+    assert "/tmp/mount; rm -rf root" in args[0]
+    assert kwargs["env"]["RESTIC_REPOSITORY"] == "/tmp/repo"
+    assert kwargs["env"]["RESTIC_PASSWORD_FILE"] == "/tmp/password"
+
+def test_start_mount_raises_external_command_error_when_restic_missing() -> None:
+    repository = ResticRepository(
+        repository=Path("/tmp/repo"),
+        password_file=Path("/tmp/password"),
+    )
+
+    with (
+        patch("lbm.backup.restic.subprocess.Popen", side_effect=FileNotFoundError),
+        pytest.raises(ExternalCommandError),
+    ):
+        repository.start_mount(Path("/tmp/mount"))
 
 def test_check_repository_returns_success() -> None:
     repository = ResticRepository(

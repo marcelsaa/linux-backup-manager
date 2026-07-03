@@ -218,7 +218,8 @@ Summary: 4 OK, 0 warnings, 0 errors
 | `backup-manager schedule-status` | Display the systemd timer status |
 | `backup-manager schedule-remove` | Disable automatic backups |
 | `backup-manager snapshots` | List available snapshots              |
-| `backup-manager restore`   | Restore data from a snapshot          |
+| `backup-manager mount`     | Mount a snapshot read-only and browse it in a file manager (default restore action) |
+| `backup-manager restore`   | Restore a full snapshot to a directory (Expert Function) |
 | `backup-manager stats`     | Display repository statistics         |
 | `backup-manager check`     | Verify repository integrity           |
 | `backup-manager forget`    | Apply the configured retention policy |
