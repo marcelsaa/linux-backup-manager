@@ -210,6 +210,7 @@ Zusammenfassung: 4 OK, 0 Warnungen, 0 Fehler
 
 | Befehl                      | Beschreibung                                       |
 | ---------------------------- | --------------------------------------------------- |
+| `backup-manager` / `backup-manager menu` | Geführtes Hauptmenü öffnen (Standard ohne Argumente) |
 | `backup-manager setup`     | Interaktiver Setup-Assistent                         |
 | `backup-manager settings`  | Einzelne Einstellungen interaktiv ändern             |
 | `backup-manager export-config` | Aktuelle Konfigurationsdatei an einen anderen Ort kopieren |
@@ -217,6 +218,7 @@ Zusammenfassung: 4 OK, 0 Warnungen, 0 Fehler
 | `backup-manager status`    | Systeminformationen anzeigen                         |
 | `backup-manager health`    | Health-Checks ausführen                              |
 | `backup-manager doctor`    | Read-only-Support-Diagnose ausführen                 |
+| `backup-manager logs`      | Log-Datei anzeigen (Pfad und letzte Einträge)        |
 | `backup-manager recovery-info` | Passwortsichere Recovery-Informationen anzeigen  |
 | `backup-manager recovery-sheet` | Passwortfreies Recovery-Dokument erstellen      |
 | `backup-manager change-password` | Repository-Passwort ändern                     |

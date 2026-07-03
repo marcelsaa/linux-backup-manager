@@ -2,12 +2,14 @@ import os
 from pathlib import Path
 
 from lbm.core.config import AppConfig, ConfigLoader
+from lbm.core.errors import ApplicationError
 from lbm.core.state import BackupStateStore
 from lbm.services.backup import BackupService
 from lbm.services.config_transfer import ConfigExportService, ConfigImportService
 from lbm.services.doctor import DoctorService
 from lbm.services.health import HealthService
 from lbm.services.language import LanguageService
+from lbm.services.logs import LogViewerService
 from lbm.services.password import PasswordChangeService
 from lbm.services.recovery import RecoveryInfoService, RecoverySheetService
 from lbm.services.repository_maintenance import RepositoryMaintenanceService
@@ -45,6 +47,14 @@ class Application:
 
     def doctor(self) -> bool:
         return DoctorService(self.config_file).run()
+
+    def view_logs(self) -> None:
+        try:
+            language = LanguageService(self._load_config().system.language)
+        except ApplicationError:
+            detected = ConfigLoader(self.config_file).detect_language()
+            language = LanguageService(detected or LanguageService.default_language)
+        LogViewerService(language).run()
 
     def recovery_info(self) -> None:
         RecoveryInfoService(self._load_config(), self.config_file).run()

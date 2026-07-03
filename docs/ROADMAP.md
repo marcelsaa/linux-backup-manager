@@ -463,17 +463,17 @@ All entries shall be optional and individually selectable.
 
 ## Interaction Model
 
-* [ ] Guided terminal user interface with main menu (6 items, see Design Philosophy)
-* [ ] Administration submenu for Doctor, repository check, log viewer, backup history
-* [ ] Doctor integrated into Administration area
-* [ ] Desktop/application-menu shortcut launches directly into the interactive main menu
-  instead of running the plain `status` command once and exiting. Motivation (2026-07-02,
-  confirmed working after the Sprint 81 terminal-close fix): running `backup-manager` with
-  no arguments today only shows a static status screen and then waits for Enter — not an
-  actually useful entry point for a double-click launcher. Once the main menu exists,
-  `installer.py`'s generated `Exec` line should invoke it directly (no default-command
-  status dump, no manual pause needed since the menu itself stays open until the user
-  quits).
+* [x] Guided terminal user interface with main menu (6 items, see Design Philosophy)
+  — implemented in `lbm/cli/menu.py` (`MainMenu`), numbered-choice style matching the
+  existing `settings` menu *(Sprint 84)*
+* [x] Administration submenu for Doctor, repository check, log viewer, backup history —
+  log viewer is a new `LogViewerService`/`logs` command; backup history maps to the
+  existing `snapshots` command *(Sprint 84)*
+* [x] Doctor integrated into Administration area — not in the 6-item main menu *(Sprint 84)*
+* [x] Desktop/application-menu shortcut launches directly into the interactive main menu
+  instead of running the plain `status` command once and exiting. `installer.py`'s `Exec`
+  line is back to invoking the launcher directly (the Sprint 81 "Press Enter to close" pause
+  hack is no longer needed, since the menu itself keeps the terminal open) *(Sprint 84)*
 
 ## CLI Help Output
 

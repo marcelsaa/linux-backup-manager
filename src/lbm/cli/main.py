@@ -7,6 +7,7 @@ from pathlib import Path
 from lbm import __version__
 from lbm.cli import help_renderer
 from lbm.cli.error_handler import ErrorHandler
+from lbm.cli.menu import MainMenu
 from lbm.core.application import Application
 from lbm.core.config import ConfigLoader
 from lbm.core.errors import ApplicationError
@@ -39,7 +40,7 @@ class CommandLineInterface:
         parser.add_argument(
             "command",
             nargs="?",
-            default="status",
+            default=None,
             choices=help_renderer.COMMANDS,
             help=language.translate("cli.command_help"),
         )
@@ -62,6 +63,9 @@ class CommandLineInterface:
 
         args = parser.parse_args()
 
+        if args.command is None:
+            args.command = "status" if args.non_interactive else "menu"
+
         if self.application is None:
             self.application = Application()
 
@@ -71,9 +75,11 @@ class CommandLineInterface:
             )
 
         command_methods = {
+            "menu": lambda: MainMenu(self.application, language).run(),
             "status": self.application.status,
             "health": self.application.health,
             "doctor": self.application.doctor,
+            "logs": self.application.view_logs,
             "recovery-info": self.application.recovery_info,
             "recovery-sheet": self.application.recovery_sheet,
             "init": self.application.init_repository,

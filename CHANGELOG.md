@@ -8,6 +8,34 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 84 – Geführtes Hauptmenü (Version 1.3, Interaction Model)
+
+### Added
+
+* `backup-manager` ohne Argumente (bzw. explizit `backup-manager menu`) öffnet jetzt ein
+  geführtes Hauptmenü statt nur einmalig `status` auszugeben: Backup starten, Dateien
+  wiederherstellen, Status, Einstellungen, Administration, Beenden – wie in der Bedien-
+  philosophie festgelegt. `--non-interactive` ohne Befehl läuft weiterhin `status`, da das
+  Menü interaktive Eingabe braucht.
+* Neuer Administrationsbereich (aus dem Hauptmenü über "Administration" erreichbar): Doctor,
+  Repository prüfen, Log-Dateien anzeigen, Backup-Verlauf (`snapshots`), Repository-
+  Informationen (`recovery-info`), Expertenfunktionen (Repository initialisieren, Snapshot-
+  Statistiken, Snapshots entfernen, Repository bereinigen, Passwort ändern, Recovery-
+  Dokument erstellen, Config-Export/-Import, Zeitplan installieren/anzeigen/entfernen).
+  Doctor ist damit aus dem Hauptmenü in die Administration gewandert.
+* Neuer Befehl `backup-manager logs` (auch als Menüpunkt): zeigt Pfad und letzte 40 Zeilen
+  der Anwendungs-Logdatei. Neuer `LogViewerService`.
+* Neues Modul `lbm/cli/menu.py` (`MainMenu`): reine Präsentationsschicht, ruft ausschließlich
+  bestehende `Application`-Methoden auf, keine eigene Business-Logik. Fehler einzelner
+  Menü-Aktionen werden inline angezeigt (`ErrorHandler`), das Menü läuft danach weiter statt
+  abzustürzen.
+* `installer.py`: `Exec`-Zeile der Desktop-/Menü-Verknüpfung ist wieder der direkte
+  Launcher-Aufruf ohne Shell-Wrapper – der Sprint-81-"Press Enter to close"-Workaround
+  entfällt, da das Menü das Terminal selbst offen hält.
+* Vollständig zweisprachig (Deutsch/Englisch), neue i18n-Abschnitte `menu:`, `logs:`,
+  `cli.commands.menu`/`cli.commands.logs`.
+* 23 neue Tests (200 → 223 Tests).
+
 ## Sprint 83 – UAT-1.2.0-EN-001 behoben: Doctor-Sprachfallback bei kaputter Config
 
 ### Fixed

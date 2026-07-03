@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, patch
 
 from lbm.cli.main import CommandLineInterface, _configured_language, main
 from lbm.core.errors import ConfigurationError
@@ -52,6 +52,60 @@ def test_recovery_sheet_is_forwarded_to_application() -> None:
 
     assert result is True
     application.recovery_sheet.assert_called_once_with()
+
+
+def test_bare_invocation_launches_the_menu() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with (
+        patch("sys.argv", ["backup-manager"]),
+        patch("lbm.cli.main.MainMenu") as mock_menu_cls,
+    ):
+        mock_menu_cls.return_value.run.return_value = True
+        result = cli.run()
+
+    assert result is True
+    mock_menu_cls.assert_called_once_with(application, ANY)
+    mock_menu_cls.return_value.run.assert_called_once_with()
+
+
+def test_bare_non_interactive_invocation_runs_status_instead_of_menu() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "--non-interactive"]):
+        cli.run()
+
+    application.status.assert_called_once_with()
+
+
+def test_explicit_menu_command_launches_the_menu() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with (
+        patch("sys.argv", ["backup-manager", "menu"]),
+        patch("lbm.cli.main.MainMenu") as mock_menu_cls,
+    ):
+        mock_menu_cls.return_value.run.return_value = True
+        cli.run()
+
+    mock_menu_cls.return_value.run.assert_called_once_with()
+
+
+def test_logs_command_is_forwarded_to_application() -> None:
+    application = Mock()
+    cli = CommandLineInterface()
+    cli.application = application
+
+    with patch("sys.argv", ["backup-manager", "logs"]):
+        cli.run()
+
+    application.view_logs.assert_called_once_with()
 
 
 def test_configured_language_falls_back_to_detected_language_for_broken_config(
