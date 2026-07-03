@@ -2,20 +2,15 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 87 abgeschlossen (2026-07-04). **Version 1.2.0 released 2026-07-02
-and live on GitHub** (`main`, `develop`, tag `v1.2.0`; previously: Version 1.1.0 released
-June 2026). Alle 1.2.0-Release-Gates erfüllt: beide UAT-Sprachdurchläufe (Deutsch gegen rc1,
-Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert, voller
-1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und `installer.py`-Managed-Fresh-Install-
-Validierung, jeweils in isolierter VM bestanden. Der zurückgestellte, nicht-blockierende Fund
-UAT-1.2.0-EN-001 (doctor-Sprachfallback bei kaputter Config) wurde in Sprint 83 auf `develop`
-behoben (siehe `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`).
-
-**Aktueller Zyklus:** `develop` steht auf `1.3.0rc1` (Feature Freeze seit Sprint 86).
-Managed-Fresh-Install-Validierung und deutsches UAT bestanden, englisches UAT in
-eingeschränktem Umfang durchgeführt (Sprint 87) — Entscheidung des Projektinhabers zum
-englischen Prüfumfang steht noch aus, bevor nach `main` gemergt wird (siehe
-`docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`).
+**Last updated:** Sprint 88 abgeschlossen (2026-07-04). **Version 1.3.0 freigegeben
+2026-07-04** (previously: Version 1.2.0 released 2026-07-02, Version 1.1.0 released June
+2026). Alle 1.3.0-Release-Gates erfüllt: Managed-Fresh-Install-Validierung und deutsches UAT
+vollständig bestanden, englisches UAT in eingeschränktem, kombinierten VM-Umfang durchgeführt
+und vom Projektinhaber als ausreichend akzeptiert, sowie ein zusätzlich gefundener und real
+verifizierter Fix für `installer.py`s Upgrade-Erkennung (bisher fälschlich nur Version 1.0.1
+als Vorversion erkannt) — siehe `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`,
+`docs/reports/USER_ACCEPTANCE_TEST_1.3.0rc1.md`, `docs/reports/SPRINT_87.md`,
+`docs/reports/SPRINT_88.md`.
 
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
@@ -548,7 +543,10 @@ All entries shall be optional and individually selectable.
   found while checking whether the UAT VM was still needed, since the real production
   system now runs `1.2.0`; verified in the VM with a real `1.2.0` → `1.3.0rc1` upgrade run
   *(Sprint 88)*
-* [ ] Merge `develop` into `main`
+* [x] Merge `develop` into `main`
+* [x] Release Version 1.3.0 — version bumped from `1.3.0rc1` to final `1.3.0`, remaining
+  user-facing docs audited (`README.md` and its German counterpart, upgrade-path wording in
+  `INSTALL.md`/`ARCHITECTURE.md`), tagged `v1.3.0` *(Sprint 89)*
 
 ---
 

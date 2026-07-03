@@ -21,7 +21,7 @@ The `Application` class delegates user-facing workflows to dedicated services.
 ```text
 Deployment
  │
- └── installer.py   – Standalone managed installer: fresh install, 1.0.1 upgrade, rollback
+ └── installer.py   – Standalone managed installer: fresh install, upgrade, rollback
 
 CLI
  │

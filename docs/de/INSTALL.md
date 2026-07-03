@@ -73,14 +73,14 @@ python3 installer.py linux_backup_manager-1.3.0-py3-none-any.whl \
 ```
 
 Der Preflight-Check prüft Python, Restic, freien Speicherplatz, Installationsrechte und – bei
-einem Upgrade von Version 1.0.1 – jedes konfigurierte Ziel und Repository. Ist er
+einem Upgrade – jedes konfigurierte Ziel und Repository. Ist er
 erfolgreich, denselben Befehl ohne `--dry-run` ausführen. Der Installer fragt nach
 Bestätigung; für automatisierte Abläufe kann explizit `--yes` ergänzt werden.
 
 Der verwaltete Weg legt entweder eine neue, versionierte Installation an oder aktualisiert
-die unterstützte Version-1.0.1-Nutzerinstallation. Dabei bleiben die alte venv, Konfiguration,
-Passwortdatei und das Repository erhalten. Eine mehrdeutige, unvollständige oder nicht
-unterstützte Installation wird ohne Änderungen abgelehnt.
+eine zuvor verwaltete Installation, unabhängig von deren Version. Dabei bleiben die alte
+venv, Konfiguration, Passwortdatei und das Repository erhalten. Eine mehrdeutige,
+unvollständige oder nicht unterstützte Installation wird ohne Änderungen abgelehnt.
 
 Nach einem fehlgeschlagenen Umstieg (Cutover) stellt der Installer automatisch den alten
 Launcher, die Units, exakten Timer-Zustände, Konfiguration, Passwort-Metadaten und den
@@ -89,8 +89,8 @@ Rollback-Warnung bedeutet, dass das aufbewahrte Recovery-Verzeichnis geprüft we
 bevor fortgefahren wird.
 
 Für eine Neuinstallation `backup-manager setup` ausführen, nachdem der Installer
-abgeschlossen ist. Setup niemals über eine bestehende, unterstützte
-Version-1.0.1-Konfiguration ausführen, nur um ein Upgrade durchzuführen.
+abgeschlossen ist. Setup niemals über eine bestehende Konfiguration ausführen, nur um ein
+Upgrade durchzuführen.
 
 ### Installation für die Entwicklung
 

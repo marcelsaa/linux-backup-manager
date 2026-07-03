@@ -6,7 +6,7 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased
+# v1.3.0 – 2026-07-04
 
 ## Sprint 88 – Fix: installer.py-Upgrade-Erkennung war auf Version 1.0.1 begrenzt
 

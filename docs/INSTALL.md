@@ -68,20 +68,20 @@ python3 installer.py linux_backup_manager-1.3.0-py3-none-any.whl \
   --sha256 <PUBLISHED_SHA256> --dry-run
 ```
 
-The preflight checks Python, Restic, free space, installation permissions and, for a Version 1.0.1
-upgrade, every configured target and repository. If it passes, run the same command without
+The preflight checks Python, Restic, free space, installation permissions and, for an upgrade,
+every configured target and repository. If it passes, run the same command without
 `--dry-run`. The installer asks for confirmation; automation may explicitly add `--yes`.
 
-The managed path either creates a fresh versioned installation or upgrades the supported Version
-1.0.1 user installation. It preserves the old venv, configuration, password file and repository.
-An ambiguous, partial or unsupported installation is refused without changes.
+The managed path either creates a fresh versioned installation or upgrades any previously
+installed managed version. It preserves the old venv, configuration, password file and
+repository. An ambiguous, partial or unsupported installation is refused without changes.
 
 After a failed cutover, the installer automatically restores and verifies the old launcher, units,
 exact timer states, configuration, password metadata and logical repository state. A critical
 rollback warning means the retained recovery directory must be inspected before continuing.
 
 For a fresh installation, run `backup-manager setup` after the installer completes. Never run setup
-over a supported existing Version 1.0.1 configuration merely to perform an upgrade.
+over an existing configuration merely to perform an upgrade.
 
 ### Development Installation
 
