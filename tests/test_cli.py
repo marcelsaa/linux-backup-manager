@@ -1,6 +1,7 @@
+from pathlib import Path
 from unittest.mock import Mock, patch
 
-from lbm.cli.main import CommandLineInterface, main
+from lbm.cli.main import CommandLineInterface, _configured_language, main
 from lbm.core.errors import ConfigurationError
 
 
@@ -51,6 +52,30 @@ def test_recovery_sheet_is_forwarded_to_application() -> None:
 
     assert result is True
     application.recovery_sheet.assert_called_once_with()
+
+
+def test_configured_language_falls_back_to_detected_language_for_broken_config(
+    tmp_path: Path, monkeypatch
+) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system:\n  language: en\n", encoding="utf-8")
+    monkeypatch.setenv("LBM_CONFIG_FILE", str(config_file))
+
+    language = _configured_language()
+
+    assert language.language == "en"
+
+
+def test_configured_language_defaults_to_german_when_language_cannot_be_detected(
+    tmp_path: Path, monkeypatch
+) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("not valid yaml: [", encoding="utf-8")
+    monkeypatch.setenv("LBM_CONFIG_FILE", str(config_file))
+
+    language = _configured_language()
+
+    assert language.language == "de"
 
 
 def test_main_returns_nonzero_for_an_application_error() -> None:

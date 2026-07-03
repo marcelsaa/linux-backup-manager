@@ -134,4 +134,17 @@ class ConfigLoader:
                 "Konfigurationsdatei ist unvollständig oder ungültig.",
                 details=details,
             ) from error
-    
+
+    def detect_language(self) -> str | None:
+        try:
+            with self.config_file.open("r", encoding="utf-8") as file:
+                data = yaml.load(file, Loader=UniqueKeyLoader)
+        except (OSError, yaml.YAMLError):
+            return None
+        if not isinstance(data, dict):
+            return None
+        system = data.get("system")
+        if not isinstance(system, dict):
+            return None
+        language = system.get("language")
+        return language if language in ("de", "en") else None

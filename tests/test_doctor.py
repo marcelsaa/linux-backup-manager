@@ -111,6 +111,27 @@ def test_doctor_reports_invalid_config_and_skips_dependent_checks(
     assert "Gesamtstatus: FEHLER" in output
 
 
+def test_doctor_reports_incomplete_english_config_in_english(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    config_file = tmp_path / "incomplete.yaml"
+    config_file.write_text("system:\n  language: en\n", encoding="utf-8")
+
+    with patch(
+        "lbm.services.doctor.HealthChecker.check_restic",
+        return_value=HealthResult("Restic", True, "restic 0.17.3"),
+    ):
+        successful = DoctorService(config_file).run()
+
+    output = capsys.readouterr().out
+    assert successful is False
+    assert "Configuration" in output and "ERROR" in output
+    assert "Password file" in output and "SKIPPED" in output
+    assert "Overall status: ERROR" in output
+    # ConfigLoader's own error message stays hardcoded German (known technical debt)
+
+
 def test_doctor_rejects_overly_permissive_password_file(
     tmp_path: Path,
     capsys,

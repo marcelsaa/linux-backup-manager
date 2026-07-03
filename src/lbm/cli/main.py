@@ -128,8 +128,9 @@ def _configured_language() -> LanguageService:
         if configured_file
         else Path("~/.config/linux-backup-manager/config.yaml").expanduser()
     )
+    loader = ConfigLoader(config_file)
     try:
-        config = ConfigLoader(config_file).load()
+        config = loader.load()
     except ApplicationError:
-        return LanguageService()
+        return LanguageService(loader.detect_language() or LanguageService.default_language)
     return LanguageService(config.system.language)
