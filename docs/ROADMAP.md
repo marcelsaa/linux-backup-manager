@@ -2,14 +2,21 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 80 abgeschlossen (2026-07-02); **Version 1.2.0 released 2026-07-02
+**Last updated:** Sprint 87 abgeschlossen (2026-07-04). **Version 1.2.0 released 2026-07-02
 and live on GitHub** (`main`, `develop`, tag `v1.2.0`; previously: Version 1.1.0 released
-June 2026). Alle Release-Gates erfüllt: beide UAT-Sprachdurchläufe (Deutsch gegen rc1,
+June 2026). Alle 1.2.0-Release-Gates erfüllt: beide UAT-Sprachdurchläufe (Deutsch gegen rc1,
 Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert, voller
 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und `installer.py`-Managed-Fresh-Install-
 Validierung, jeweils in isolierter VM bestanden. Der zurückgestellte, nicht-blockierende Fund
 UAT-1.2.0-EN-001 (doctor-Sprachfallback bei kaputter Config) wurde in Sprint 83 auf `develop`
 behoben (siehe `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`).
+
+**Aktueller Zyklus:** `develop` steht auf `1.3.0rc1` (Feature Freeze seit Sprint 86).
+Managed-Fresh-Install-Validierung und deutsches UAT bestanden, englisches UAT in
+eingeschränktem Umfang durchgeführt (Sprint 87) — Entscheidung des Projektinhabers zum
+englischen Prüfumfang steht noch aus, bevor nach `main` gemergt wird (siehe
+`docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`).
+
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -530,6 +537,14 @@ All entries shall be optional and individually selectable.
 
 * [x] Feature freeze begins with `1.3.0rc1` *(Sprint 86)*
 * [x] Apply only bug fixes, documentation and translation corrections from this point on
+* [x] Managed fresh-install validation (`installer.py`, dry-run then real run) in VM
+  `ubuntu24.04-clone` *(Sprint 87)*
+* [x] Manual German UAT, full pass covering all commands including `menu`, `logs`, `mount`,
+  `migrate` *(Sprint 87)*
+* [x] Manual English UAT — narrower, combined-VM scope covering the new/highest-risk
+  functionality, not a fully independent session as used for 1.2.0; project-owner decision
+  on whether this scope suffices is still open *(Sprint 87)*
+* [ ] Merge `develop` into `main` — blocked on the English-UAT-scope decision above
 
 ---
 

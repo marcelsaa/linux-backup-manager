@@ -8,6 +8,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 87 – Managed-Fresh-Install-Validierung und UAT für 1.3.0rc1
+
+### Validated
+
+* Managed-Fresh-Install-Validierung (`installer.py --dry-run` dann echter Lauf) für
+  `1.3.0rc1` in VM `ubuntu24.04-clone` bestanden: Modus, SHA-256, Launcher-Symlink,
+  Versionsausgabe, Desktop-Eintrag, idempotenter Re-Lauf – alle korrekt.
+* Vollständiges deutsches UAT bestanden (alle Befehle inkl. `menu`, `logs`, `mount`,
+  `migrate`), keine Befunde.
+* Englisches UAT in eingeschränktem, kombinierten VM-Umfang durchgeführt (gezielte
+  Nachprüfung der neuen/risikoreichsten Funktionalität statt vollständig unabhängiger
+  zweiter Session wie beim 1.2.0-Zyklus) – Entscheidung des Projektinhabers zum
+  Prüfumfang noch ausstehend, bevor nach `main` gemergt wird.
+* Details: `docs/reports/SPRINT_87.md`, `docs/reports/USER_ACCEPTANCE_TEST_1.3.0rc1.md`,
+  `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`.
+
 ## Sprint 86 – Repository-Migration und Version 1.3.0rc1
 
 ### Added
