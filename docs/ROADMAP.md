@@ -542,9 +542,13 @@ All entries shall be optional and individually selectable.
 * [x] Manual German UAT, full pass covering all commands including `menu`, `logs`, `mount`,
   `migrate` *(Sprint 87)*
 * [x] Manual English UAT — narrower, combined-VM scope covering the new/highest-risk
-  functionality, not a fully independent session as used for 1.2.0; project-owner decision
-  on whether this scope suffices is still open *(Sprint 87)*
-* [ ] Merge `develop` into `main` — blocked on the English-UAT-scope decision above
+  functionality, not a fully independent session as used for 1.2.0; accepted as sufficient
+  by the project owner *(Sprint 87)*
+* [x] Fixed `installer.py` upgrade detection being hardcoded to version `1.0.1` only —
+  found while checking whether the UAT VM was still needed, since the real production
+  system now runs `1.2.0`; verified in the VM with a real `1.2.0` → `1.3.0rc1` upgrade run
+  *(Sprint 88)*
+* [ ] Merge `develop` into `main`
 
 ---
 

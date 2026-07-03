@@ -8,6 +8,22 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 88 – Fix: installer.py-Upgrade-Erkennung war auf Version 1.0.1 begrenzt
+
+### Fixed
+
+* `Installer.detect()` in `installer.py` erkannte einen Upgrade-Modus bisher nur, wenn die
+  installierte Version exakt `1.0.1` war – jede andere über `installer.py` verwaltete
+  Vorversion (z. B. das eigene, seit Sprint 81 auf `1.2.0` laufende Produktivsystem) wurde
+  fälschlich als `partial` abgelehnt. Prüfung generalisiert: Jede vom Kandidaten abweichende
+  Version mit vorhandener Konfigurationsdatei gilt jetzt als Upgrade.
+* Gefunden während der Prüfung, ob die UAT-VM noch gebraucht wird, auf Nutzerauftrag sofort
+  behoben und real in der VM verifiziert (echte 1.2.0-Alt-Installation aus Git-Tag `v1.2.0`
+  aufgesetzt, Upgrade auf `1.3.0rc1` erfolgreich, Config/Passwort/Repository-Zugriff
+  erhalten, `doctor` grün).
+* 1 neuer Test (247 → 248).
+* Details: `docs/reports/SPRINT_88.md`.
+
 ## Sprint 87 – Managed-Fresh-Install-Validierung und UAT für 1.3.0rc1
 
 ### Validated

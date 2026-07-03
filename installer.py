@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safe fresh-install and 1.0.1 upgrade orchestrator for Linux Backup Manager."""
+"""Safe fresh-install and upgrade orchestrator for Linux Backup Manager."""
 
 from __future__ import annotations
 
@@ -141,7 +141,7 @@ class Installer:
             return InstallMode.PARTIAL, None, python
         if version == self.artifact.version:
             return InstallMode.CURRENT, version, python
-        if version == "1.0.1" and self.layout.config.is_file():
+        if self.layout.config.is_file():
             return InstallMode.UPGRADE, version, python
         return InstallMode.PARTIAL, version, python
 
