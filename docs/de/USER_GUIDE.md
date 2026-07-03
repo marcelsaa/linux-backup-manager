@@ -4,7 +4,7 @@
 
 **[English version](../USER_GUIDE.md)**
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 ---
 
@@ -48,6 +48,7 @@ erfolgreich abgeschlossen wurde.
 | `check`     | Repository-Integrität prüfen                               |
 | `forget`    | Alte Snapshots gemäß der Aufbewahrungsrichtlinie entfernen |
 | `prune`     | Unreferenzierte Repository-Daten entfernen                 |
+| `migrate`   | Alle Snapshots auf ein anderes konfiguriertes Ziel kopieren (Expertenfunktion) |
 
 ---
 
@@ -84,6 +85,7 @@ backup-manager menu
     * Snapshot-Statistiken anzeigen
     * Alte Snapshots entfernen
     * Repository bereinigen
+    * Repository migrieren
     * Passwort ändern
     * Recovery-Dokument erstellen
     * Konfiguration exportieren
@@ -542,6 +544,39 @@ Dieser Befehl sollte normalerweise nach `forget` ausgeführt werden.
 
 ---
 
+# migrate
+
+## Zweck
+
+Kopiert alle Snapshots von einem konfigurierten Backup-Ziel zu einem anderen (z. B. von USB
+zu NAS), unter Verwendung von Restics eigenem `copy`-Befehl. Nützlich beim Umzug auf neuen
+Speicher, ohne die Backup-Historie zu verlieren. Erreichbar über Administration →
+Expertenfunktionen → "Repository migrieren".
+
+## Befehl
+
+```bash
+backup-manager migrate
+```
+
+## Voraussetzungen
+
+Mindestens zwei konfigurierte, aktivierte und aktuell erreichbare Backup-Ziele (siehe
+`docs/CONFIGURATION.md`). Ist nur ein Ziel erreichbar, meldet `migrate`, dass ein zweites
+Ziel benötigt wird, und bricht ohne Änderungen ab.
+
+## Ablauf
+
+1. Quellziel aus der Liste der verfügbaren Ziele auswählen.
+2. Zielziel aus den verbleibenden Zielen auswählen.
+3. Bestätigen – das Kopieren kann je nach Datenmenge lange dauern, da Restic sowohl von der
+   Quelle lesen als auch auf das Ziel schreiben muss.
+4. Ist das Ziel noch kein initialisiertes Restic-Repository, wird es automatisch angelegt.
+5. Alle Snapshots werden kopiert. Bestehende Snapshots am Ziel bleiben unangetastet, nichts
+   wird an der Quelle gelöscht.
+
+---
+
 # Empfohlener Ablauf
 
 Für die regelmäßige Nutzung wird folgender Ablauf empfohlen.
@@ -584,4 +619,4 @@ LBM-Prozess. Backup-Ziele müssen eingehängt und erreichbar sein, wenn ein Time
 
 Linux Backup Manager Dokumentation
 
-Version 1.2.0
+Version 1.3.0

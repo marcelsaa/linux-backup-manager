@@ -1,6 +1,6 @@
 from lbm.core.config import AppConfig
 from lbm.services.language import LanguageService
-from lbm.services.repository import RepositoryProvider
+from lbm.services.repository import RepositoryDestination, RepositoryProvider
 from lbm.ui.console import Console
 from lbm.utils.prompts import is_yes
 
@@ -135,6 +135,67 @@ class RepositoryMaintenanceService:
         result = restic.prune()
         print()
         print(result if result else self._text("maintenance.prune_complete"))
+
+    def migrate(self) -> bool:
+        destinations = self.repository_provider.get_all()
+        if len(destinations) < 2:
+            print(self._text("migrate.not_enough_targets"))
+            return False
+
+        source = self._select_destination(destinations, self._text("migrate.select_source"))
+        if source is None:
+            return False
+
+        remaining = [d for d in destinations if d is not source]
+        target = self._select_destination(remaining, self._text("migrate.select_destination"))
+        if target is None:
+            return False
+
+        print()
+        print(self._text("migrate.summary", source=source.name, target=target.name))
+        yes_short = self._text("common.yes_short")
+        if not is_yes(input(self._text("migrate.confirm")), yes_short):
+            print(self._text("common.cancelled"))
+            return False
+
+        if not target.repository.check().initialized:
+            print(self._text("migrate.initializing", name=target.name))
+            init_result = target.repository.init_repository()
+            if not init_result.initialized:
+                print(self._text("maintenance.create_failed"))
+                print(init_result.message)
+                return False
+
+        print(self._text("migrate.copying"))
+        result = target.repository.copy_from(source.repository)
+        print()
+        if result.ok:
+            print(self._text("migrate.success"))
+            return True
+
+        print(self._text("migrate.failed"))
+        print(result.message)
+        return False
+
+    def _select_destination(
+        self, destinations: list[RepositoryDestination], prompt: str
+    ) -> RepositoryDestination | None:
+        heading = self._text("repository.available_targets")
+        print(heading)
+        print("-" * len(heading))
+        for index, destination in enumerate(destinations, start=1):
+            print(f"{index}) {destination.name}")
+
+        selection = input(prompt).strip()
+        try:
+            index = int(selection)
+        except ValueError:
+            Console.error(self._text("repository.invalid_selection"))
+            return None
+        if index < 1 or index > len(destinations):
+            Console.error(self._text("repository.target_not_exists"))
+            return None
+        return destinations[index - 1]
 
     def _line(self, key: str, value: object) -> None:
         print(f"{self._text(key):.<22} {value}")

@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from lbm.backup.restic import BackupResult, ResticRepositoryInfo, SnapshotInfo
+from lbm.backup.restic import BackupResult, MigrationResult, ResticRepositoryInfo, SnapshotInfo
 from lbm.core.application import Application
 from lbm.core.config import AppConfig
 from lbm.core.state import BackupStateStore
@@ -309,5 +309,86 @@ def test_restore_failure_is_propagated(tmp_path: Path) -> None:
 
     with patch("builtins.input", side_effect=["1", str(target), "j"]):
         result = RestoreService(make_config(), repository_provider=provider).run()
+
+    assert result is False
+
+
+def test_migrate_copies_snapshots_between_two_targets() -> None:
+    source_repo = Mock()
+    target_repo = Mock()
+    target_repo.check.return_value = ResticRepositoryInfo(True, "ok")
+    target_repo.copy_from.return_value = MigrationResult(True, "copied")
+    provider = Mock()
+    provider.get_all.return_value = [
+        RepositoryDestination("USB", source_repo),
+        RepositoryDestination("NAS", target_repo),
+    ]
+
+    with patch("builtins.input", side_effect=["1", "1", "j"]):
+        result = RepositoryMaintenanceService(make_config(), provider).migrate()
+
+    assert result is True
+    target_repo.copy_from.assert_called_once_with(source_repo)
+    target_repo.init_repository.assert_not_called()
+
+
+def test_migrate_initializes_an_uninitialized_destination_first() -> None:
+    source_repo = Mock()
+    target_repo = Mock()
+    target_repo.check.return_value = ResticRepositoryInfo(False, "missing")
+    target_repo.init_repository.return_value = ResticRepositoryInfo(True, "created")
+    target_repo.copy_from.return_value = MigrationResult(True, "copied")
+    provider = Mock()
+    provider.get_all.return_value = [
+        RepositoryDestination("USB", source_repo),
+        RepositoryDestination("NAS", target_repo),
+    ]
+
+    with patch("builtins.input", side_effect=["1", "1", "j"]):
+        result = RepositoryMaintenanceService(make_config(), provider).migrate()
+
+    assert result is True
+    target_repo.init_repository.assert_called_once_with()
+    target_repo.copy_from.assert_called_once_with(source_repo)
+
+
+def test_migrate_requires_at_least_two_targets() -> None:
+    provider = Mock()
+    provider.get_all.return_value = [RepositoryDestination("USB", Mock())]
+
+    result = RepositoryMaintenanceService(make_config(), provider).migrate()
+
+    assert result is False
+
+
+def test_migrate_stops_when_user_declines_confirmation() -> None:
+    source_repo = Mock()
+    target_repo = Mock()
+    provider = Mock()
+    provider.get_all.return_value = [
+        RepositoryDestination("USB", source_repo),
+        RepositoryDestination("NAS", target_repo),
+    ]
+
+    with patch("builtins.input", side_effect=["1", "1", "n"]):
+        result = RepositoryMaintenanceService(make_config(), provider).migrate()
+
+    assert result is False
+    target_repo.copy_from.assert_not_called()
+
+
+def test_migrate_failure_is_reported() -> None:
+    source_repo = Mock()
+    target_repo = Mock()
+    target_repo.check.return_value = ResticRepositoryInfo(True, "ok")
+    target_repo.copy_from.return_value = MigrationResult(False, "Fatal: wrong password")
+    provider = Mock()
+    provider.get_all.return_value = [
+        RepositoryDestination("USB", source_repo),
+        RepositoryDestination("NAS", target_repo),
+    ]
+
+    with patch("builtins.input", side_effect=["1", "1", "j"]):
+        result = RepositoryMaintenanceService(make_config(), provider).migrate()
 
     assert result is False

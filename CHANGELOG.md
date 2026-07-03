@@ -8,6 +8,34 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 86 – Repository-Migration und Version 1.3.0rc1
+
+### Added
+
+* Neuer Befehl `backup-manager migrate`: kopiert alle Snapshots von einem konfigurierten
+  Backup-Ziel zu einem anderen (z. B. USB → NAS) über Restics eigenen `copy`-Befehl (kein
+  natives Migrate-Tool vorhanden). Erreichbar über Administration → Expertenfunktionen →
+  "Repository migrieren". Benötigt mindestens zwei konfigurierte, erreichbare Ziele;
+  initialisiert ein noch nicht existierendes Ziel-Repository automatisch.
+* Neue `ResticRepository.copy_from()`-Methode sowie ein eigenständiges
+  `MigrationResult`-Dataclass (bewusst keine Zweckentfremdung von `BackupResult`).
+* Roadmap-Review ergab: "Repository migration" war unter Version 1.2 als "auf v1.3
+  verschoben" vermerkt, aber nie tatsächlich unter Version 1.3 nachgeführt – jetzt
+  nachgeholt und implementiert.
+* Manuell gegen zwei echte Restic-Test-Repositories verifiziert (echtes `restic copy`,
+  automatische Ziel-Initialisierung, identischer Inhalt nach der Migration).
+* 9 neue Tests (238 → 247 Tests).
+
+### Changed
+
+* Version auf `1.3.0rc1` angehoben – Feature Freeze für Version 1.3 beginnt hier. Nur noch
+  Bugfixes, Dokumentation und Übersetzungskorrekturen bis zum finalen Release.
+* Dokumentations-Audit: Versionsangaben in allen versionierten Docs (außer `README.md`, das
+  weiterhin die tatsächlich veröffentlichte Version 1.2.0 zeigt) auf 1.3.0 aktualisiert;
+  neue `mount`/`logs`/`migrate`-Einträge in `USER_GUIDE.md`/`README.md` (DE+EN) ergänzt.
+* Wheel `linux_backup_manager-1.3.0rc1` gebaut und mit `twine check` validiert, SHA-256 in
+  `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md` dokumentiert.
+
 ## Sprint 85 – Restore per FUSE-Mount (Version 1.3, Restore Experience)
 
 ### Added

@@ -93,6 +93,7 @@ class CommandLineInterface:
             "check": self.application.check,
             "forget": self.application.forget,
             "prune": self.application.prune,
+            "migrate": self.application.migrate_repository,
             "schedule-install": self.application.schedule_install,
             "schedule-status": self.application.schedule_status,
             "schedule-remove": self.application.schedule_remove,

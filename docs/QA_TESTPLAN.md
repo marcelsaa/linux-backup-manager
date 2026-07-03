@@ -2,7 +2,7 @@
 
 # Quality Assurance Test Plan
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 ---
 
@@ -173,6 +173,31 @@ Verify that:
 * a file browsed inside the mount matches the original content exactly.
 * pressing Enter unmounts cleanly (`mount | grep restic` shows nothing afterward).
 * interrupting with `Ctrl+C` while mounted still unmounts cleanly.
+
+---
+
+# Repository Migration Tests
+
+Requires at least two configured and reachable targets (e.g. USB and NAS).
+
+Run:
+
+```bash
+backup-manager migrate
+```
+
+Verify that:
+
+* with only one reachable target, `migrate` reports that a second target is needed and makes
+  no changes.
+* source and destination selection both work and only offer targets that are actually
+  reachable.
+* declining the confirmation prompt makes no changes.
+* an uninitialized destination is initialized automatically before copying.
+* after a successful run, every snapshot from the source is present at the destination with
+  identical content (spot-check at least one restored file byte-for-byte).
+* re-running `migrate` in the same direction does not duplicate existing snapshots at the
+  destination (Restic's own deduplication applies).
 
 ---
 
@@ -349,4 +374,4 @@ A release candidate is considered ready when:
 
 Linux Backup Manager Documentation
 
-Version 1.2.0
+Version 1.3.0

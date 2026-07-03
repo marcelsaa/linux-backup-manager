@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 ---
 
@@ -111,7 +111,8 @@ Responsibilities:
 * `RestoreService`: guided restore workflow — read-only FUSE-mount browsing (`mount`, the
   default from the main menu) and full-snapshot restore to a directory (`restore`, an
   Expert Function)
-* `RepositoryMaintenanceService`: initialization, snapshots, checks, retention and pruning
+* `RepositoryMaintenanceService`: initialization, snapshots, checks, retention, pruning and
+  migrating all snapshots between two configured targets (`migrate`, an Expert Function)
 * `RepositoryProvider`: resolve all configured targets and create Restic repository clients
 * `SystemdScheduler`: install daily and startup-check user timers; reinstalled or removed
   automatically when the schedule changes via the `settings` menu
@@ -253,4 +254,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Version 1.2.0
+Version 1.3.0

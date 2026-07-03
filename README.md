@@ -224,6 +224,7 @@ Summary: 4 OK, 0 warnings, 0 errors
 | `backup-manager check`     | Verify repository integrity           |
 | `backup-manager forget`    | Apply the configured retention policy |
 | `backup-manager prune`     | Remove unreferenced repository data   |
+| `backup-manager migrate`   | Copy all snapshots to another configured target |
 
 ---
 

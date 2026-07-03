@@ -233,6 +233,7 @@ Zusammenfassung: 4 OK, 0 Warnungen, 0 Fehler
 | `backup-manager check`     | Repository-Integrität prüfen                         |
 | `backup-manager forget`    | Konfigurierte Aufbewahrungsrichtlinie anwenden       |
 | `backup-manager prune`     | Unreferenzierte Repository-Daten entfernen           |
+| `backup-manager migrate`   | Alle Snapshots auf ein anderes konfiguriertes Ziel kopieren |
 
 ---
 
