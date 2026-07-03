@@ -4,7 +4,7 @@
 
 **[Deutsche Version](de/FAQ.md)**
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 ---
 
@@ -145,4 +145,4 @@ See `docs/ROADMAP.md` for completed and planned work.
 
 Linux Backup Manager Documentation
 
-Version 1.2.0
+Version 1.3.0

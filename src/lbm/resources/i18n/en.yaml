@@ -47,6 +47,8 @@ cli:
       description: "Remove old snapshots according to the retention policy"
     prune:
       description: "Remove unreferenced repository data"
+    migrate:
+      description: "Copy snapshots between two configured targets"
     setup:
       description: "Configure Linux Backup Manager"
     schedule-install:
@@ -168,6 +170,16 @@ repository:
   nas_unavailable: "NAS target is unavailable: {path}"
   nas_not_writable: "NAS target is not writable: {path}"
   no_target_available: "No configured backup target is available."
+migrate:
+  not_enough_targets: "Migration needs at least two reachable, configured backup targets."
+  select_source: "Select source: "
+  select_destination: "Select destination: "
+  summary: "Snapshots will be copied from: {source}\nto: {target}"
+  confirm: "Start migration now? This may take a long time depending on data size. [y/N]: "
+  initializing: "Initializing destination repository: {name}"
+  copying: "Copying snapshots - this may take a long time depending on data size..."
+  success: "Migration completed successfully."
+  failed: "Migration failed:"
 scheduler:
   systemd_missing: "systemd was not found."
   scheduled_backup: "scheduled backup"
@@ -454,6 +466,7 @@ menu:
     stats: "Show snapshot statistics"
     forget: "Remove old snapshots"
     prune: "Clean up repository"
+    migrate: "Migrate repository"
     change_password: "Change password"
     recovery_sheet: "Create recovery document"
     export_config: "Export configuration"

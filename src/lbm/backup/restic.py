@@ -48,6 +48,11 @@ class RepositoryStats:
     last_snapshot: str
     host: str
 
+@dataclass
+class MigrationResult:
+    ok: bool
+    message: str
+
 class ResticRepository:
     def __init__(
         self,
@@ -387,6 +392,24 @@ class ResticRepository:
             return result.stderr.strip()
 
         return result.stdout.strip()
+
+    def copy_from(self, source: "ResticRepository") -> MigrationResult:
+        # restic copy has no notion of "migrate": snapshots are copied into self (the
+        # destination, addressed via the usual RESTIC_REPOSITORY/RESTIC_PASSWORD_FILE env
+        # vars from _run), while the source repository is passed explicitly.
+        result = self._run(
+            [
+                "restic",
+                "copy",
+                "--from-repo",
+                str(source.repository),
+                "--from-password-file",
+                str(source.password_file),
+            ]
+        )
+        if result.returncode == 0:
+            return MigrationResult(ok=True, message=result.stdout.strip())
+        return MigrationResult(ok=False, message=result.stderr.strip())
 
     def change_password(self, new_password_file: Path) -> bool:
         result = self._run(

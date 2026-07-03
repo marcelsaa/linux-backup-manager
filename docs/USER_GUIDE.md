@@ -4,7 +4,7 @@
 
 **[Deutsche Version](de/USER_GUIDE.md)**
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 ---
 
@@ -45,6 +45,7 @@ Before using any command except `setup`, make sure the initial setup has been co
 | `check`     | Verify repository integrity                            |
 | `forget`    | Remove old snapshots according to the retention policy |
 | `prune`     | Remove unreferenced repository data                    |
+| `migrate`   | Copy all snapshots to another configured target (Expert Function) |
 
 ---
 
@@ -81,6 +82,7 @@ backup-manager menu
     * Show snapshot statistics
     * Remove old snapshots
     * Clean up repository
+    * Migrate repository
     * Change password
     * Create recovery document
     * Export configuration
@@ -520,6 +522,40 @@ This command should normally be executed after `forget`.
 
 ---
 
+# migrate
+
+## Purpose
+
+Copies all snapshots from one configured backup target to another (for example, from USB to
+NAS), using Restic's own `copy` command under the hood. Useful when moving to new storage
+without losing backup history. Reachable from Administration → Expert Functions → "Migrate
+repository".
+
+## Command
+
+```bash
+backup-manager migrate
+```
+
+## Requirements
+
+At least two configured, enabled and currently reachable backup targets (see
+`docs/CONFIGURATION.md`). With only one reachable target, `migrate` reports that a second
+target is needed and stops without making changes.
+
+## Steps
+
+1. Select the source target from the list of available targets.
+2. Select the destination target from the remaining targets.
+3. Confirm — copying can take a long time depending on how much data is stored, since Restic
+   has to both read from the source and write to the destination.
+4. If the destination is not yet an initialized Restic repository, it is created
+   automatically.
+5. All snapshots are copied. Existing snapshots at the destination are left untouched;
+   nothing is deleted from the source.
+
+---
+
 # Recommended Workflow
 
 The following workflow is recommended for regular usage.
@@ -561,4 +597,4 @@ targets must be mounted and accessible when a timer fires.
 
 Linux Backup Manager Documentation
 
-Version 1.2.0
+Version 1.3.0

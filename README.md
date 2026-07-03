@@ -98,11 +98,11 @@ Linux Backup Manager requires:
 
 Download the wheel and `installer.py` from the [Releases page](https://github.com/marcelsaa/linux-backup-manager/releases)
 and run the standalone managed installer supplied beside the wheel. It verifies the published
-SHA-256, performs write-free preflight checks and chooses either fresh installation or the
-supported Version 1.0.1 upgrade path:
+SHA-256, performs write-free preflight checks and chooses either fresh installation or an
+upgrade of any previously installed managed version:
 
 ```bash
-python3 installer.py linux_backup_manager-1.2.0-py3-none-any.whl \
+python3 installer.py linux_backup_manager-1.3.0-py3-none-any.whl \
   --sha256 <PUBLISHED_SHA256> --dry-run
 ```
 
@@ -224,6 +224,7 @@ Summary: 4 OK, 0 warnings, 0 errors
 | `backup-manager check`     | Verify repository integrity           |
 | `backup-manager forget`    | Apply the configured retention policy |
 | `backup-manager prune`     | Remove unreferenced repository data   |
+| `backup-manager migrate`   | Copy all snapshots to another configured target |
 
 ---
 
@@ -254,13 +255,14 @@ See [the project roadmap](docs/ROADMAP.md) for completed and planned work.
 
 # Project Status
 
-**Current stable version:** 1.2.0
+**Current stable version:** 1.3.0
 
-Linux Backup Manager 1.2.0 is the current stable release. It adds an interactive `settings`
-menu, a `change-password` command, structured `doctor` diagnostics with systemd timer status,
-`export-config`/`import-config`, and sensible retention defaults with automatic repository
-cleanup, on top of the managed installer and full German/English internationalization
-introduced in 1.1.0. Artifacts are built locally and are not published to production PyPI.
+Linux Backup Manager 1.3.0 is the current stable release. It adds a guided main menu as the
+default entry point, snapshot restoration via read-only FUSE mount, repository migration
+between configured targets, and readable bilingual CLI help, on top of the interactive
+`settings` menu, `change-password` command, structured `doctor` diagnostics, config
+export/import and sensible retention defaults introduced in 1.2.0. Artifacts are built
+locally and are not published to production PyPI.
 
 The core functionality has been implemented and successfully validated through automated tests, manual integration tests and multiple first-user installation scenarios.
 

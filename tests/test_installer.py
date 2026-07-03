@@ -79,6 +79,24 @@ def test_detects_supported_legacy_upgrade(tmp_path: Path) -> None:
     assert installer.detect() == (InstallMode.UPGRADE, "1.0.1", python)
 
 
+def test_detects_upgrade_from_a_previously_managed_version(tmp_path: Path) -> None:
+    layout = Layout(tmp_path)
+    command = layout.versions / "1.2.0/bin/backup-manager"
+    python = command.parent / "python"
+    command.parent.mkdir(parents=True)
+    command.touch()
+    python.touch()
+    layout.launcher.parent.mkdir(parents=True)
+    layout.launcher.symlink_to(command)
+    layout.config.parent.mkdir(parents=True)
+    layout.config.touch()
+    runner = Mock(return_value=completed(stdout="1.2.0\n"))
+
+    installer = Installer(layout, artifact(tmp_path, version="1.3.0rc1"), Path("python3"), runner)
+
+    assert installer.detect() == (InstallMode.UPGRADE, "1.2.0", python)
+
+
 def test_detects_current_version_from_versioned_launcher(tmp_path: Path) -> None:
     layout = Layout(tmp_path)
     command = layout.versions / "1.1.0rc3/bin/backup-manager"

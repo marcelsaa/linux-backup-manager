@@ -53,6 +53,7 @@ class MainMenu:
                 ("menu.expert.stats", self.application.stats),
                 ("menu.expert.forget", self.application.forget),
                 ("menu.expert.prune", self.application.prune),
+                ("menu.expert.migrate", self.application.migrate_repository),
                 ("menu.expert.change_password", self.application.change_password),
                 ("menu.expert.recovery_sheet", self.application.recovery_sheet),
                 ("menu.expert.export_config", self.application.export_config),

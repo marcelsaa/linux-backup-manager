@@ -106,10 +106,10 @@ Linux Backup Manager benötigt:
 Lade das Wheel und `installer.py` von der [Releases-Seite](https://github.com/marcelsaa/linux-backup-manager/releases)
 herunter und führe den mitgelieferten, verwalteten Installer aus. Er prüft den
 veröffentlichten SHA-256-Hash, führt schreibfreie Preflight-Checks durch und wählt
-automatisch zwischen Neuinstallation oder dem unterstützten Upgrade-Pfad von Version 1.0.1:
+automatisch zwischen Neuinstallation oder dem Upgrade einer zuvor verwalteten Installation:
 
 ```bash
-python3 installer.py linux_backup_manager-1.2.0-py3-none-any.whl \
+python3 installer.py linux_backup_manager-1.3.0-py3-none-any.whl \
   --sha256 <VERÖFFENTLICHTER_SHA256> --dry-run
 ```
 
@@ -233,6 +233,7 @@ Zusammenfassung: 4 OK, 0 Warnungen, 0 Fehler
 | `backup-manager check`     | Repository-Integrität prüfen                         |
 | `backup-manager forget`    | Konfigurierte Aufbewahrungsrichtlinie anwenden       |
 | `backup-manager prune`     | Unreferenzierte Repository-Daten entfernen           |
+| `backup-manager migrate`   | Alle Snapshots auf ein anderes konfiguriertes Ziel kopieren |
 
 ---
 
@@ -264,14 +265,15 @@ Siehe [die Projekt-Roadmap](../ROADMAP.md) für abgeschlossene und geplante Arbe
 
 # Projektstatus
 
-**Aktuelle stabile Version:** 1.2.0
+**Aktuelle stabile Version:** 1.3.0
 
-Linux Backup Manager 1.2.0 ist die aktuelle stabile Version. Sie bringt ein interaktives
-`settings`-Menü, den Befehl `change-password`, eine strukturierte `doctor`-Diagnose mit
-systemd-Timer-Status sowie `export-config`/`import-config` und sinnvolle
-Retention-Standardwerte mit automatischem Repository-Cleanup – zusätzlich zum verwalteten
-Installer und der vollständigen deutschen/englischen Internationalisierung aus Version 1.1.0.
-Die Artefakte werden lokal gebaut und nicht auf PyPI veröffentlicht.
+Linux Backup Manager 1.3.0 ist die aktuelle stabile Version. Sie bringt ein geführtes
+Hauptmenü als neuen Standard-Einstiegspunkt, die Snapshot-Wiederherstellung per
+schreibgeschütztem FUSE-Mount, die Repository-Migration zwischen konfigurierten Zielen sowie
+eine lesbare, zweisprachige CLI-Hilfe – zusätzlich zum interaktiven `settings`-Menü, dem
+Befehl `change-password`, der strukturierten `doctor`-Diagnose, Config-Export/-Import und
+sinnvollen Retention-Standardwerten aus Version 1.2.0. Die Artefakte werden lokal gebaut und
+nicht auf PyPI veröffentlicht.
 
 Die Kernfunktionalität wurde implementiert und durch automatisierte Tests, manuelle
 Integrationstests und mehrere Ersteinrichtungsszenarien erfolgreich validiert.

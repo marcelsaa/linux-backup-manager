@@ -481,6 +481,53 @@ def test_prune_returns_error_message() -> None:
 
     assert result == "Fatal: prune failed"
 
+def test_copy_from_uses_argument_list_without_shell() -> None:
+    destination = ResticRepository(
+        repository=Path("/tmp/dest"),
+        password_file=Path("/tmp/dest.pass"),
+    )
+    source = ResticRepository(
+        repository=Path("/tmp/source; rm -rf root"),
+        password_file=Path("/tmp/source.pass"),
+    )
+
+    fake_result = Mock()
+    fake_result.returncode = 0
+    fake_result.stdout = "copied"
+    fake_result.stderr = ""
+
+    with patch("lbm.backup.restic.subprocess.run", return_value=fake_result) as run_mock:
+        result = destination.copy_from(source)
+
+    args, kwargs = run_mock.call_args
+    assert isinstance(args[0], list)
+    assert kwargs.get("shell") is None
+    assert "/tmp/source; rm -rf root" in args[0]
+    assert kwargs["env"]["RESTIC_REPOSITORY"] == "/tmp/dest"
+    assert result.ok is True
+    assert result.message == "copied"
+
+def test_copy_from_returns_failure_with_stderr_message() -> None:
+    destination = ResticRepository(
+        repository=Path("/tmp/dest"),
+        password_file=Path("/tmp/dest.pass"),
+    )
+    source = ResticRepository(
+        repository=Path("/tmp/source"),
+        password_file=Path("/tmp/source.pass"),
+    )
+
+    fake_result = Mock()
+    fake_result.returncode = 1
+    fake_result.stdout = ""
+    fake_result.stderr = "Fatal: wrong password"
+
+    with patch("lbm.backup.restic.subprocess.run", return_value=fake_result):
+        result = destination.copy_from(source)
+
+    assert result.ok is False
+    assert result.message == "Fatal: wrong password"
+
 def test_init_repository_returns_success() -> None:
     repository = ResticRepository(
         repository=Path("/tmp/repo"),

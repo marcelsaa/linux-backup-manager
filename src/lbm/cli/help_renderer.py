@@ -22,6 +22,7 @@ COMMANDS: tuple[str, ...] = (
     "check",
     "forget",
     "prune",
+    "migrate",
     "setup",
     "schedule-install",
     "schedule-status",

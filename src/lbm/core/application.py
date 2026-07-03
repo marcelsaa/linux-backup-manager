@@ -134,6 +134,9 @@ class Application:
     def forget(self) -> None:
         self._maintenance().forget()
 
+    def migrate_repository(self) -> bool:
+        return self._maintenance().migrate()
+
     def prune(self) -> None:
         self._maintenance().prune()
 

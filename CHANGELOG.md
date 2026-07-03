@@ -6,7 +6,67 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased
+# v1.3.0 – 2026-07-04
+
+## Sprint 88 – Fix: installer.py-Upgrade-Erkennung war auf Version 1.0.1 begrenzt
+
+### Fixed
+
+* `Installer.detect()` in `installer.py` erkannte einen Upgrade-Modus bisher nur, wenn die
+  installierte Version exakt `1.0.1` war – jede andere über `installer.py` verwaltete
+  Vorversion (z. B. das eigene, seit Sprint 81 auf `1.2.0` laufende Produktivsystem) wurde
+  fälschlich als `partial` abgelehnt. Prüfung generalisiert: Jede vom Kandidaten abweichende
+  Version mit vorhandener Konfigurationsdatei gilt jetzt als Upgrade.
+* Gefunden während der Prüfung, ob die UAT-VM noch gebraucht wird, auf Nutzerauftrag sofort
+  behoben und real in der VM verifiziert (echte 1.2.0-Alt-Installation aus Git-Tag `v1.2.0`
+  aufgesetzt, Upgrade auf `1.3.0rc1` erfolgreich, Config/Passwort/Repository-Zugriff
+  erhalten, `doctor` grün).
+* 1 neuer Test (247 → 248).
+* Details: `docs/reports/SPRINT_88.md`.
+
+## Sprint 87 – Managed-Fresh-Install-Validierung und UAT für 1.3.0rc1
+
+### Validated
+
+* Managed-Fresh-Install-Validierung (`installer.py --dry-run` dann echter Lauf) für
+  `1.3.0rc1` in VM `ubuntu24.04-clone` bestanden: Modus, SHA-256, Launcher-Symlink,
+  Versionsausgabe, Desktop-Eintrag, idempotenter Re-Lauf – alle korrekt.
+* Vollständiges deutsches UAT bestanden (alle Befehle inkl. `menu`, `logs`, `mount`,
+  `migrate`), keine Befunde.
+* Englisches UAT in eingeschränktem, kombinierten VM-Umfang durchgeführt (gezielte
+  Nachprüfung der neuen/risikoreichsten Funktionalität statt vollständig unabhängiger
+  zweiter Session wie beim 1.2.0-Zyklus) – Entscheidung des Projektinhabers zum
+  Prüfumfang noch ausstehend, bevor nach `main` gemergt wird.
+* Details: `docs/reports/SPRINT_87.md`, `docs/reports/USER_ACCEPTANCE_TEST_1.3.0rc1.md`,
+  `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`.
+
+## Sprint 86 – Repository-Migration und Version 1.3.0rc1
+
+### Added
+
+* Neuer Befehl `backup-manager migrate`: kopiert alle Snapshots von einem konfigurierten
+  Backup-Ziel zu einem anderen (z. B. USB → NAS) über Restics eigenen `copy`-Befehl (kein
+  natives Migrate-Tool vorhanden). Erreichbar über Administration → Expertenfunktionen →
+  "Repository migrieren". Benötigt mindestens zwei konfigurierte, erreichbare Ziele;
+  initialisiert ein noch nicht existierendes Ziel-Repository automatisch.
+* Neue `ResticRepository.copy_from()`-Methode sowie ein eigenständiges
+  `MigrationResult`-Dataclass (bewusst keine Zweckentfremdung von `BackupResult`).
+* Roadmap-Review ergab: "Repository migration" war unter Version 1.2 als "auf v1.3
+  verschoben" vermerkt, aber nie tatsächlich unter Version 1.3 nachgeführt – jetzt
+  nachgeholt und implementiert.
+* Manuell gegen zwei echte Restic-Test-Repositories verifiziert (echtes `restic copy`,
+  automatische Ziel-Initialisierung, identischer Inhalt nach der Migration).
+* 9 neue Tests (238 → 247 Tests).
+
+### Changed
+
+* Version auf `1.3.0rc1` angehoben – Feature Freeze für Version 1.3 beginnt hier. Nur noch
+  Bugfixes, Dokumentation und Übersetzungskorrekturen bis zum finalen Release.
+* Dokumentations-Audit: Versionsangaben in allen versionierten Docs (außer `README.md`, das
+  weiterhin die tatsächlich veröffentlichte Version 1.2.0 zeigt) auf 1.3.0 aktualisiert;
+  neue `mount`/`logs`/`migrate`-Einträge in `USER_GUIDE.md`/`README.md` (DE+EN) ergänzt.
+* Wheel `linux_backup_manager-1.3.0rc1` gebaut und mit `twine check` validiert, SHA-256 in
+  `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md` dokumentiert.
 
 ## Sprint 85 – Restore per FUSE-Mount (Version 1.3, Restore Experience)
 

@@ -47,6 +47,8 @@ cli:
       description: "Alte Snapshots gemäß der Aufbewahrungsrichtlinie entfernen"
     prune:
       description: "Unreferenzierte Repository-Daten entfernen"
+    migrate:
+      description: "Snapshots zwischen zwei konfigurierten Zielen kopieren"
     setup:
       description: "Linux Backup Manager konfigurieren"
     schedule-install:
@@ -168,6 +170,16 @@ repository:
   nas_unavailable: "NAS-Ziel ist nicht verfügbar: {path}"
   nas_not_writable: "NAS-Ziel ist nicht beschreibbar: {path}"
   no_target_available: "Kein konfiguriertes Backup-Ziel ist verfügbar."
+migrate:
+  not_enough_targets: "Für eine Migration werden mindestens zwei erreichbare, konfigurierte Backup-Ziele benötigt."
+  select_source: "Quelle auswählen: "
+  select_destination: "Ziel auswählen: "
+  summary: "Snapshots werden kopiert von: {source}\nnach: {target}"
+  confirm: "Migration jetzt starten? Dies kann je nach Datenmenge lange dauern. [j/N]: "
+  initializing: "Zielrepository wird initialisiert: {name}"
+  copying: "Snapshots werden kopiert – dies kann je nach Datenmenge lange dauern..."
+  success: "Migration erfolgreich abgeschlossen."
+  failed: "Migration fehlgeschlagen:"
 scheduler:
   systemd_missing: "systemd wurde nicht gefunden."
   scheduled_backup: "geplantes Backup"
@@ -454,6 +466,7 @@ menu:
     stats: "Snapshot-Statistiken anzeigen"
     forget: "Alte Snapshots entfernen"
     prune: "Repository bereinigen"
+    migrate: "Repository migrieren"
     change_password: "Passwort ändern"
     recovery_sheet: "Recovery-Dokument erstellen"
     export_config: "Konfiguration exportieren"

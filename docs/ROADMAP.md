@@ -2,14 +2,16 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 80 abgeschlossen (2026-07-02); **Version 1.2.0 released 2026-07-02
-and live on GitHub** (`main`, `develop`, tag `v1.2.0`; previously: Version 1.1.0 released
-June 2026). Alle Release-Gates erfüllt: beide UAT-Sprachdurchläufe (Deutsch gegen rc1,
-Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert, voller
-1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und `installer.py`-Managed-Fresh-Install-
-Validierung, jeweils in isolierter VM bestanden. Der zurückgestellte, nicht-blockierende Fund
-UAT-1.2.0-EN-001 (doctor-Sprachfallback bei kaputter Config) wurde in Sprint 83 auf `develop`
-behoben (siehe `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`).
+**Last updated:** Sprint 88 abgeschlossen (2026-07-04). **Version 1.3.0 freigegeben
+2026-07-04** (previously: Version 1.2.0 released 2026-07-02, Version 1.1.0 released June
+2026). Alle 1.3.0-Release-Gates erfüllt: Managed-Fresh-Install-Validierung und deutsches UAT
+vollständig bestanden, englisches UAT in eingeschränktem, kombinierten VM-Umfang durchgeführt
+und vom Projektinhaber als ausreichend akzeptiert, sowie ein zusätzlich gefundener und real
+verifizierter Fix für `installer.py`s Upgrade-Erkennung (bisher fälschlich nur Version 1.0.1
+als Vorversion erkannt) — siehe `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`,
+`docs/reports/USER_ACCEPTANCE_TEST_1.3.0rc1.md`, `docs/reports/SPRINT_87.md`,
+`docs/reports/SPRINT_88.md`.
+
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---
@@ -362,7 +364,8 @@ fresh install. Version 1.1.0rc3 is approved for migration from Version 1.0.1.**
 
 * [x] Interactive configuration menus *(Sprint 51)*
 * [x] Configuration import/export *(Sprint 54)*
-* [ ] Repository migration *(auf v1.3 verschoben – kein natives Restic-Migrate-Tool)*
+* [x] Repository migration – implemented under "Version 1.3" (see below), not 1.2, since
+  Restic has no native migrate tool and the feature needed its own design *(Sprint 86)*
 * [x] Improved diagnostic presentation *(Sprint 52)*
 * [x] Apply default retention values (keep_daily: 14, keep_weekly: 8, keep_monthly: 12, keep_yearly: 3) during setup *(Sprint 46)*
 * [x] Automatic forget and prune after every successful backup (hidden from the user) *(Sprint 46)*
@@ -410,8 +413,10 @@ All entries shall be optional and individually selectable.
 
 ## Documentation
 
-* [ ] User tutorials *(deferred past 1.2.0, does not block the release)*
-* [ ] Additional examples *(deferred past 1.2.0, does not block the release)*
+* [ ] User tutorials *(deferred past 1.2.0, does not block the release; still deferred as of
+  Version 1.3 — content-only backlog item, not part of any specific release cycle)*
+* [ ] Additional examples *(deferred past 1.2.0, does not block the release; still deferred
+  as of Version 1.3 — content-only backlog item, not part of any specific release cycle)*
 * [x] Complete German and English documentation for all user-facing docs *(Sprints 67–69)*
 
 ## Release Candidate Policy
@@ -507,6 +512,41 @@ All entries shall be optional and individually selectable.
   `-h`/`--help` before `argparse.ArgumentParser.parse_args()` (e.g. `add_help=False` plus a
   manual check), load both `LanguageService("de")` and `LanguageService("en")` instances, and
   print the table via `Console`.
+
+## Repository Migration
+
+* [x] Copy all snapshots from one configured backup target to another (e.g. USB → NAS),
+  using Restic's own `copy` command (`--from-repo`/`--from-password-file`) since Restic has
+  no native "migrate" command. New `ResticRepository.copy_from()`, new `migrate` command,
+  reachable from Administration → Expert Functions → "Migrate repository". Originally listed
+  under "Version 1.2 → User Experience" and marked "moved to v1.3", but never actually
+  tracked here until a roadmap review caught the gap *(Sprint 86)*
+* [x] Only offers migration between targets already configured and reachable (via the
+  existing `RepositoryProvider.get_all()`) — does not add a new target-configuration flow;
+  requires at least two reachable, enabled targets *(Sprint 86)*
+* [x] Destination is initialized automatically if not already a Restic repository, then all
+  snapshots are copied; explicit confirmation is required first since this can take a long
+  time for large repositories *(Sprint 86)*
+
+## Release Candidate Policy
+
+* [x] Feature freeze begins with `1.3.0rc1` *(Sprint 86)*
+* [x] Apply only bug fixes, documentation and translation corrections from this point on
+* [x] Managed fresh-install validation (`installer.py`, dry-run then real run) in VM
+  `ubuntu24.04-clone` *(Sprint 87)*
+* [x] Manual German UAT, full pass covering all commands including `menu`, `logs`, `mount`,
+  `migrate` *(Sprint 87)*
+* [x] Manual English UAT — narrower, combined-VM scope covering the new/highest-risk
+  functionality, not a fully independent session as used for 1.2.0; accepted as sufficient
+  by the project owner *(Sprint 87)*
+* [x] Fixed `installer.py` upgrade detection being hardcoded to version `1.0.1` only —
+  found while checking whether the UAT VM was still needed, since the real production
+  system now runs `1.2.0`; verified in the VM with a real `1.2.0` → `1.3.0rc1` upgrade run
+  *(Sprint 88)*
+* [x] Merge `develop` into `main`
+* [x] Release Version 1.3.0 — version bumped from `1.3.0rc1` to final `1.3.0`, remaining
+  user-facing docs audited (`README.md` and its German counterpart, upgrade-path wording in
+  `INSTALL.md`/`ARCHITECTURE.md`), tagged `v1.3.0` *(Sprint 89)*
 
 ---
 

@@ -120,16 +120,25 @@ def test_administration_menu_back_choice_returns_to_main_menu() -> None:
 def test_expert_menu_full_restore_choice_calls_application_restore() -> None:
     menu, application = build_menu()
 
-    with patch("builtins.input", side_effect=["5", "6", "2", "13", "7", "6"]):
+    with patch("builtins.input", side_effect=["5", "6", "2", "14", "7", "6"]):
         menu.run()
 
     application.restore.assert_called_once_with()
 
 
+def test_expert_menu_migrate_choice_calls_application() -> None:
+    menu, application = build_menu()
+
+    with patch("builtins.input", side_effect=["5", "6", "6", "14", "7", "6"]):
+        menu.run()
+
+    application.migrate_repository.assert_called_once_with()
+
+
 def test_expert_menu_change_password_choice_calls_application() -> None:
     menu, application = build_menu()
 
-    with patch("builtins.input", side_effect=["5", "6", "6", "13", "7", "6"]):
+    with patch("builtins.input", side_effect=["5", "6", "7", "14", "7", "6"]):
         menu.run()
 
     application.change_password.assert_called_once_with()
@@ -138,7 +147,7 @@ def test_expert_menu_change_password_choice_calls_application() -> None:
 def test_expert_menu_back_choice_returns_to_administration_menu() -> None:
     menu, application = build_menu()
 
-    with patch("builtins.input", side_effect=["5", "6", "13", "1", "7", "6"]):
+    with patch("builtins.input", side_effect=["5", "6", "14", "1", "7", "6"]):
         menu.run()
 
     application.doctor.assert_called_once_with()
