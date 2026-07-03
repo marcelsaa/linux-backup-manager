@@ -475,6 +475,29 @@ All entries shall be optional and individually selectable.
   status dump, no manual pause needed since the menu itself stays open until the user
   quits).
 
+## CLI Help Output
+
+* [x] Replace argparse's default `-h`/`--help` output with a custom renderer that prints a
+  readable command → description list instead of the current unreadable
+  `{status,health,doctor,...}` choice list with a single generic help line. Motivation
+  (2026-07-03): Marcel reported that `backup-manager -h` gives no indication of what each
+  command actually does, and that the output mixes English command names with a
+  German-or-English description depending on the configured language — inconsistent and
+  confusing.
+* [x] Show both German and English together, but as two separate full-width blocks — the
+  complete German command list first, then the complete English command list below it — not
+  interleaved line-by-line per command. Each block colored consistently with its own ANSI
+  color (`Console` already defines `GREEN`/`RED`/`YELLOW`/`BLUE`; one additional color
+  constant covers the second language), so the two languages read as two clean columns of
+  text rather than an alternating pattern. Confirmed with Marcel via a mockup (2026-07-03).
+* [x] Needs one new i18n key per command (e.g. `cli.commands.backup.description`) in both
+  `de.yaml` and `en.yaml`, since the existing single `cli.command_help` key only covers the
+  generic `-h` argument description, not per-command text.
+* [x] Implementation stays in `lbm/cli/` (presentation-only, no business logic): intercept
+  `-h`/`--help` before `argparse.ArgumentParser.parse_args()` (e.g. `add_help=False` plus a
+  manual check), load both `LanguageService("de")` and `LanguageService("en")` instances, and
+  print the table via `Console`.
+
 ---
 
 # GitHub-Veröffentlichung

@@ -6,6 +6,8 @@ class Console:
     RED = "\033[31m"
     YELLOW = "\033[33m"
     BLUE = "\033[34m"
+    CYAN = "\033[36m"
+    MAGENTA = "\033[35m"
     RESET = "\033[0m"
 
     @staticmethod

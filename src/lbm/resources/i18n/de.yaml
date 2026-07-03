@@ -6,6 +6,59 @@ cli:
   non_interactive_help: "Keine interaktiven Änderungen durchführen."
   interrupted: "Vorgang durch Benutzer abgebrochen."
   input_ended: "Eingabe wurde beendet. Vorgang abgebrochen."
+  options:
+    help: "Diese Hilfe anzeigen"
+    version: "Versionsnummer anzeigen"
+  help:
+    heading_de: "Befehle (Deutsch):"
+    heading_en: "Commands (English):"
+  commands:
+    status:
+      description: "Aktuelle Konfiguration und Systemstatus anzeigen"
+    health:
+      description: "System-Health-Checks durchführen"
+    doctor:
+      description: "Umfassende Read-only-Diagnose ausführen"
+    recovery-info:
+      description: "Passwortsichere Recovery-Informationen anzeigen"
+    recovery-sheet:
+      description: "Passwortfreies Recovery-Dokument erstellen"
+    init:
+      description: "Repository am konfigurierten Ziel erstmalig einrichten (mit Bestätigung)"
+    backup:
+      description: "Neues Backup erstellen"
+    backup-if-due:
+      description: "Backup nur ausführen, falls die letzte erfolgreiche Sicherung überfällig ist (Boot-Timer)"
+    backup-scheduled:
+      description: "Backup nur ausführen, wenn das geplante Intervall erreicht ist (täglicher Timer)"
+    snapshots:
+      description: "Verfügbare Snapshots anzeigen"
+    restore:
+      description: "Dateien aus einem Snapshot wiederherstellen"
+    stats:
+      description: "Repository-Statistiken anzeigen"
+    check:
+      description: "Repository-Integrität prüfen"
+    forget:
+      description: "Alte Snapshots gemäß der Aufbewahrungsrichtlinie entfernen"
+    prune:
+      description: "Unreferenzierte Repository-Daten entfernen"
+    setup:
+      description: "Linux Backup Manager konfigurieren"
+    schedule-install:
+      description: "Automatische Backups installieren und aktivieren"
+    schedule-status:
+      description: "Status des automatischen Backup-Timers anzeigen"
+    schedule-remove:
+      description: "Automatische Backup-Timer deaktivieren und entfernen"
+    change-password:
+      description: "Repository-Passwort ändern"
+    settings:
+      description: "Einzelne Einstellungen interaktiv ändern"
+    export-config:
+      description: "Aktuelle Konfigurationsdatei an einen anderen Ort kopieren"
+    import-config:
+      description: "Externe Konfigurationsdatei validieren und übernehmen"
 common:
   ok: "OK"
   error: "FEHLER"

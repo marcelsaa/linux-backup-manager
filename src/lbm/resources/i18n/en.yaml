@@ -6,6 +6,59 @@ cli:
   non_interactive_help: "Do not perform interactive changes."
   interrupted: "Operation cancelled by user."
   input_ended: "Input ended. Operation cancelled."
+  options:
+    help: "Show this help message"
+    version: "Show version number"
+  help:
+    heading_de: "Befehle (Deutsch):"
+    heading_en: "Commands (English):"
+  commands:
+    status:
+      description: "Display current configuration and system status"
+    health:
+      description: "Perform system health checks"
+    doctor:
+      description: "Run comprehensive read-only diagnostics"
+    recovery-info:
+      description: "Display password-safe recovery information"
+    recovery-sheet:
+      description: "Create a password-free recovery document"
+    init:
+      description: "Initialize the configured repository for first use (with confirmation)"
+    backup:
+      description: "Create a new backup"
+    backup-if-due:
+      description: "Run a backup only if the last successful one is overdue (boot timer)"
+    backup-scheduled:
+      description: "Run a backup only when the scheduled interval has been reached (daily timer)"
+    snapshots:
+      description: "Display available snapshots"
+    restore:
+      description: "Restore files from a snapshot"
+    stats:
+      description: "Show repository statistics"
+    check:
+      description: "Verify repository integrity"
+    forget:
+      description: "Remove old snapshots according to the retention policy"
+    prune:
+      description: "Remove unreferenced repository data"
+    setup:
+      description: "Configure Linux Backup Manager"
+    schedule-install:
+      description: "Install and activate automatic backups"
+    schedule-status:
+      description: "Display automatic-backup timer status"
+    schedule-remove:
+      description: "Disable and remove automatic-backup timers"
+    change-password:
+      description: "Change the repository password"
+    settings:
+      description: "Change individual settings interactively"
+    export-config:
+      description: "Copy the current configuration file to another location"
+    import-config:
+      description: "Validate and adopt an external configuration file"
 common:
   ok: "OK"
   error: "ERROR"

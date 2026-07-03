@@ -8,6 +8,18 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 82 – Lesbare, zweisprachige CLI-Hilfe
+
+### Added
+
+* `backup-manager -h`/`--help` zeigt jetzt einen eigenen, lesbaren Hilfetext statt argparses
+  unübersichtlicher Klammerliste aller 23 Befehle: ein vollständiger deutscher Block (türkis)
+  gefolgt von einem vollständigen englischen Block (magenta), jeweils mit Beschreibung pro
+  Befehl. Neues Modul `lbm/cli/help_renderer.py`; neue i18n-Schlüssel
+  `cli.commands.<befehl>.description`, `cli.options.help`, `cli.options.version`,
+  `cli.help.heading_de`/`heading_en` in beiden Katalogen. Zwei neue Farbkonstanten
+  `Console.CYAN`/`Console.MAGENTA`. 6 neue Tests (186 → 192 Tests).
+
 ## Sprint 81 – Desktop-Verknüpfung schließt sich sofort wieder (Fix)
 
 ### Fixed
