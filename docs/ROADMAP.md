@@ -7,9 +7,9 @@ and live on GitHub** (`main`, `develop`, tag `v1.2.0`; previously: Version 1.1.0
 June 2026). Alle Release-Gates erfüllt: beide UAT-Sprachdurchläufe (Deutsch gegen rc1,
 Englisch gegen rc2), UAT-1.2.0-DE-001 behoben und end-to-end nachverifiziert, voller
 1.0.1→1.2.0-Upgrade-Lauf (nicht nur Dry-Run) und `installer.py`-Managed-Fresh-Install-
-Validierung, jeweils in isolierter VM bestanden. Ein nicht-blockierender Fund
-(UAT-1.2.0-EN-001, doctor-Sprachfallback bei kaputter Config) für einen späteren Sprint
-vorgemerkt.
+Validierung, jeweils in isolierter VM bestanden. Der zurückgestellte, nicht-blockierende Fund
+UAT-1.2.0-EN-001 (doctor-Sprachfallback bei kaputter Config) wurde in Sprint 83 auf `develop`
+behoben (siehe `docs/reports/USER_ACCEPTANCE_TEST_1.2.0rc1.md`).
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
 
 ---

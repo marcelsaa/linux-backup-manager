@@ -50,6 +50,42 @@ def test_validation_errors_contain_field_details(tmp_path: Path) -> None:
     assert any("system.host_name" in detail for detail in raised.value.details)
 
 
+def test_detect_language_reads_language_from_an_otherwise_incomplete_config(
+    tmp_path: Path,
+) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system:\n  language: en\n", encoding="utf-8")
+
+    assert ConfigLoader(config_file).detect_language() == "en"
+
+
+def test_detect_language_returns_none_for_a_missing_file(tmp_path: Path) -> None:
+    config_file = tmp_path / "missing.yaml"
+
+    assert ConfigLoader(config_file).detect_language() is None
+
+
+def test_detect_language_returns_none_for_invalid_yaml(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system: [", encoding="utf-8")
+
+    assert ConfigLoader(config_file).detect_language() is None
+
+
+def test_detect_language_returns_none_when_language_is_absent(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system:\n  host_name: test\n", encoding="utf-8")
+
+    assert ConfigLoader(config_file).detect_language() is None
+
+
+def test_detect_language_returns_none_for_an_unknown_language_value(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system:\n  language: fr\n", encoding="utf-8")
+
+    assert ConfigLoader(config_file).detect_language() is None
+
+
 def test_missing_restic_is_not_reported_as_a_config_error() -> None:
     repository = ResticRepository(Path("/tmp/repo"), Path("/tmp/password"))
 

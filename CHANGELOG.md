@@ -8,6 +8,23 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 83 – UAT-1.2.0-EN-001 behoben: Doctor-Sprachfallback bei kaputter Config
+
+### Fixed
+
+* `doctor` (und die Top-Level-Fehlermeldungen von `backup-manager` selbst, z. B. bei
+  `Strg+C`) fielen bei einer nicht ladbaren Konfigurationsdatei immer hart auf Deutsch
+  zurück, statt die dort noch erkennbare `system.language`-Einstellung zu berücksichtigen.
+  Betraf zwei unabhängige Stellen mit demselben Muster:
+  `_configured_language()` in `src/lbm/cli/main.py` und
+  `DoctorService._check_config()` in `src/lbm/services/doctor.py`.
+* Neue Methode `ConfigLoader.detect_language()`: liest `system.language` per lockerem
+  YAML-Parsing, auch wenn die volle Pydantic-Validierung fehlschlägt. Beide Stellen nutzen
+  sie jetzt als Fallback, bevor sie auf den hartkodierten deutschen Standard zurückfallen.
+* `ConfigLoader`s eigene Fehlermeldungstexte bleiben bewusst unverändert deutsch (bekannte,
+  dokumentierte technische Schuld, kein Teil dieses Fixes).
+* 8 neue Tests (192 → 200 Tests).
+
 ## Sprint 82 – Lesbare, zweisprachige CLI-Hilfe
 
 ### Added

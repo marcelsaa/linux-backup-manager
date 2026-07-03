@@ -70,9 +70,12 @@ class DoctorService:
         )
 
     def _check_config(self, results: list[DoctorResult]) -> AppConfig | None:
+        loader = ConfigLoader(self.config_file)
         try:
-            config = ConfigLoader(self.config_file).load()
+            config = loader.load()
         except ConfigurationError as error:
+            language = loader.detect_language() or LanguageService.default_language
+            self.language = LanguageService(language)
             results.append(
                 DoctorResult(
                     self._text("doctor.configuration"),
