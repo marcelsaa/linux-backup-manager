@@ -6,7 +6,21 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased
+# v1.3.1 – 2026-07-04
+
+## Sprint 95 – Patch-Release 1.3.1: Menü-Kurzinfo und Doku auf die Produktion bringen
+
+### Released
+
+* Versions-Bump `1.3.0` → `1.3.1` als schlankes Patch-Release (kein rc, kein VM-UAT –
+  reine Anzeige-Änderung plus Dokumentation, kein Risiko für Daten/Config/Timer), damit
+  `installer.py`s versionsbasierte Upgrade-Erkennung die seit Sprint 92 auf `develop`
+  wartenden Änderungen (Hauptmenü-Kurzinfo, Tutorials, Konfigurationsbeispiele) tatsächlich
+  als Upgrade erkennt und ausliefert – ausgelöst durch den Wunsch, das Hauptmenü auf dem
+  echten Produktivsystem zu aktualisieren.
+* Alle Versionsangaben in den Docs (Header/Fußzeilen, Wheel-Beispieldateiname,
+  `--version`-Beispielausgabe) auf 1.3.1 aktualisiert.
+* Details: `docs/reports/SPRINT_95.md`.
 
 ## Sprint 94 – Verbleibende Roadmap-Backlog-Punkte: Tutorials und Konfigurationsbeispiele
 

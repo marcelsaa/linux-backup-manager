@@ -4,7 +4,7 @@
 
 **[English version](../FAQ.md)**
 
-**Version:** 1.3.0
+**Version:** 1.3.1
 
 ---
 
@@ -145,4 +145,4 @@ Siehe `docs/ROADMAP.md` für abgeschlossene und geplante Arbeit (nur auf Englisc
 
 Linux Backup Manager Dokumentation
 
-Version 1.3.0
+Version 1.3.1
