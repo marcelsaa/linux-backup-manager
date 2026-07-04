@@ -446,8 +446,8 @@ def test_settings_invalid_choice_loops_then_exits(tmp_path: Path) -> None:
 def test_settings_language_change_saves_config(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
-    # choice 1 = language, then select "en", then exit
-    with patch("builtins.input", side_effect=["1", "en", "5"]):
+    # choice 1 = language, confirm selection, then select "en", then exit
+    with patch("builtins.input", side_effect=["1", "j", "en", "5"]):
         SetupWizard(config_file).configure_settings()
     saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
     assert saved["system"]["language"] == "en"
@@ -456,10 +456,11 @@ def test_settings_language_change_saves_config(tmp_path: Path) -> None:
 def test_settings_backup_paths_change_saves_config(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
-    # choice 2 = backup paths: decline all 5 defaults, keep /home/test, add custom, exit
+    # choice 2 = backup paths: confirm selection, decline all 5 defaults, keep
+    # /home/test, add custom, exit
     with patch(
         "builtins.input",
-        side_effect=["2", "n", "n", "n", "n", "n", "j", "/home/test/Dokumente", "", "5"],
+        side_effect=["2", "j", "n", "n", "n", "n", "n", "j", "/home/test/Dokumente", "", "5"],
     ):
         SetupWizard(config_file).configure_settings()
     saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
@@ -469,7 +470,7 @@ def test_settings_backup_paths_change_saves_config(tmp_path: Path) -> None:
 def test_settings_creates_backup_file_on_save(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
-    with patch("builtins.input", side_effect=["1", "en", "5"]):
+    with patch("builtins.input", side_effect=["1", "j", "en", "5"]):
         SetupWizard(config_file).configure_settings()
     assert config_file.with_name("config.yaml.bak").exists()
 
@@ -477,9 +478,9 @@ def test_settings_creates_backup_file_on_save(tmp_path: Path) -> None:
 def test_settings_schedule_change_saves_config(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
-    # choice 4 = schedule: keep enabled, set 03:00, interval 7 days, then exit
+    # choice 4 = schedule: confirm selection, keep enabled, set 03:00, interval 7 days, exit
     with (
-        patch("builtins.input", side_effect=["4", "j", "03:00", "7", "5"]),
+        patch("builtins.input", side_effect=["4", "j", "j", "03:00", "7", "5"]),
         patch("lbm.setup.wizard.SystemdScheduler"),
     ):
         SetupWizard(config_file).configure_settings()
@@ -492,7 +493,7 @@ def test_settings_schedule_change_reinstalls_timer(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
     with (
-        patch("builtins.input", side_effect=["4", "j", "03:00", "7", "5"]),
+        patch("builtins.input", side_effect=["4", "j", "j", "03:00", "7", "5"]),
         patch("lbm.setup.wizard.SystemdScheduler") as scheduler_cls,
     ):
         scheduler = scheduler_cls.return_value
@@ -506,9 +507,9 @@ def test_settings_schedule_change_reinstalls_timer(tmp_path: Path) -> None:
 def test_settings_schedule_disable_removes_timer(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
-    # choice 4 = schedule: decline "enabled" question, then exit
+    # choice 4 = schedule: confirm selection, decline "enabled" question, then exit
     with (
-        patch("builtins.input", side_effect=["4", "n", "5"]),
+        patch("builtins.input", side_effect=["4", "j", "n", "5"]),
         patch("lbm.setup.wizard.SystemdScheduler") as scheduler_cls,
     ):
         scheduler = scheduler_cls.return_value
@@ -522,10 +523,45 @@ def test_settings_schedule_disable_removes_timer(tmp_path: Path) -> None:
 def test_settings_non_schedule_change_does_not_touch_timer(tmp_path: Path) -> None:
     config_file = tmp_path / "config.yaml"
     _write_minimal_config(config_file)
-    # choice 1 = language, then exit
+    # choice 1 = language, confirm selection, then exit
     with (
-        patch("builtins.input", side_effect=["1", "en", "5"]),
+        patch("builtins.input", side_effect=["1", "j", "en", "5"]),
         patch("lbm.setup.wizard.SystemdScheduler") as scheduler_cls,
     ):
         SetupWizard(config_file).configure_settings()
     scheduler_cls.assert_not_called()
+
+
+def test_settings_shows_selected_item_before_confirming(tmp_path: Path) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    with patch("builtins.input", side_effect=["2", "n", "5"]) as mocked_input:
+        SetupWizard(config_file).configure_settings()
+    prompts = [call.args[0] for call in mocked_input.call_args_list]
+    assert any("Ausgewählt: Backup-Pfade. Fortfahren?" in prompt for prompt in prompts)
+
+
+def test_settings_declining_confirmation_returns_to_menu_without_changes(
+    tmp_path: Path,
+) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    original = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    # choice 2 = backup paths, decline confirmation, then exit
+    with patch("builtins.input", side_effect=["2", "n", "5"]):
+        SetupWizard(config_file).configure_settings()
+    saved = yaml.safe_load(config_file.read_text(encoding="utf-8"))
+    assert saved["backup"]["paths"] == original["backup"]["paths"]
+
+
+def test_settings_menu_labels_switch_immediately_after_language_change(
+    tmp_path: Path, capsys
+) -> None:
+    config_file = tmp_path / "config.yaml"
+    _write_minimal_config(config_file)
+    # choice 1 = language, confirm, switch to English, then exit (still item 5)
+    with patch("builtins.input", side_effect=["1", "j", "en", "5"]):
+        SetupWizard(config_file).configure_settings()
+    output = capsys.readouterr().out
+    assert "Backup paths" in output
+    assert "Exit" in output

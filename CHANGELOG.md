@@ -6,6 +6,24 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
+# Unreleased
+
+## Sprint 97 – Zwei UX-Bugs aus der echten Nutzung behoben
+
+### Fixed
+
+* Sprachumschaltung in den Einstellungen wirkte nicht sofort: Menüpunkte im `settings`-Menü
+  blieben nach einem Sprachwechsel eingefroren (Labels wurden nur einmalig vor der Schleife
+  übersetzt), und das geführte Hauptmenü zog einen Sprachwechsel überhaupt nicht nach (feste
+  `LanguageService`-Instanz für die gesamte Laufzeit) – erst ein Neustart half. Beide Stellen
+  lesen die Sprache jetzt bei jeder Anzeige frisch nach.
+* Keine Möglichkeit, eine versehentliche Menüauswahl in den Einstellungen abzubrechen (z. B.
+  bei Vertipper) – jede Auswahl zeigt jetzt erst eine Bestätigung ("Ausgewählt: {Label}.
+  Fortfahren?"), bei "nein" zurück ins Menü ohne Änderungen.
+* Nebenbei behoben: ein vorbestehender Test-Isolationsfehler in `test_cli.py`, der die echte
+  Config des Testsystems statt einer isolierten `tmp_path`-Datei las.
+* 4 neue Tests (259 → 263). Details: `docs/reports/SPRINT_97.md`.
+
 # v1.3.1 – 2026-07-04
 
 ## Sprint 95 – Patch-Release 1.3.1: Menü-Kurzinfo und Doku auf die Produktion bringen
