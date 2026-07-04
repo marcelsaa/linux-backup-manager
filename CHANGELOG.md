@@ -8,6 +8,18 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 93 – Englische Verifikation auf dem echten Produktivsystem
+
+### Validated
+
+* Owner-Ausnahme aus Sprint 73 erfüllt: `version`/`status`/`doctor`/`logs`/`-h` und der
+  Hauptmenü-`mount`-Restore-Pfad auf `blackpanther` (echtes Produktivsystem) real auf Englisch
+  verifiziert, auf Nutzerauftrag durchgeführt statt vom Nutzer selbst. Config vorher
+  gesichert, `system.language` temporär auf `en` umgestellt und danach byteidentisch
+  wiederhergestellt; keine state-ändernden Befehle (`setup`, `change-password`,
+  `schedule-install`/`-remove`, `restore`, `migrate`) auf dem Produktivsystem ausgeführt.
+  Keine Befunde. Details: `docs/reports/SPRINT_93.md`.
+
 ## Sprint 92 – Letztes Backup im Hauptmenü anzeigen
 
 ### Added
