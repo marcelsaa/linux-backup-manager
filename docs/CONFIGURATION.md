@@ -171,6 +171,73 @@ exceeded. Failed or incomplete multi-destination backups do not update the succe
 
 ---
 
+# Examples
+
+The setup wizard and the `settings` menu cover every option below interactively — manual
+editing is never required. These examples illustrate a few common scenarios for reference.
+See `docs/TUTORIAL.md` for step-by-step walkthroughs of moving between these scenarios.
+
+## Single USB drive (the default scenario)
+
+```yaml
+targets:
+  usb:
+    enabled: true
+    label: LinuxBackup
+    repository_path: restic/production
+  nas:
+    enabled: false
+    mount_path: /mnt/backup-nas
+    repository_path: restic/production
+```
+
+## USB drive and NAS share in parallel
+
+Both destinations receive every backup; there is no primary/secondary distinction.
+
+```yaml
+targets:
+  usb:
+    enabled: true
+    label: LinuxBackup
+    repository_path: restic/production
+  nas:
+    enabled: true
+    mount_path: /mnt/backup-nas
+    repository_path: restic/production
+```
+
+## Development machine with a larger exclude list
+
+Excludes commonly grown source trees and build artifacts in addition to the defaults.
+
+```yaml
+backup:
+  paths:
+    - ~/Projects
+    - ~/Documents
+  excludes:
+    - ~/.cache
+    - ~/Projects/*/node_modules
+    - ~/Projects/*/.venv
+    - ~/Projects/*/target
+    - ~/Projects/*/build
+```
+
+## Conservative retention for limited storage space
+
+Keeps fewer historical snapshots than the default, trading recovery depth for space.
+
+```yaml
+retention:
+  keep_daily: 7
+  keep_weekly: 4
+  keep_monthly: 3
+  keep_yearly: 1
+```
+
+---
+
 # Notes
 
 The setup wizard creates this file automatically and can update its main operational settings.

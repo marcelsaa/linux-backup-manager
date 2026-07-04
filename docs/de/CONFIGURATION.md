@@ -176,6 +176,76 @@ Erfolgs-Zeitstempel nicht.
 
 ---
 
+# Beispiele
+
+Der Setup-Assistent und das `settings`-Menü decken jede der folgenden Optionen interaktiv ab
+– manuelle Bearbeitung ist nie erforderlich. Diese Beispiele veranschaulichen einige gängige
+Szenarien zur Orientierung. Siehe `docs/de/TUTORIAL.md` für schrittweise Anleitungen, um
+zwischen diesen Szenarien zu wechseln.
+
+## Einzelnes USB-Laufwerk (das Standardszenario)
+
+```yaml
+targets:
+  usb:
+    enabled: true
+    label: LinuxBackup
+    repository_path: restic/production
+  nas:
+    enabled: false
+    mount_path: /mnt/backup-nas
+    repository_path: restic/production
+```
+
+## USB-Laufwerk und NAS-Freigabe parallel
+
+Beide Ziele erhalten jedes Backup; es gibt keine primäre/sekundäre Unterscheidung.
+
+```yaml
+targets:
+  usb:
+    enabled: true
+    label: LinuxBackup
+    repository_path: restic/production
+  nas:
+    enabled: true
+    mount_path: /mnt/backup-nas
+    repository_path: restic/production
+```
+
+## Entwicklungsrechner mit größerer Ausschlussliste
+
+Schließt zusätzlich zu den Standardwerten typischerweise groß werdende Quellbäume und
+Build-Artefakte aus.
+
+```yaml
+backup:
+  paths:
+    - ~/Projekte
+    - ~/Dokumente
+  excludes:
+    - ~/.cache
+    - ~/Projekte/*/node_modules
+    - ~/Projekte/*/.venv
+    - ~/Projekte/*/target
+    - ~/Projekte/*/build
+```
+
+## Konservative Aufbewahrung bei begrenztem Speicherplatz
+
+Behält weniger historische Snapshots als der Standard – tauscht Wiederherstellungstiefe gegen
+Speicherplatz.
+
+```yaml
+retention:
+  keep_daily: 7
+  keep_weekly: 4
+  keep_monthly: 3
+  keep_yearly: 1
+```
+
+---
+
 # Hinweise
 
 Der Setup-Assistent erstellt diese Datei automatisch und kann ihre wichtigsten operativen

@@ -201,7 +201,9 @@ Regular repository checks are recommended.
 
 ## 9. Next Steps
 
-After the installation has completed successfully, continue with the **User Guide** for a detailed explanation of all available commands and configuration options.
+After the installation has completed successfully, continue with the **Tutorials** for
+step-by-step walkthroughs of common tasks, or the **User Guide** for a detailed explanation of
+all available commands and configuration options.
 
 ---
 

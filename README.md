@@ -233,6 +233,7 @@ Summary: 4 OK, 0 warnings, 0 errors
 Detailed documentation is available in the `docs/` directory.
 
 * [Installation Guide](docs/INSTALL.md) ([Deutsch](docs/de/INSTALL.md))
+* [Tutorials](docs/TUTORIAL.md) ([Deutsch](docs/de/TUTORIAL.md))
 * [User Guide](docs/USER_GUIDE.md) ([Deutsch](docs/de/USER_GUIDE.md))
 * [Configuration Reference](docs/CONFIGURATION.md) ([Deutsch](docs/de/CONFIGURATION.md))
 * [Restore Guide](docs/RESTORE.md) ([Deutsch](docs/de/RESTORE.md))

@@ -413,10 +413,13 @@ All entries shall be optional and individually selectable.
 
 ## Documentation
 
-* [ ] User tutorials *(deferred past 1.2.0, does not block the release; still deferred as of
-  Version 1.3 — content-only backlog item, not part of any specific release cycle)*
-* [ ] Additional examples *(deferred past 1.2.0, does not block the release; still deferred
-  as of Version 1.3 — content-only backlog item, not part of any specific release cycle)*
+* [x] User tutorials — `docs/TUTORIAL.md` / `docs/de/TUTORIAL.md`, five task-oriented
+  walkthroughs (first week, restoring a single file, adding a second target, migrating to a
+  new drive, preparing for a forgotten password) complementing the command-reference
+  `USER_GUIDE.md` *(Sprint 94)*
+* [x] Additional examples — a new "Examples" section in `docs/CONFIGURATION.md` /
+  `docs/de/CONFIGURATION.md` with four common scenario configs (single USB, USB+NAS,
+  development-machine excludes, conservative retention) *(Sprint 94)*
 * [x] Complete German and English documentation for all user-facing docs *(Sprints 67–69)*
 
 ## Release Candidate Policy
