@@ -541,14 +541,14 @@ class SetupWizard:
             Console.error(self._text("setup.config_edit_failed", error=error))
             return False
 
-        menu = [
-            ("language", self._text("settings.language")),
-            ("paths", self._text("settings.backup_paths")),
-            ("targets", self._text("settings.targets")),
-            ("schedule", self._text("settings.schedule")),
-        ]
-
         while True:
+            menu = [
+                ("language", self._text("settings.language")),
+                ("paths", self._text("settings.backup_paths")),
+                ("targets", self._text("settings.targets")),
+                ("schedule", self._text("settings.schedule")),
+            ]
+
             print()
             title = self._text("settings.title")
             print(title)
@@ -572,7 +572,12 @@ class SetupWizard:
                 Console.error(self._text("settings.invalid_choice"))
                 continue
 
-            key = menu[choice - 1][0]
+            key, label = menu[choice - 1]
+            if not self._ask_yes_no(
+                self._text("settings.confirm_selection", label=label), True
+            ):
+                continue
+
             if key == "language":
                 self._configure_language(data)
             elif key == "paths":

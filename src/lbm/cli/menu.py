@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from lbm.cli.error_handler import ErrorHandler
 from lbm.core.application import Application
+from lbm.core.config import ConfigLoader
 from lbm.core.errors import ApplicationError
 from lbm.services.language import LanguageService
 from lbm.services.status import format_backup_age
@@ -80,6 +81,7 @@ class MainMenu:
         summary: Callable[[], str] | None = None,
     ) -> None:
         while True:
+            self._refresh_language()
             print()
             title = self._text(title_key)
             print(title)
@@ -109,6 +111,11 @@ class MainMenu:
                 action()
             except ApplicationError as error:
                 ErrorHandler.show(error)
+
+    def _refresh_language(self) -> None:
+        detected = ConfigLoader(self.application.config_file).detect_language()
+        if detected:
+            self.language = LanguageService(detected)
 
     def _text(self, key: str, **values: object) -> str:
         return self.language.translate(key, **values)

@@ -177,7 +177,10 @@ def test_main_returns_nonzero_when_noninteractive_setup_is_incomplete() -> None:
     assert exit_code == 1
 
 
-def test_main_handles_ended_interactive_input_without_traceback(capsys) -> None:
+def test_main_handles_ended_interactive_input_without_traceback(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    monkeypatch.setenv("LBM_CONFIG_FILE", str(tmp_path / "nonexistent-config.yaml"))
     with (
         patch("lbm.cli.main.setup_logging"),
         patch("lbm.cli.main.CommandLineInterface.run", side_effect=EOFError),

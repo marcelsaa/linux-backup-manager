@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 from lbm.cli.menu import MainMenu
@@ -9,6 +10,7 @@ from lbm.services.language import LanguageService
 def build_menu() -> tuple[MainMenu, Mock]:
     application = Mock()
     application.last_successful_backup.return_value = None
+    application.config_file = Path("/nonexistent/config.yaml")
     menu = MainMenu(application, LanguageService("de"))
     return menu, application
 
@@ -158,6 +160,7 @@ def test_expert_menu_back_choice_returns_to_administration_menu() -> None:
 def test_main_menu_is_localized_in_english() -> None:
     application = Mock()
     application.last_successful_backup.return_value = None
+    application.config_file = Path("/nonexistent/config.yaml")
     menu = MainMenu(application, LanguageService("en"))
 
     with patch("builtins.input", side_effect=["6"]) as mocked_input:
@@ -189,6 +192,7 @@ def test_main_menu_shows_last_backup_timestamp_when_recorded(capsys) -> None:
 def test_main_menu_backup_summary_is_localized_in_english() -> None:
     application = Mock()
     application.last_successful_backup.return_value = None
+    application.config_file = Path("/nonexistent/config.yaml")
     menu = MainMenu(application, LanguageService("en"))
 
     with patch("builtins.input", side_effect=["6"]):
@@ -207,3 +211,20 @@ def test_administration_menu_does_not_show_backup_summary(capsys) -> None:
     output = capsys.readouterr().out
     admin_section = output[output.index("Administration") : output.index("1) Doctor")]
     assert "Noch kein Backup durchgeführt" not in admin_section
+
+
+def test_main_menu_switches_language_after_settings_change_it(tmp_path) -> None:
+    config_file = tmp_path / "config.yaml"
+    config_file.write_text("system:\n  language: de\n", encoding="utf-8")
+    application = Mock()
+    application.last_successful_backup.return_value = None
+    application.config_file = config_file
+    application.settings.side_effect = lambda: config_file.write_text(
+        "system:\n  language: en\n", encoding="utf-8"
+    )
+    menu = MainMenu(application, LanguageService("de"))
+
+    with patch("builtins.input", side_effect=["4", "6"]):
+        menu.run()
+
+    assert menu.language.language == "en"

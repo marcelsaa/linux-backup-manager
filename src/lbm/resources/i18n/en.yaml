@@ -378,6 +378,7 @@ settings:
   targets: "Backup targets (USB, NAS)"
   schedule: "Schedule"
   exit: "Exit"
+  confirm_selection: "Selected: {label}. Continue?"
   saved: "Settings saved."
   no_config: "No configuration found. Please run 'backup-manager setup' first."
   invalid_choice: "Invalid choice."
