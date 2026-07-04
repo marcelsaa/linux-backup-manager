@@ -109,7 +109,7 @@ veröffentlichten SHA-256-Hash, führt schreibfreie Preflight-Checks durch und w
 automatisch zwischen Neuinstallation oder dem Upgrade einer zuvor verwalteten Installation:
 
 ```bash
-python3 installer.py linux_backup_manager-1.3.0-py3-none-any.whl \
+python3 installer.py linux_backup_manager-1.3.1-py3-none-any.whl \
   --sha256 <VERÖFFENTLICHTER_SHA256> --dry-run
 ```
 
@@ -266,15 +266,13 @@ Siehe [die Projekt-Roadmap](../ROADMAP.md) für abgeschlossene und geplante Arbe
 
 # Projektstatus
 
-**Aktuelle stabile Version:** 1.3.0
+**Aktuelle stabile Version:** 1.3.1
 
-Linux Backup Manager 1.3.0 ist die aktuelle stabile Version. Sie bringt ein geführtes
-Hauptmenü als neuen Standard-Einstiegspunkt, die Snapshot-Wiederherstellung per
-schreibgeschütztem FUSE-Mount, die Repository-Migration zwischen konfigurierten Zielen sowie
-eine lesbare, zweisprachige CLI-Hilfe – zusätzlich zum interaktiven `settings`-Menü, dem
-Befehl `change-password`, der strukturierten `doctor`-Diagnose, Config-Export/-Import und
-sinnvollen Retention-Standardwerten aus Version 1.2.0. Die Artefakte werden lokal gebaut und
-nicht auf PyPI veröffentlicht.
+Linux Backup Manager 1.3.1 ist die aktuelle stabile Version. Sie bringt eine Kurzinfo zum
+letzten Backup im geführten Hauptmenü sowie aufgabenorientierte Anleitungen und
+Konfigurationsbeispiele – zusätzlich zum geführten Hauptmenü, der Snapshot-Wiederherstellung
+per FUSE-Mount, der Repository-Migration und der lesbaren, zweisprachigen CLI-Hilfe aus
+Version 1.3.0. Die Artefakte werden lokal gebaut und nicht auf PyPI veröffentlicht.
 
 Die Kernfunktionalität wurde implementiert und durch automatisierte Tests, manuelle
 Integrationstests und mehrere Ersteinrichtungsszenarien erfolgreich validiert.
