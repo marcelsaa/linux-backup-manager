@@ -4,6 +4,7 @@ from lbm.cli.error_handler import ErrorHandler
 from lbm.core.application import Application
 from lbm.core.errors import ApplicationError
 from lbm.services.language import LanguageService
+from lbm.services.status import format_backup_age
 from lbm.ui.console import Console
 
 MenuEntry = tuple[str, Callable[[], object] | None]
@@ -27,8 +28,15 @@ class MainMenu:
                 ("menu.main.administration", self._administration_menu),
                 ("menu.main.exit", None),
             ],
+            summary=self._backup_summary,
         )
         return True
+
+    def _backup_summary(self) -> str:
+        formatted = format_backup_age(self.application.last_successful_backup(), self.language)
+        if formatted is None:
+            return self._text("menu.last_backup_none")
+        return self._text("menu.last_backup", value=formatted)
 
     def _administration_menu(self) -> None:
         self._show_menu(
@@ -65,12 +73,19 @@ class MainMenu:
             ],
         )
 
-    def _show_menu(self, title_key: str, entries: list[MenuEntry]) -> None:
+    def _show_menu(
+        self,
+        title_key: str,
+        entries: list[MenuEntry],
+        summary: Callable[[], str] | None = None,
+    ) -> None:
         while True:
             print()
             title = self._text(title_key)
             print(title)
             print("=" * len(title))
+            if summary is not None:
+                print(summary())
             print()
             for index, (label_key, _) in enumerate(entries, start=1):
                 print(f"{index}) {self._text(label_key)}")

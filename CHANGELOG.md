@@ -6,6 +6,26 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
+# Unreleased
+
+## Sprint 92 – Letztes Backup im Hauptmenü anzeigen
+
+### Added
+
+* Das Hauptmenü zeigt jetzt bei jeder Anzeige eine Statuszeile über den Menüpunkten mit dem
+  Zeitpunkt des letzten erfolgreichen Backups (z. B. "Letztes Backup: 04.07.2026 01:59:54 (vor
+  3 Stunde(n))") bzw. "Noch kein Backup durchgeführt", falls noch keines gelaufen ist. Kein
+  neuer Menüpunkt – reine Kopfzeile, aktualisiert sich nach jeder Rückkehr ins Hauptmenü (z. B.
+  nach einem gestarteten Backup). Administrations-/Expertenmenüs zeigen die Zeile bewusst
+  nicht.
+* Neue `Application.last_successful_backup()`-Methode (dünne Delegation an
+  `BackupStateStore`) sowie eine wiederverwendbare `format_backup_age()`-Funktion in
+  `lbm/services/status.py`, die die bisher in `StatusService` private Altersformatierung
+  (Minuten/Stunden/Tage) jetzt für Status und Hauptmenü gemeinsam bereitstellt.
+* Auf Nutzerwunsch direkt nach dem echten Produktiv-Upgrade auf 1.3.0 ergänzt: "hier fehlt mir
+  noch die Kurzinfo zum Status und wann das letzte Backup gelaufen ist".
+* 11 neue Tests (259 gesamt).
+
 # v1.3.0 – 2026-07-04
 
 ## Sprint 91 – GitHub-Release v1.3.0 mit Assets

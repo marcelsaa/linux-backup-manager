@@ -9,6 +9,25 @@ from lbm.core.state import BackupStateStore
 from lbm.services.language import LanguageService
 
 
+def format_backup_age(last_backup: datetime | None, language: LanguageService) -> str | None:
+    """Return "<date> (<age>)" for the given timestamp, or None if there is none."""
+    if last_backup is None:
+        return None
+    delta = datetime.now(UTC) - last_backup
+    age = _format_age(delta, language)
+    return f"{last_backup.astimezone().strftime('%d.%m.%Y %H:%M:%S')} ({age})"
+
+
+def _format_age(delta: timedelta, language: LanguageService) -> str:
+    total_seconds = int(delta.total_seconds())
+    if total_seconds < 3600:
+        minutes = max(1, total_seconds // 60)
+        return language.translate("common.age_minutes", minutes=minutes)
+    if total_seconds < 86400:
+        return language.translate("common.age_hours", hours=total_seconds // 3600)
+    return language.translate("common.age_days", days=delta.days)
+
+
 class StatusService:
     def __init__(self, config: AppConfig, config_file: Path) -> None:
         self.config = config
@@ -74,22 +93,8 @@ class StatusService:
         last_backup = BackupStateStore.from_config(
             self.config.paths.state_dir
         ).last_successful_backup()
-        if last_backup:
-            delta = datetime.now(UTC) - last_backup
-            age = self._format_age(delta)
-            last_text = f"{last_backup.astimezone().strftime('%d.%m.%Y %H:%M:%S')} ({age})"
-        else:
-            last_text = "-"
+        last_text = format_backup_age(last_backup, self.language) or "-"
         self._line("status.last_backup", last_text)
-
-    def _format_age(self, delta: timedelta) -> str:
-        total_seconds = int(delta.total_seconds())
-        if total_seconds < 3600:
-            minutes = max(1, total_seconds // 60)
-            return self.language.translate("common.age_minutes", minutes=minutes)
-        if total_seconds < 86400:
-            return self.language.translate("common.age_hours", hours=total_seconds // 3600)
-        return self.language.translate("common.age_days", days=delta.days)
 
     def _heading(self, key: str) -> None:
         heading = self.language.translate(key)

@@ -443,6 +443,8 @@ menu:
   title: "Linux Backup Manager"
   prompt: "Choice: "
   invalid_choice: "Invalid choice."
+  last_backup: "Last backup: {value}"
+  last_backup_none: "No backup has been performed yet"
   main:
     backup: "Run backup"
     restore: "Restore files"

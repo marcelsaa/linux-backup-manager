@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
 
 from lbm.cli.menu import MainMenu
@@ -7,6 +8,7 @@ from lbm.services.language import LanguageService
 
 def build_menu() -> tuple[MainMenu, Mock]:
     application = Mock()
+    application.last_successful_backup.return_value = None
     menu = MainMenu(application, LanguageService("de"))
     return menu, application
 
@@ -155,9 +157,53 @@ def test_expert_menu_back_choice_returns_to_administration_menu() -> None:
 
 def test_main_menu_is_localized_in_english() -> None:
     application = Mock()
+    application.last_successful_backup.return_value = None
     menu = MainMenu(application, LanguageService("en"))
 
     with patch("builtins.input", side_effect=["6"]) as mocked_input:
         menu.run()
 
     assert mocked_input.call_args.args[0] == "Choice: "
+
+
+def test_main_menu_shows_no_backup_yet_when_none_recorded(capsys) -> None:
+    menu, application = build_menu()
+    application.last_successful_backup.return_value = None
+
+    with patch("builtins.input", side_effect=["6"]):
+        menu.run()
+
+    assert "Noch kein Backup durchgeführt" in capsys.readouterr().out
+
+
+def test_main_menu_shows_last_backup_timestamp_when_recorded(capsys) -> None:
+    menu, application = build_menu()
+    application.last_successful_backup.return_value = datetime.now(UTC) - timedelta(hours=2)
+
+    with patch("builtins.input", side_effect=["6"]):
+        menu.run()
+
+    assert "Letztes Backup:" in capsys.readouterr().out
+
+
+def test_main_menu_backup_summary_is_localized_in_english() -> None:
+    application = Mock()
+    application.last_successful_backup.return_value = None
+    menu = MainMenu(application, LanguageService("en"))
+
+    with patch("builtins.input", side_effect=["6"]):
+        menu.run()
+
+    assert "No backup has been performed yet" in menu._backup_summary()
+
+
+def test_administration_menu_does_not_show_backup_summary(capsys) -> None:
+    menu, application = build_menu()
+    application.last_successful_backup.return_value = None
+
+    with patch("builtins.input", side_effect=["5", "7", "6"]):
+        menu.run()
+
+    output = capsys.readouterr().out
+    admin_section = output[output.index("Administration") : output.index("1) Doctor")]
+    assert "Noch kein Backup durchgeführt" not in admin_section
