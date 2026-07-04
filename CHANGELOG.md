@@ -8,6 +8,24 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # Unreleased
 
+## Sprint 94 – Verbleibende Roadmap-Backlog-Punkte: Tutorials und Konfigurationsbeispiele
+
+### Added
+
+* Neue `docs/TUTORIAL.md` / `docs/de/TUTORIAL.md`: fünf aufgabenorientierte
+  Schritt-für-Schritt-Anleitungen (erste Woche, eine einzelne Datei wiederherstellen, ein
+  zweites Backup-Ziel hinzufügen, Backups auf ein neues Laufwerk umziehen, Vorbereitung auf
+  ein vergessenes Passwort) – ergänzt die befehlsorientierte `USER_GUIDE.md` um
+  szenario-basierte Walkthroughs.
+* Neuer "Examples"-Abschnitt in `docs/CONFIGURATION.md` / `docs/de/CONFIGURATION.md` mit vier
+  gängigen Beispiel-Konfigurationen (einzelnes USB-Laufwerk, USB+NAS parallel,
+  Entwicklungsrechner mit größerer Ausschlussliste, konservative Aufbewahrung).
+* Verlinkt aus `README.md`/`docs/de/README.md` (Dokumentationsliste) und
+  `docs/INSTALL.md`/`docs/de/INSTALL.md` ("Next Steps").
+* Schließt die letzten beiden offenen Roadmap-Punkte ("User tutorials", "Additional
+  examples", seit Version 1.2 zurückgestellt) ab – `docs/ROADMAP.md` enthält damit keine
+  offenen Punkte mehr.
+
 ## Sprint 93 – Englische Verifikation auf dem echten Produktivsystem
 
 ### Validated

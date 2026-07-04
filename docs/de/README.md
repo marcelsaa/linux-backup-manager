@@ -242,6 +242,7 @@ Zusammenfassung: 4 OK, 0 Warnungen, 0 Fehler
 Ausführliche Dokumentation befindet sich im `docs/`-Verzeichnis.
 
 * [Installationsanleitung](INSTALL.md)
+* [Anleitungen](TUTORIAL.md)
 * [Benutzerhandbuch](USER_GUIDE.md)
 * [Konfigurationsreferenz](CONFIGURATION.md)
 * [Restore-Anleitung](RESTORE.md)

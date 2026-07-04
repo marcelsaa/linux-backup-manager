@@ -213,7 +213,8 @@ Regelmäßige Repository-Prüfungen werden empfohlen.
 
 ## 9. Nächste Schritte
 
-Nach erfolgreicher Installation im **Benutzerhandbuch** weiterlesen für eine ausführliche
+Nach erfolgreicher Installation weiter mit den **Anleitungen** für schrittweise
+Walkthroughs häufiger Aufgaben, oder dem **Benutzerhandbuch** für eine ausführliche
 Erklärung aller verfügbaren Befehle und Konfigurationsoptionen.
 
 ---
