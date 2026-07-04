@@ -547,6 +547,8 @@ All entries shall be optional and individually selectable.
 * [x] Release Version 1.3.0 — version bumped from `1.3.0rc1` to final `1.3.0`, remaining
   user-facing docs audited (`README.md` and its German counterpart, upgrade-path wording in
   `INSTALL.md`/`ARCHITECTURE.md`), tagged `v1.3.0` *(Sprint 89)*
+* [x] Pushed to GitHub — `main`, `develop`, tag `v1.3.0` *(Sprint 90)*
+* [x] GitHub Release `v1.3.0` with wheel + `installer.py` + SHA-256 as assets *(Sprint 91)*
 
 ---
 

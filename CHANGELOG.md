@@ -8,6 +8,14 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 # v1.3.0 – 2026-07-04
 
+## Sprint 91 – GitHub-Release v1.3.0 mit Assets
+
+### Released
+
+* GitHub-Release `v1.3.0` angelegt: Wheel (`linux_backup_manager-1.3.0-py3-none-any.whl`)
+  und `installer.py` als Assets, SHA-256-Werte in den Release-Notes.
+  https://github.com/marcelsaa/linux-backup-manager/releases/tag/v1.3.0
+
 ## Sprint 90 – Zu GitHub gepusht
 
 ### Released
