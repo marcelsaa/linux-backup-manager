@@ -2,7 +2,7 @@
 
 # Architecture
 
-**Version:** 1.3.1
+**Version:** 1.3.2
 
 ---
 
@@ -254,4 +254,4 @@ The architecture follows the following principles:
 
 Linux Backup Manager Documentation
 
-Version 1.3.1
+Version 1.3.2

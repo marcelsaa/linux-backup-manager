@@ -1,6 +1,6 @@
 [project]
 name = "linux-backup-manager"
-version = "1.3.1"
+version = "1.3.2"
 description = "Backup-Manager für Linux-Systeme mit Restic und mehreren Backup-Zielen"
 readme = "README.md"
 license = "GPL-3.0-only"

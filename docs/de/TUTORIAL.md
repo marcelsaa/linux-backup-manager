@@ -4,7 +4,7 @@
 
 **[English Version](../TUTORIAL.md)**
 
-**Version:** 1.3.1
+**Version:** 1.3.2
 
 ---
 
@@ -117,4 +117,4 @@ Verlust des Zugriffs auf sämtliche Backups.
 
 Linux Backup Manager Dokumentation
 
-Version 1.3.1
+Version 1.3.2
