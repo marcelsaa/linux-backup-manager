@@ -55,7 +55,9 @@ Before using any command except `setup`, make sure the initial setup has been co
 
 Opens the guided main menu — the default entry point when `backup-manager` is run without a
 command (for example from the application-menu shortcut). The menu stays open until you choose
-to exit, so multiple actions can be performed in one session.
+to exit, so multiple actions can be performed in one session. It shows the time of the last
+successful backup above the menu items every time it is displayed, so you can tell at a glance
+whether a backup is due without opening Status.
 
 ## Command
 

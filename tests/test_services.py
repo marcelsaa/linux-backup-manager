@@ -252,6 +252,23 @@ def test_successful_backup_records_state(tmp_path: Path) -> None:
     assert (tmp_path / "backup-state.json").is_file()
 
 
+def test_last_successful_backup_returns_none_without_prior_backup(tmp_path: Path) -> None:
+    application = Application()
+    application.config = make_config()
+    application.config.paths.state_dir = str(tmp_path)
+
+    assert application.last_successful_backup() is None
+
+
+def test_last_successful_backup_returns_recorded_timestamp(tmp_path: Path) -> None:
+    application = Application()
+    application.config = make_config()
+    application.config.paths.state_dir = str(tmp_path)
+    BackupStateStore(tmp_path).record_success()
+
+    assert application.last_successful_backup() is not None
+
+
 def test_backup_if_due_skips_a_recent_backup(tmp_path: Path) -> None:
     application = Application()
     application.config = make_config()

@@ -58,7 +58,9 @@ erfolgreich abgeschlossen wurde.
 
 Öffnet das geführte Hauptmenü – der Standard-Einstiegspunkt, wenn `backup-manager` ohne Befehl
 aufgerufen wird (z. B. über die Anwendungsmenü-Verknüpfung). Das Menü bleibt geöffnet, bis
-"Beenden" gewählt wird, sodass mehrere Aktionen in einer Sitzung ausgeführt werden können.
+"Beenden" gewählt wird, sodass mehrere Aktionen in einer Sitzung ausgeführt werden können. Über
+den Menüpunkten steht bei jeder Anzeige der Zeitpunkt des letzten erfolgreichen Backups, damit
+auf einen Blick erkennbar ist, ob ein Backup fällig ist, ohne erst "Status" zu öffnen.
 
 ## Befehl
 

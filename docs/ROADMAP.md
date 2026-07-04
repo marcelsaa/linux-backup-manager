@@ -489,6 +489,12 @@ All entries shall be optional and individually selectable.
   instead of running the plain `status` command once and exiting. `installer.py`'s `Exec`
   line is back to invoking the launcher directly (the Sprint 81 "Press Enter to close" pause
   hack is no longer needed, since the menu itself keeps the terminal open) *(Sprint 84)*
+* [x] Main menu shows a one-line last-backup summary above the menu items every time it is
+  displayed (e.g. "Last backup: 04.07.2026 01:59:54 (3 hour(s) ago)" or "No backup has been
+  performed yet"), so the user does not need to open Status just to see whether a backup is
+  due — reuses `BackupStateStore`/the existing age-bucketing logic from `status`, does not
+  add a new menu item. Motivation: Marcel noted after the real production upgrade to 1.3.0
+  that the menu gave no quick indication of backup recency *(Sprint 92)*
 
 ## CLI Help Output
 

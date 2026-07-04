@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
 from lbm.core.config import AppConfig, ConfigLoader
@@ -41,6 +42,10 @@ class Application:
 
     def status(self) -> None:
         StatusService(self._load_config(), self.config_file).run()
+
+    def last_successful_backup(self) -> datetime | None:
+        config = self._load_config()
+        return BackupStateStore.from_config(config.paths.state_dir).last_successful_backup()
 
     def health(self) -> None:
         HealthService(self._load_config()).run()
