@@ -6,7 +6,16 @@ The project follows Semantic Versioning and keeps a chronological history of all
 
 ---
 
-# Unreleased
+# v1.3.2 – 2026-07-04
+
+## Sprint 98 – Patch-Release 1.3.2
+
+### Released
+
+* Versions-Bump `1.3.1` → `1.3.2`, wieder als schlankes Patch-Release (kein rc, kein
+  VM-UAT). Bringt die in Sprint 97 behobenen Bugs (Sprachumschaltung, Zurück-Navigation in
+  den Einstellungen) auf die Produktion.
+* Details: `docs/reports/SPRINT_98.md`.
 
 ## Sprint 97 – Zwei UX-Bugs aus der echten Nutzung behoben
 

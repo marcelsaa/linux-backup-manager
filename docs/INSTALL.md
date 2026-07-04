@@ -4,7 +4,7 @@
 
 **[Deutsche Version](de/INSTALL.md)**
 
-**Version:** 1.3.1
+**Version:** 1.3.2
 
 ---
 
@@ -64,7 +64,7 @@ Place `installer.py` next to the release wheel. Use the exact SHA-256 published 
 First run the write-free detection and preflight:
 
 ```bash
-python3 installer.py linux_backup_manager-1.3.1-py3-none-any.whl \
+python3 installer.py linux_backup_manager-1.3.2-py3-none-any.whl \
   --sha256 <PUBLISHED_SHA256> --dry-run
 ```
 
@@ -118,7 +118,7 @@ backup-manager --version
 Expected output:
 
 ```text
-backup-manager 1.3.1
+backup-manager 1.3.2
 ```
 
 ---
@@ -209,4 +209,4 @@ all available commands and configuration options.
 
 Linux Backup Manager Documentation
 
-Version 1.3.1
+Version 1.3.2

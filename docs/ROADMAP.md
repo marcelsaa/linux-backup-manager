@@ -2,16 +2,18 @@
 
 # Project Roadmap
 
-**Last updated:** Sprint 95 abgeschlossen (2026-07-04). **Version 1.3.1 freigegeben
-2026-07-04** (previously: Version 1.3.0 released 2026-07-04, Version 1.2.0 released
-2026-07-02, Version 1.1.0 released June 2026). 1.3.1 is a lightweight patch release (no rc,
-no VM UAT — display-only change plus documentation, no risk to data/config/timers) adding the
-main-menu last-backup summary (Sprint 92) and the closed tutorials/examples backlog items
-(Sprint 94). All 1.3.0-Release-Gates were fulfilled beforehand: managed fresh-install
-validation and German UAT fully passed, English UAT in a narrower, combined VM scope accepted
-by the project owner, plus a fix for `installer.py`'s upgrade detection (previously only
-recognized version 1.0.1 as a prior version) found and verified for real — see
-`docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`, `docs/reports/USER_ACCEPTANCE_TEST_1.3.0rc1.md`,
+**Last updated:** Sprint 98 abgeschlossen (2026-07-04). **Version 1.3.2 freigegeben
+2026-07-04** (previously: Version 1.3.1 released 2026-07-04, Version 1.3.0 released
+2026-07-04, Version 1.2.0 released 2026-07-02, Version 1.1.0 released June 2026). 1.3.2 is
+another lightweight patch release (no rc, no VM UAT) fixing two interactive-menu bugs found
+by the project owner during real production use of 1.3.1: a language change in `settings`
+did not take effect until the whole program restarted, and there was no way to cancel out of
+a settings sub-flow after an accidental menu choice — see `docs/reports/SPRINT_97.md`,
+`docs/reports/SPRINT_98.md`. All 1.3.0-Release-Gates were fulfilled beforehand: managed
+fresh-install validation and German UAT fully passed, English UAT in a narrower, combined VM
+scope accepted by the project owner, plus a fix for `installer.py`'s upgrade detection
+(previously only recognized version 1.0.1 as a prior version) found and verified for real —
+see `docs/reports/RELEASE_CANDIDATE_1.3.0rc1.md`, `docs/reports/USER_ACCEPTANCE_TEST_1.3.0rc1.md`,
 `docs/reports/SPRINT_87.md`, `docs/reports/SPRINT_88.md`, `docs/reports/SPRINT_95.md`.
 
 Repository öffentlich seit 2026-07-01: https://github.com/marcelsaa/linux-backup-manager
@@ -703,5 +705,5 @@ decisions that govern this evolution are documented in the **Design Philosophy**
 
 Linux Backup Manager Documentation
 
-Stable Version 1.3.1, live auf GitHub (Sprint 95 abgeschlossen) ·
+Stable Version 1.3.2, live auf GitHub (Sprint 98 abgeschlossen) ·
 Öffentlich auf GitHub: marcelsaa/linux-backup-manager

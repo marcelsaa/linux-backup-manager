@@ -4,7 +4,7 @@
 
 **[Deutsche Version](de/RESTORE.md)**
 
-**Version:** 1.3.1
+**Version:** 1.3.2
 
 ---
 
@@ -204,4 +204,4 @@ Regular restore tests are the best way to ensure that valuable data can actually
 
 Linux Backup Manager Documentation
 
-Version 1.3.1
+Version 1.3.2

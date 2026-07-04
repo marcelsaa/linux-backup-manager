@@ -2,7 +2,7 @@
 
 # Quality Assurance Test Plan
 
-**Version:** 1.3.1
+**Version:** 1.3.2
 
 ---
 
@@ -374,4 +374,4 @@ A release candidate is considered ready when:
 
 Linux Backup Manager Documentation
 
-Version 1.3.1
+Version 1.3.2
